@@ -87,10 +87,14 @@
 <meta property="og:site_name" content="张利君的博客">
 <meta property="og:description" content="并发编程基础拾遗在看并发的书或者看并发相关的博客时，会发现一些知识点会遗漏或者之前没有看到，这里去总结一下。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-02-03T15:56:32.988Z">
+<meta property="og:image" content="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/QQ20190212-012519%402x.png">
+<meta property="og:image" content="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/QQ20190212-012744%402x.png">
+<meta property="og:image" content="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/QQ20190212-013622%402x.png">
+<meta property="og:updated_time" content="2019-02-11T17:38:50.418Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="并发编程——基础拾遗">
 <meta name="twitter:description" content="并发编程基础拾遗在看并发的书或者看并发相关的博客时，会发现一些知识点会遗漏或者之前没有看到，这里去总结一下。">
+<meta name="twitter:image" content="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/QQ20190212-012519%402x.png">
 
 
 
@@ -404,7 +408,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  992
+                  1,701
                 </span>
               
 
@@ -420,7 +424,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  4
+                  7
                 </span>
               
             </div>
@@ -461,7 +465,21 @@
 <p>这样的设计是体现的设计模式中的一个简单模板方法，在调用start方法的同时其实是调用你重写的run方法，其他的start0和一些线程状态的判断都在start方法中作为不变的部分，而变的run方法则供使用者去实现run方法。</p>
 <h4 id="Runnable接口相关"><a href="#Runnable接口相关" class="headerlink" title="Runnable接口相关"></a>Runnable接口相关</h4><h5 id="runnable接口的作用"><a href="#runnable接口的作用" class="headerlink" title="runnable接口的作用"></a>runnable接口的作用</h5><p>Runnable接口创建线程，这种创建线程的方式可以将run方法的逻辑从new thread的控制中抽离出来，这里如果耦合在new Thread中，没有体现业务可执行逻辑和线程控制分离开，体现了面向对象的思想。其实这种方式体现的是一种策略模式，Runnable接口就像策略模式中的策略接口，实现Runnable接口的run方法的类都是一个线程运行的策略，同时Runnable设计成了函数式接口，也更加灵活。</p>
 <h3 id="Thread-API相关"><a href="#Thread-API相关" class="headerlink" title="Thread API相关"></a>Thread API相关</h3><h4 id="new-Thread构造函数"><a href="#new-Thread构造函数" class="headerlink" title="new Thread构造函数"></a>new Thread构造函数</h4><p>Thread构造函数有多个参数的重载，这里去记录下相关的构造函数，并且每个构造函数中参数的含义。</p>
-<h5 id="new-Thread"><a href="#new-Thread" class="headerlink" title="new Thread()"></a><strong>new Thread()</strong></h5><h5 id="new-Thread-Runnable-target"><a href="#new-Thread-Runnable-target" class="headerlink" title="new Thread(Runnable target)"></a><strong>new Thread(Runnable target)</strong></h5><h5 id="new-Thread-ThreadGroup-g"><a href="#new-Thread-ThreadGroup-g" class="headerlink" title="new Thread(ThreadGroup g)"></a><strong>new Thread(ThreadGroup g)</strong></h5>
+<h5 id="new-Thread"><a href="#new-Thread" class="headerlink" title="new Thread()"></a><strong>new Thread()</strong></h5><p>创建线程对象Thread，默认有一个线程名，以Thread-开头，从0开始数。</p>
+<h5 id="new-Thread-Runnable-target"><a href="#new-Thread-Runnable-target" class="headerlink" title="new Thread(Runnable target)"></a><strong>new Thread(Runnable target)</strong></h5><p>如果在构造Thread的时候没有传递Runnable或者没有复写Thread的run方法，该Thread将不会调用任何东西，如果传递了Runnable接口的实例，或者复写了Thread的run方法，则会执行该方法的逻辑单元（逻辑代码）。</p>
+<h5 id="new-Thread-ThreadGroup-g"><a href="#new-Thread-ThreadGroup-g" class="headerlink" title="new Thread(ThreadGroup g)"></a><strong>new Thread(ThreadGroup g)</strong></h5><p>在创建线程的时候，如果构造函数中未传入threadGroup，则thread会默认获取父线程的threadGroup作为该线程的threadGroup。此时子线程和父线程将会在同一个ThreadGropu中。这时候可以通过threadGroup提供的api去获取一些信息。</p>
+<p>比如threadGroup.getActiveCount 获取活跃线程数。</p>
+<p>比如threadGroup.enumerate(new Thread[]) 是将所有活跃线程枚举到一个数组中。</p>
+<h5 id="new-Thread-long-stackSize"><a href="#new-Thread-long-stackSize" class="headerlink" title="new Thread(long stackSize)"></a><strong>new Thread(long stackSize)</strong></h5><p>stackSize是平常用的比较少的，这里要清楚jvm的一个结构：（这里简单用图去展示了jmm和虚拟机栈中栈帧结构）。jmm的结构：</p>
+<p><img src="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/QQ20190212-012519%402x.png" alt=""></p>
+<p>关于变量的存储，这里可以看一下下面代码中的注释：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">NewThreadWithStackSize</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 注意这里不是局部变量，所以这里的int i是放入方法区的</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * bytes这个变量存放在方法区中，里面存放的是对象在堆内存中的地址</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">byte</span>[] bytes = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">1024</span>];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// main函数也是一个线程</span></span><br><span class="line">        <span class="comment">// create a thread by jvm named 'main' and 创建一个虚拟机栈</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 局部变量 放入局部变量表中</span></span><br><span class="line">        <span class="keyword">int</span> j = <span class="number">0</span>;</span><br><span class="line">        <span class="comment">// arr在局部变量表中，对象还是放入堆内存中</span></span><br><span class="line">        <span class="keyword">int</span>[] arr = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">1024</span>];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>栈帧的结构：<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/QQ20190212-012744%402x.png" alt=""></p>
+<p>这里可以做一个栈溢出的的例子，来为一个线程分配固定栈空间的大小，看看大概操作栈的次数（这里只是一个大概的数值）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">NewThreadWithStackSize2</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 指定stackSize的new Thread构造函数</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        Thread thread = <span class="keyword">new</span> Thread(<span class="keyword">null</span>, <span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    add(<span class="number">1</span>);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (Error r) &#123;</span><br><span class="line">                    r.printStackTrace();</span><br><span class="line">                    System.out.println(count);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">(<span class="keyword">int</span> i)</span> </span>&#123;</span><br><span class="line">                count ++;</span><br><span class="line">                add(i+<span class="number">1</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, <span class="string">"test-stackSize"</span>, <span class="number">1</span>&lt;&lt;<span class="number">23</span>); <span class="comment">// 1 右移23位 大概是8mb 给当前线程thread分配了8m的stackSize 进行递归栈溢出</span></span><br><span class="line"></span><br><span class="line">        thread.start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到count的数值是：<br><img src="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/QQ20190212-013622%402x.png" alt=""></p>
+<p>我们可以知道：构造Thread的时候传入stacksize表示该线程占用的stack大小，如果没有指定stacksize的大小，默认是0，0代表着会忽略该参数，该参数会被JNI函数去调用。需要注意：该参数有一些平台有效，有些平台则无效。可以通过jvm参数 -Xss10m 来设置stacksize的大小</p>
+
       
     </div>
     
@@ -491,7 +509,7 @@
   <p><span>本文标题:</span><a href="/blog/2018/12/31/并发编程——基础拾遗/">并发编程——基础拾遗</a></p>
   <p><span>文章作者:</span><a href="/" title="访问 张利君 的个人博客">张利君</a></p>
   <p><span>发布时间:</span>2018年12月31日 - 17:12</p>
-  <p><span>最后更新:</span>2019年02月03日 - 23:02</p>
+  <p><span>最后更新:</span>2019年02月12日 - 01:02</p>
   <p><span>原始链接:</span><a href="/blog/2018/12/31/并发编程——基础拾遗/" title="并发编程——基础拾遗">https://zhanglijun1217.github.io/2018/12/31/并发编程——基础拾遗/</a>
     <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://zhanglijun1217.github.io/2018/12/31/并发编程——基础拾遗/"  aria-label="复制成功！"></i></span>
   </p>
@@ -715,7 +733,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#并发编程基础拾遗"><span class="nav-number">1.</span> <span class="nav-text">并发编程基础拾遗</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#main线程"><span class="nav-number">1.0.1.</span> <span class="nav-text">main线程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#线程生命周期"><span class="nav-number">1.0.2.</span> <span class="nav-text">线程生命周期</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#start-方法和run方法的一个设计"><span class="nav-number">1.0.3.</span> <span class="nav-text">start()方法和run方法的一个设计</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Runnable接口相关"><span class="nav-number">1.0.4.</span> <span class="nav-text">Runnable接口相关</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#runnable接口的作用"><span class="nav-number">1.0.4.1.</span> <span class="nav-text">runnable接口的作用</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Thread-API相关"><span class="nav-number">1.1.</span> <span class="nav-text">Thread API相关</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#new-Thread构造函数"><span class="nav-number">1.1.1.</span> <span class="nav-text">new Thread构造函数</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#new-Thread"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">new Thread()</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#new-Thread-Runnable-target"><span class="nav-number">1.1.1.2.</span> <span class="nav-text">new Thread(Runnable target)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#new-Thread-ThreadGroup-g"><span class="nav-number">1.1.1.3.</span> <span class="nav-text">new Thread(ThreadGroup g)</span></a></li></ol></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#并发编程基础拾遗"><span class="nav-number">1.</span> <span class="nav-text">并发编程基础拾遗</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#main线程"><span class="nav-number">1.0.1.</span> <span class="nav-text">main线程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#线程生命周期"><span class="nav-number">1.0.2.</span> <span class="nav-text">线程生命周期</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#start-方法和run方法的一个设计"><span class="nav-number">1.0.3.</span> <span class="nav-text">start()方法和run方法的一个设计</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Runnable接口相关"><span class="nav-number">1.0.4.</span> <span class="nav-text">Runnable接口相关</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#runnable接口的作用"><span class="nav-number">1.0.4.1.</span> <span class="nav-text">runnable接口的作用</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Thread-API相关"><span class="nav-number">1.1.</span> <span class="nav-text">Thread API相关</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#new-Thread构造函数"><span class="nav-number">1.1.1.</span> <span class="nav-text">new Thread构造函数</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#new-Thread"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">new Thread()</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#new-Thread-Runnable-target"><span class="nav-number">1.1.1.2.</span> <span class="nav-text">new Thread(Runnable target)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#new-Thread-ThreadGroup-g"><span class="nav-number">1.1.1.3.</span> <span class="nav-text">new Thread(ThreadGroup g)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#new-Thread-long-stackSize"><span class="nav-number">1.1.1.4.</span> <span class="nav-text">new Thread(long stackSize)</span></a></li></ol></li></ol></li></ol></li></ol></div>
             
 
           </div>
@@ -750,7 +768,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">43.4k</span>
+    <span title="Site words total count">44.1k</span>
   
 </div>
 
@@ -778,7 +796,7 @@
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共43.4k字</span>
+  <span class="post-count">博客全站共44.1k字</span>
 </div>
 
         
