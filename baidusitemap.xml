@@ -4,8 +4,31 @@
 
     
   <url>
+    <loc>https://zhanglijun1217.github.io/blog/2019/02/24/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E2%80%94%E2%80%94%E7%BA%BF%E7%A8%8B%E7%8A%B6%E6%80%81%EF%BC%882%EF%BC%89/</loc>
+    <lastmod>2019-02-24T06:51:05.862Z</lastmod>
+    <data>
+        <display>
+        <title>并发编程——线程状态（2）</title>
+        <pubTime>2019-02-24T06:13:27.000Z</pubTime>
+        
+        <tag>线程状态</tag>
+         
+         
+           
+             
+              <breadCrumb title="并发编程" url="https://zhanglijun1217.github.io/blog/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
+          
+             
+              <breadCrumb title="并发基础" url="https://zhanglijun1217.github.io/blog/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/%E5%B9%B6%E5%8F%91%E5%9F%BA%E7%A1%80/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>https://zhanglijun1217.github.io/blog/2019/02/21/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E2%80%94%E2%80%94Thread-API/</loc>
-    <lastmod>2019-02-21T17:12:57.053Z</lastmod>
+    <lastmod>2019-02-24T06:51:05.862Z</lastmod>
     <data>
         <display>
         <title>并发编程——Thread API</title>
@@ -28,7 +51,7 @@
     
   <url>
     <loc>https://zhanglijun1217.github.io/blog/2018/12/31/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E2%80%94%E2%80%94%E5%9F%BA%E7%A1%80%E6%8B%BE%E9%81%97/</loc>
-    <lastmod>2019-02-21T17:12:47.034Z</lastmod>
+    <lastmod>2019-02-24T06:50:58.853Z</lastmod>
     <data>
         <display>
         <title>并发编程——基础拾遗</title>
