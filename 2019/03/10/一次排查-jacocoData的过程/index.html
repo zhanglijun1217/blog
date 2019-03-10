@@ -90,7 +90,7 @@
 <meta property="og:image" content="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/WX20190310-222010%402x.png">
 <meta property="og:image" content="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/WX20190310-223514%402x.png">
 <meta property="og:image" content="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/WX20190310-224134%402x.png">
-<meta property="og:updated_time" content="2019-03-10T15:41:54.462Z">
+<meta property="og:updated_time" content="2019-03-10T15:59:19.812Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="一次排查$jacocoData的过程">
 <meta name="twitter:description" content="起因最近在开发过程中，遇到了一个奇怪的现象，在测试环境去利用反射拿一个类的字段时，发现拿到的field数组中多了一个奇怪的变量：$jacocoData，是一个static的boolean数组：">
@@ -397,7 +397,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  411
+                  421
                 </span>
               
 
@@ -444,9 +444,9 @@
 <p><img src="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/WX20190310-224134%402x.png" alt=""></p>
 <p>这里就不是网上说的很多编译时修改字节码来实现测试覆盖率的功能。</p>
 <h2 id="解决"><a href="#解决" class="headerlink" title="解决"></a>解决</h2><p>后来问了部署jacoco服务的框架组人员，发现是用了java Agent在修改运行时字节码实现的，拉了dump发现确实在运行时进行字节码修改的，而在jacoco官方的github也曾经有过这个问题的issue：</p>
-<p><a href="https://stackoverflow.com/questions/16981831/invalid-column-name-jacocodata-using-ant-jacoco-and-junit" target="_blank" rel="noopener"></a></p>
-<p>关于java Agent技术可以参考博客:<a href="https://www.cnblogs.com/aspirant/p/8796974.html" target="_blank" rel="noopener"></a>，这里提到了asm技术和agent探针参数。</p>
-<p>所以在反射取字段时候遇到这个坑比较难排查，记录一下。这里的解决办法参考了博客:<a href="https://www.cnblogs.com/aspirant/p/8796974.html" target="_blank" rel="noopener"></a>，即使用了是否为复合字段的field方法解决。</p>
+<p><a href="https://stackoverflow.com/questions/16981831/invalid-column-name-jacocodata-using-ant-jacoco-and-junit" target="_blank" rel="noopener">jacocoData</a></p>
+<p>关于java Agent技术可以参考博客:<a href="https://www.cnblogs.com/aspirant/p/8796974.html" target="_blank" rel="noopener">agent博客</a>，这里提到了asm技术和agent探针参数。</p>
+<p>所以在反射取字段时候遇到这个坑比较难排查，记录一下。这里的解决办法参考了博客:<a href="https://www.cnblogs.com/aspirant/p/8796974.html" target="_blank" rel="noopener">$jacocoData问题的解决</a>，即使用了是否为复合字段的field方法解决。</p>
 
       
     </div>
