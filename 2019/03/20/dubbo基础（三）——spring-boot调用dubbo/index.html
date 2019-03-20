@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="dubbo基础,spring boot," />
 
 
 
@@ -79,16 +79,22 @@
 
 
 
-<meta name="description" content="坚持是一种力量">
-<meta property="og:type" content="website">
-<meta property="og:title" content="张利君的博客">
-<meta property="og:url" content="https://zhanglijun1217.github.io/archives/2018/page/3/index.html">
+<meta name="description" content="dubbo集成spring bootspring boot肯定是现在用的做多的开发框架，而dubbo框架是最流行的rpc框架之一，整合springboot和dubbo的使用很有必要。本篇博客还是根据上一篇中的dubbo简单demo的简单示例来整合spring boot。(上一篇传送门：dubbo-demo)">
+<meta name="keywords" content="dubbo基础,spring boot">
+<meta property="og:type" content="article">
+<meta property="og:title" content="dubbo基础（三）——spring boot调用dubbo">
+<meta property="og:url" content="https://zhanglijun1217.github.io/2019/03/20/dubbo基础（三）——spring-boot调用dubbo/index.html">
 <meta property="og:site_name" content="张利君的博客">
-<meta property="og:description" content="坚持是一种力量">
+<meta property="og:description" content="dubbo集成spring bootspring boot肯定是现在用的做多的开发框架，而dubbo框架是最流行的rpc框架之一，整合springboot和dubbo的使用很有必要。本篇博客还是根据上一篇中的dubbo简单demo的简单示例来整合spring boot。(上一篇传送门：dubbo-demo)">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/dubbo-starter%E7%89%88%E6%9C%AC.png">
+<meta property="og:image" content="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/maven-ignore.png">
+<meta property="og:image" content="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/boot-provider.png">
+<meta property="og:updated_time" content="2019-03-20T14:54:23.940Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="张利君的博客">
-<meta name="twitter:description" content="坚持是一种力量">
+<meta name="twitter:title" content="dubbo基础（三）——spring boot调用dubbo">
+<meta name="twitter:description" content="dubbo集成spring bootspring boot肯定是现在用的做多的开发框架，而dubbo框架是最流行的rpc框架之一，整合springboot和dubbo的使用很有必要。本篇博客还是根据上一篇中的dubbo简单demo的简单示例来整合spring boot。(上一篇传送门：dubbo-demo)">
+<meta name="twitter:image" content="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/dubbo-starter%E7%89%88%E6%9C%AC.png">
 
 
 
@@ -118,13 +124,13 @@
 
 
 
-  <link rel="canonical" href="https://zhanglijun1217.github.io/archives/2018/page/3/"/>
+  <link rel="canonical" href="https://zhanglijun1217.github.io/2019/03/20/dubbo基础（三）——spring-boot调用dubbo/"/>
 
 
 
 
 
-  <title>归档 | 张利君的博客</title>
+  <title>dubbo基础（三）——spring boot调用dubbo | 张利君的博客</title>
   
 
 
@@ -143,7 +149,7 @@
     
   
 
-  <div class="container sidebar-position-left page-archive">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <a href="https://github.com/zhanglijun1217"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png" alt="Fork me on GitHub"></a>
@@ -282,410 +288,285 @@
           <div id="content" class="content">
             
 
+  <div id="posts" class="posts-expand">
+    
+
+  
+
   
   
   
-  <div class="post-block archive">
-    <div id="posts" class="posts-collapse">
-      <span class="archive-move-on"></span>
 
-      <span class="archive-page-counter">
-        
-        
-         
-        
-        OK! 目前共计 41 篇日志。 继续努力。
-      </span>
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/03/20/dubbo基础（三）——spring-boot调用dubbo/">
 
-      
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="张利君">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张利君的博客">
+    </span>
+
+    
+      <header class="post-header">
 
         
         
+          <h1 class="post-title" itemprop="name headline">dubbo基础（三）——spring boot调用dubbo</h1>
         
 
-        
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-20T22:11:35+08:00">
+                2019-03-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
           
-          <div class="collection-title">
-            <h1 class="archive-year" id="archive-year-2018">2018</h1>
-          </div>
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/blog/2018/09/02/Function函数式接口的优化代码应用/" itemprop="url">
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
               
-                <span itemprop="name">Function函数式接口的优化代码应用</span>
+                <span class="post-meta-item-text">分类于</span>
               
-            </a>
-        
-      </h2>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/dubbo/" itemprop="url" rel="index">
+                    <span itemprop="name">dubbo</span>
+                  </a>
+                </span>
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-09-02T14:27:40+08:00"
-              content="2018-09-02" >
-          09-02
-        </time>
-      </div>
+                
+                
+              
+            </span>
+          
 
-    </header>
-  </article>
+          
+            
+          
 
+          
+          
+             <span id="/blog/2019/03/20/dubbo基础（三）——spring-boot调用dubbo/" class="leancloud_visitors" data-flag-title="dubbo基础（三）——spring boot调用dubbo">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
 
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,065
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  5
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/blog/2018/08/29/记一次freemarker错误排查/" itemprop="url">
-              
-                <span itemprop="name">记一次freemarker错误排查</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-08-29T00:33:50+08:00"
-              content="2018-08-29" >
-          08-29
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
       
 
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/blog/2018/08/25/spring-boot-actutor/" itemprop="url">
-              
-                <span itemprop="name">spring boot actuator</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-08-25T19:02:32+08:00"
-              content="2018-08-25" >
-          08-25
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
+      
+        <h2 id="dubbo集成spring-boot"><a href="#dubbo集成spring-boot" class="headerlink" title="dubbo集成spring boot"></a>dubbo集成spring boot</h2><p>spring boot肯定是现在用的做多的开发框架，而dubbo框架是最流行的rpc框架之一，整合springboot和dubbo的使用很有必要。本篇博客还是根据上一篇中的dubbo简单demo的简单示例来整合spring boot。(上一篇传送门：<a href="https://zhanglijun1217.github.io/blog/2019/03/18/dubbo%E5%9F%BA%E7%A1%80%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%E2%80%94%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E8%B0%83%E7%94%A8demo/">dubbo-demo</a>)</p>
+<a id="more"></a>
+<h3 id="依赖"><a href="#依赖" class="headerlink" title="依赖"></a>依赖</h3><p>因为是springboot项目，dubbo官方也提供了dubbo的starter。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- dubbo starter --&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;com.alibaba.boot&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;dubbo-spring-boot-starter&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;0.2.0&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+<p>这里注意下spring boot的版本和dubbo-starter的版本映射关系，这里使用的是spring boot 2.1.3版本，用的是0.2版本的dubbo依赖，而1.x版本的spring boot框架则对应0.1.x版本的dubbo starter。</p>
+<p><img src="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/dubbo-starter%E7%89%88%E6%9C%AC.png" alt=""></p>
+<p>这里引入了starter之后也引入了之前在上一篇中的zk客户端依赖。</p>
+<p>这里也遇到了idea新建maven module之后的一些坑，一直没办法加载对应的类，这里提示下可以尝试查看idea的maven配置，是不是把新加入的module勾选了ignore：</p>
+<p><img src="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/maven-ignore.png" alt=""></p>
+<h3 id="boot-provider"><a href="#boot-provider" class="headerlink" title="boot-provider"></a>boot-provider</h3><p>这里也是去先构造对应的服务提供者，提供一个用户地址的简单查询服务。但是spring boot多采用注解驱动和避免了很多繁琐的xml配置，所以这里我们去将dubbo的全局配置配置在application.properties文件中，而关于服务的暴露也是用注解暴露。</p>
+<h4 id="dubbo应用配置"><a href="#dubbo应用配置" class="headerlink" title="dubbo应用配置"></a>dubbo应用配置</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># 应用方信息</span><br><span class="line">dubbo.application.name=boot-dubbo-demo</span><br><span class="line"># 注册中心地址</span><br><span class="line">dubbo.registry.address=zookeeper:<span class="comment">//127.0.0.1:2181</span></span><br><span class="line"># 协议名称</span><br><span class="line">dubbo.protocol.name=dubbo</span><br><span class="line"># 协议端口</span><br><span class="line">dubbo.protocol.port=<span class="number">20800</span></span><br></pre></td></tr></table></figure>
+<p>可以看到这里其实就是对应的之前普通spring项目中使用dubbo的provider.xml的标签配置。</p>
+<p><strong>这里要注意是在启动类上要加入@EnableDubbo注解开启spring boot对dubbo的支持。</strong></p>
+<h4 id="服务的暴露"><a href="#服务的暴露" class="headerlink" title="服务的暴露"></a>服务的暴露</h4><p>这里是用的@Service注解暴露服务，其实也是对应着dubbo-provider.xml中的dubbo:service标签，这里要注意是不要引入是spring的@Service注解。可以看到这个service注解中也有dubbo:service中对应的属性，比如这里写入的version版本信息。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.alibaba.dubbo.config.annotation.Service;</span><br><span class="line"><span class="keyword">import</span> javabean.UserAddress;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"><span class="keyword">import</span> service.user.UserService;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> 夸克</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@date</span> 2019/3/18 00:15</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@Service</span>(version = <span class="string">"boot-1.0.0"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserServiceImpl</span> <span class="keyword">implements</span> <span class="title">UserService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;UserAddress&gt; <span class="title">getUserAddressList</span><span class="params">(String userId)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        System.out.println(Thread.currentThread().getName() + <span class="string">" 调用到了消费者"</span>);</span><br><span class="line">        <span class="keyword">final</span> UserAddress userAddress1 = <span class="keyword">new</span> UserAddress()</span><br><span class="line">                .setUserId(<span class="number">1L</span>)</span><br><span class="line">                .setAddressId(<span class="number">1L</span>)</span><br><span class="line">                .setAddressNo(<span class="string">"123"</span>)</span><br><span class="line">                .setAddressStr(<span class="string">"庆丰大街"</span>)</span><br><span class="line">                .setUserName(<span class="string">"小张"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">final</span> UserAddress userAddress2  = <span class="keyword">new</span> UserAddress()</span><br><span class="line">                .setUserId(<span class="number">1L</span>)</span><br><span class="line">                .setAddressId(<span class="number">2L</span>)</span><br><span class="line">                .setAddressNo(<span class="string">"456"</span>)</span><br><span class="line">                .setAddressStr(<span class="string">"西湖"</span>)</span><br><span class="line">                .setUserName(<span class="string">"小王"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ArrayList&lt;UserAddress&gt;()&#123;&#123;</span><br><span class="line">            add(userAddress1);</span><br><span class="line">            add(userAddress2);</span><br><span class="line">        &#125;&#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>启动provider项目，就可以在dubbo-admin上看到注册到注册中心的服务。</p>
+<p><img src="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/boot-provider.png" alt=""></p>
+<h3 id="boot-consumer"><a href="#boot-consumer" class="headerlink" title="boot-consumer"></a>boot-consumer</h3><p>消费者端要配置大体和服务提供者端是一样的，也是用@Refernce注解来代替对应的dubbo:refernce标签。这里也要在启动类上去加入@EnableDubbo注解。</p>
+<h4 id="dubbo的配置"><a href="#dubbo的配置" class="headerlink" title="dubbo的配置"></a>dubbo的配置</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># 应用方信息</span><br><span class="line">dubbo.application.name=boot-dubbo-demo</span><br><span class="line"># 注册中心地址</span><br><span class="line">dubbo.registry.address=zookeeper:<span class="comment">//127.0.0.1:2181</span></span><br><span class="line"></span><br><span class="line"># 启动端口</span><br><span class="line">server.port=<span class="number">8081</span></span><br></pre></td></tr></table></figure>
+<p>这里的端口是8081是因为provider和consumer是两个spring bootmodule 都是启动类去启动的，这里测试在一台电脑上要是不同的端口。</p>
+<h4 id="引用暴露的服务"><a href="#引用暴露的服务" class="headerlink" title="引用暴露的服务"></a>引用暴露的服务</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OrderServiceImpl</span> <span class="keyword">implements</span> <span class="title">OrderService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Reference</span>(version = <span class="string">"boot-1.0.0"</span>, timeout = <span class="number">50000</span>)</span><br><span class="line">    <span class="keyword">private</span> UserService userService;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 生成订单过程：</span></span><br><span class="line"><span class="comment">     *  调用远程接口 查询用户信息</span></span><br><span class="line"><span class="comment">     *  将用户信息去生成订单</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;UserAddress&gt; <span class="title">initOrder</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        List&lt;UserAddress&gt; userAddressList = userService.getUserAddressList(<span class="string">"1"</span>);</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">null</span> != userAddressList &amp;&amp; userAddressList.size() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            System.out.println(<span class="string">"调用远程接口完成"</span>);</span><br><span class="line"></span><br><span class="line">            Optional.of(userAddressList).ifPresent(System.out::println);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> userAddressList;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到@Reference注解中也可对应dubbo:reference标签的属性，这里设置的超时时间和对应的版本。</p>
+<h4 id="简单controller测试"><a href="#简单controller测试" class="headerlink" title="简单controller测试"></a>简单controller测试</h4><p>这里去写了一个简单的controller去测试spring-boot使用dubbo这个框架：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> OrderService orderService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping</span>(path = <span class="string">"/initOrder"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;UserAddress&gt; <span class="title">initOrder</span><span class="params">(@RequestParam(<span class="string">"userId"</span>)</span> Integer userId) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> orderService.initOrder();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="github地址"><a href="#github地址" class="headerlink" title="github地址"></a>github地址</h2><p><a href="https://github.com/zhanglijun1217/dubbo-demo" target="_blank" rel="noopener">https://github.com/zhanglijun1217/dubbo-demo</a></p>
 
       
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/blog/2018/08/18/validate注解做校验/" itemprop="url">
-              
-                <span itemprop="name">validate注解做校验</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-08-18T13:25:26+08:00"
-              content="2018-08-18" >
-          08-18
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/blog/2018/08/16/并发编程——ThreadLocal总结/" itemprop="url">
-              
-                <span itemprop="name">并发编程——ThreadLocal总结</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-08-16T11:06:09+08:00"
-              content="2018-08-16" >
-          08-16
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/blog/2018/08/12/spring中根据Application获取BEAN的工具类/" itemprop="url">
-              
-                <span itemprop="name">spring中根据Application获取BEAN的工具类</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-08-12T22:16:44+08:00"
-              content="2018-08-12" >
-          08-12
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/blog/2018/08/12/Java8中list转map方法总结/" itemprop="url">
-              
-                <span itemprop="name">Java8中list转map方法总结</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-08-12T11:30:21+08:00"
-              content="2018-08-12" >
-          08-12
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/blog/2018/08/04/并发编程——CopyOnWrite容器/" itemprop="url">
-              
-                <span itemprop="name">并发编程——CopyOnWrite容器</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-08-04T15:03:36+08:00"
-              content="2018-08-04" >
-          08-04
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/blog/2018/08/02/并发编程——线程基础/" itemprop="url">
-              
-                <span itemprop="name">并发编程——线程基础（一）</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-08-02T23:50:21+08:00"
-              content="2018-08-02" >
-          08-02
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/blog/2018/08/02/设计模式——策略模式/" itemprop="url">
-              
-                <span itemprop="name">设计模式——策略模式</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-08-02T14:34:53+08:00"
-              content="2018-08-02" >
-          08-02
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
     </div>
+    
+    
+    
+
+    <div>
+      
+      <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+   </div>
+
+    <div>
+      
+        
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+  
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <p><span>本文标题:</span><a href="/blog/2019/03/20/dubbo基础（三）——spring-boot调用dubbo/">dubbo基础（三）——spring boot调用dubbo</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 张利君 的个人博客">张利君</a></p>
+  <p><span>发布时间:</span>2019年03月20日 - 22:03</p>
+  <p><span>最后更新:</span>2019年03月20日 - 22:03</p>
+  <p><span>原始链接:</span><a href="/blog/2019/03/20/dubbo基础（三）——spring-boot调用dubbo/" title="dubbo基础（三）——spring boot调用dubbo">https://zhanglijun1217.github.io/2019/03/20/dubbo基础（三）——spring-boot调用dubbo/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://zhanglijun1217.github.io/2019/03/20/dubbo基础（三）——spring-boot调用dubbo/"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+    $(".fa-clipboard").click(function(){
+      clipboard.on('success', function(){
+        swal({   
+          title: "",   
+          text: '复制成功',
+          icon: "success", 
+          showConfirmButton: true
+          });
+	});
+    });  
+</script>
+
+
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/dubbo基础/" rel="tag"># dubbo基础</a>
+          
+            <a href="/blog/tags/spring-boot/" rel="tag"># spring boot</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2019/03/18/dubbo基础（二）——一个简单调用demo/" rel="next" title="dubbo基础（二）——一个简单调用demo">
+                <i class="fa fa-chevron-left"></i> dubbo基础（二）——一个简单调用demo
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
-
-  
-  <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/blog/archives/2018/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/blog/archives/2018/">1</a><a class="page-number" href="/blog/archives/2018/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/blog/archives/2018/page/4/">4</a><a class="extend next" rel="next" href="/blog/archives/2018/page/4/"><i class="fa fa-angle-right"></i></a>
-  </nav>
+  </article>
 
 
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -693,6 +574,15 @@
 
 
           
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODQ1NS8xNDk4Mw=="></div>
+    </div>
+
+  
+
+
 
         </div>
         
@@ -713,8 +603,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -800,6 +699,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#dubbo集成spring-boot"><span class="nav-number">1.</span> <span class="nav-text">dubbo集成spring boot</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#依赖"><span class="nav-number">1.1.</span> <span class="nav-text">依赖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#boot-provider"><span class="nav-number">1.2.</span> <span class="nav-text">boot-provider</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#dubbo应用配置"><span class="nav-number">1.2.1.</span> <span class="nav-text">dubbo应用配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#服务的暴露"><span class="nav-number">1.2.2.</span> <span class="nav-text">服务的暴露</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#boot-consumer"><span class="nav-number">1.3.</span> <span class="nav-text">boot-consumer</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#dubbo的配置"><span class="nav-number">1.3.1.</span> <span class="nav-text">dubbo的配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#引用暴露的服务"><span class="nav-number">1.3.2.</span> <span class="nav-text">引用暴露的服务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#简单controller测试"><span class="nav-number">1.3.3.</span> <span class="nav-text">简单controller测试</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#github地址"><span class="nav-number">2.</span> <span class="nav-text">github地址</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -963,6 +878,10 @@
   
 
   
+  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/blog/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 
@@ -991,6 +910,17 @@
 
 
 
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
   
 
 
