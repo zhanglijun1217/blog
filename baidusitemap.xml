@@ -4,21 +4,44 @@
 
     
   <url>
-    <loc>https://zhanglijun1217.github.io/blog/2019/03/18/synchronized%E9%94%81%E5%AF%B9%E5%BA%94%E7%9A%84%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B%E7%9F%A5%E8%AF%86/</loc>
-    <lastmod>2019-03-20T14:54:23.940Z</lastmod>
+    <loc>https://zhanglijun1217.github.io/blog/2019/03/20/dubbo%E5%9F%BA%E7%A1%80%EF%BC%88%E5%9B%9B%EF%BC%89%E2%80%94%E2%80%94dubbo%E7%9A%84%E9%85%8D%E7%BD%AE%E5%8A%A0%E8%BD%BD/</loc>
+    <lastmod>2019-03-21T15:41:25.649Z</lastmod>
     <data>
         <display>
-        <title>synchronized锁对应的内存模型知识</title>
-        <pubTime>2019-03-17T16:18:46.000Z</pubTime>
+        <title>dubbo基础（四）——dubbo的配置加载</title>
+        <pubTime>2019-03-20T15:06:06.000Z</pubTime>
         
-        <tag>synchronized</tag>
+        <tag>dubbo配置</tag>
          
-        <tag>内存模型</tag>
+         
+           
+             
+              <breadCrumb title="dubbo" url="https://zhanglijun1217.github.io/blog/categories/dubbo/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://zhanglijun1217.github.io/blog/2018/12/31/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E2%80%94%E2%80%94%E5%9F%BA%E7%A1%80%E6%8B%BE%E9%81%97/</loc>
+    <lastmod>2019-03-21T15:41:17.216Z</lastmod>
+    <data>
+        <display>
+        <title>并发编程——基础拾遗</title>
+        <pubTime>2018-12-31T09:11:05.000Z</pubTime>
+        
+        <tag>并发编程</tag>
+         
+        <tag>多线程</tag>
          
          
            
              
               <breadCrumb title="并发编程" url="https://zhanglijun1217.github.io/blog/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
+          
+             
+              <breadCrumb title="并发基础" url="https://zhanglijun1217.github.io/blog/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/%E5%B9%B6%E5%8F%91%E5%9F%BA%E7%A1%80/"/>
           
         </display>
     </data>
@@ -48,24 +71,21 @@
 
     
   <url>
-    <loc>https://zhanglijun1217.github.io/blog/2018/12/31/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E2%80%94%E2%80%94%E5%9F%BA%E7%A1%80%E6%8B%BE%E9%81%97/</loc>
-    <lastmod>2019-03-20T14:54:20.675Z</lastmod>
+    <loc>https://zhanglijun1217.github.io/blog/2019/03/18/synchronized%E9%94%81%E5%AF%B9%E5%BA%94%E7%9A%84%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B%E7%9F%A5%E8%AF%86/</loc>
+    <lastmod>2019-03-20T14:54:23.940Z</lastmod>
     <data>
         <display>
-        <title>并发编程——基础拾遗</title>
-        <pubTime>2018-12-31T09:11:05.000Z</pubTime>
+        <title>synchronized锁对应的内存模型知识</title>
+        <pubTime>2019-03-17T16:18:46.000Z</pubTime>
         
-        <tag>并发编程</tag>
+        <tag>synchronized</tag>
          
-        <tag>多线程</tag>
+        <tag>内存模型</tag>
          
          
            
              
               <breadCrumb title="并发编程" url="https://zhanglijun1217.github.io/blog/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
-          
-             
-              <breadCrumb title="并发基础" url="https://zhanglijun1217.github.io/blog/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/%E5%B9%B6%E5%8F%91%E5%9F%BA%E7%A1%80/"/>
           
         </display>
     </data>
@@ -113,26 +133,6 @@
 
     
   <url>
-    <loc>https://zhanglijun1217.github.io/blog/2018/08/02/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E2%80%94%E2%80%94%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/</loc>
-    <lastmod>2019-03-16T11:24:27.092Z</lastmod>
-    <data>
-        <display>
-        <title>设计模式——策略模式</title>
-        <pubTime>2018-08-02T06:34:53.000Z</pubTime>
-        
-        <tag>策略模式</tag>
-         
-         
-           
-             
-              <breadCrumb title="设计模式" url="https://zhanglijun1217.github.io/blog/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
     <loc>https://zhanglijun1217.github.io/blog/2019/03/03/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E2%80%94%E2%80%94%E8%A3%85%E9%A5%B0%E8%80%85%E6%A8%A1%E5%BC%8F/</loc>
     <lastmod>2019-03-16T11:24:27.092Z</lastmod>
     <data>
@@ -153,22 +153,19 @@
 
     
   <url>
-    <loc>https://zhanglijun1217.github.io/blog/2019/02/24/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E2%80%94%E2%80%94%E7%BA%BF%E7%A8%8B%E7%8A%B6%E6%80%81%EF%BC%882%EF%BC%89/</loc>
-    <lastmod>2019-03-16T11:24:27.091Z</lastmod>
+    <loc>https://zhanglijun1217.github.io/blog/2018/08/02/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E2%80%94%E2%80%94%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/</loc>
+    <lastmod>2019-03-16T11:24:27.092Z</lastmod>
     <data>
         <display>
-        <title>并发编程——线程状态（2）</title>
-        <pubTime>2019-02-24T06:13:27.000Z</pubTime>
+        <title>设计模式——策略模式</title>
+        <pubTime>2018-08-02T06:34:53.000Z</pubTime>
         
-        <tag>线程状态</tag>
+        <tag>策略模式</tag>
          
          
            
              
-              <breadCrumb title="并发编程" url="https://zhanglijun1217.github.io/blog/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
-          
-             
-              <breadCrumb title="并发基础" url="https://zhanglijun1217.github.io/blog/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/%E5%B9%B6%E5%8F%91%E5%9F%BA%E7%A1%80/"/>
+              <breadCrumb title="设计模式" url="https://zhanglijun1217.github.io/blog/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
           
         </display>
     </data>
@@ -199,19 +196,22 @@
 
     
   <url>
-    <loc>https://zhanglijun1217.github.io/blog/2019/02/25/%E4%BD%BF%E7%94%A8telnet%E6%B5%8B%E8%AF%95dubbo%E6%8E%A5%E5%8F%A3%E5%88%9D%E4%BD%BF%E7%94%A8/</loc>
-    <lastmod>2019-03-16T11:24:27.090Z</lastmod>
+    <loc>https://zhanglijun1217.github.io/blog/2019/02/24/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E2%80%94%E2%80%94%E7%BA%BF%E7%A8%8B%E7%8A%B6%E6%80%81%EF%BC%882%EF%BC%89/</loc>
+    <lastmod>2019-03-16T11:24:27.091Z</lastmod>
     <data>
         <display>
-        <title>使用telnet测试dubbo接口初使用</title>
-        <pubTime>2019-02-25T12:27:13.000Z</pubTime>
+        <title>并发编程——线程状态（2）</title>
+        <pubTime>2019-02-24T06:13:27.000Z</pubTime>
         
-        <tag>telent</tag>
+        <tag>线程状态</tag>
          
          
            
              
-              <breadCrumb title="dubbo" url="https://zhanglijun1217.github.io/blog/categories/dubbo/"/>
+              <breadCrumb title="并发编程" url="https://zhanglijun1217.github.io/blog/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
+          
+             
+              <breadCrumb title="并发基础" url="https://zhanglijun1217.github.io/blog/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/%E5%B9%B6%E5%8F%91%E5%9F%BA%E7%A1%80/"/>
           
         </display>
     </data>
@@ -234,6 +234,26 @@
            
              
               <breadCrumb title="bug记录" url="https://zhanglijun1217.github.io/blog/categories/bug%E8%AE%B0%E5%BD%95/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://zhanglijun1217.github.io/blog/2019/02/25/%E4%BD%BF%E7%94%A8telnet%E6%B5%8B%E8%AF%95dubbo%E6%8E%A5%E5%8F%A3%E5%88%9D%E4%BD%BF%E7%94%A8/</loc>
+    <lastmod>2019-03-16T11:24:27.090Z</lastmod>
+    <data>
+        <display>
+        <title>使用telnet测试dubbo接口初使用</title>
+        <pubTime>2019-02-25T12:27:13.000Z</pubTime>
+        
+        <tag>telent</tag>
+         
+         
+           
+             
+              <breadCrumb title="dubbo" url="https://zhanglijun1217.github.io/blog/categories/dubbo/"/>
           
         </display>
     </data>
