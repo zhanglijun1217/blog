@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="设计模式," />
+  <meta name="keywords" content="dubbo接口属性," />
 
 
 
@@ -79,18 +79,28 @@
 
 
 
-<meta name="description" content="模板方法模板方法很多情况下代码中的业务都可以抽象出一个模板去解决，这时候经常需要用到模板方法。大家经常接触到的是一些业务方法的抽象模板，比如在计算优惠券的流程当中总是有一定的步骤： （1）先计算该商品是否可以拥有优惠券信息 （2）再为该商品绑定优惠券信息 （3）最后回调或者通知向下的流程 今天要记录的是一个通用服务层的模板方法，包含了前置校验、后置处理（是有点像拦截器= =）、finally操作。">
-<meta name="keywords" content="设计模式">
+<meta name="description" content="dubbo的一些配置之前的文章中写了dubbo的初步使用和dubbo和springboot的使用整合，这里来总结下dubbo框架暴露接口常用的配置项。">
+<meta name="keywords" content="dubbo接口属性">
 <meta property="og:type" content="article">
-<meta property="og:title" content="设计模式——模板方法的应用">
-<meta property="og:url" content="https://zhanglijun1217.github.io/2019/02/01/设计模式——模板方法的应用/index.html">
+<meta property="og:title" content="dubbo基础（五）——dubbo接口的特性设置">
+<meta property="og:url" content="https://zhanglijun1217.github.io/2019/03/31/dubbo基础（五）——dubbo接口的特性设置/index.html">
 <meta property="og:site_name" content="张利君的博客">
-<meta property="og:description" content="模板方法模板方法很多情况下代码中的业务都可以抽象出一个模板去解决，这时候经常需要用到模板方法。大家经常接触到的是一些业务方法的抽象模板，比如在计算优惠券的流程当中总是有一定的步骤： （1）先计算该商品是否可以拥有优惠券信息 （2）再为该商品绑定优惠券信息 （3）最后回调或者通知向下的流程 今天要记录的是一个通用服务层的模板方法，包含了前置校验、后置处理（是有点像拦截器= =）、finally操作。">
+<meta property="og:description" content="dubbo的一些配置之前的文章中写了dubbo的初步使用和dubbo和springboot的使用整合，这里来总结下dubbo框架暴露接口常用的配置项。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-02-01T16:57:55.216Z">
+<meta property="og:image" content="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/check%E8%AF%B4%E6%98%8E.png">
+<meta property="og:image" content="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/check%E9%94%99%E8%AF%AF.png">
+<meta property="og:image" content="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/register%E8%BF%9E%E4%B8%8D%E4%B8%8A.png">
+<meta property="og:image" content="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/%E6%8E%A5%E5%8F%A3%E8%B6%85%E6%97%B6.png">
+<meta property="og:image" content="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/%E9%87%8D%E8%AF%95%E6%AC%A1%E6%95%B0.png">
+<meta property="og:image" content="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/%E9%9A%8F%E6%9C%BA%E7%AD%96%E7%95%A5">
+<meta property="og:image" content="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/%E8%BD%AE%E8%AF%A2">
+<meta property="og:image" content="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/%E6%9C%80%E5%B0%8F%E6%B4%BB%E8%B7%83%E6%95%B0">
+<meta property="og:image" content="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/%E4%B8%80%E8%87%B4%E6%80%A7hash">
+<meta property="og:updated_time" content="2019-03-31T16:57:40.965Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="设计模式——模板方法的应用">
-<meta name="twitter:description" content="模板方法模板方法很多情况下代码中的业务都可以抽象出一个模板去解决，这时候经常需要用到模板方法。大家经常接触到的是一些业务方法的抽象模板，比如在计算优惠券的流程当中总是有一定的步骤： （1）先计算该商品是否可以拥有优惠券信息 （2）再为该商品绑定优惠券信息 （3）最后回调或者通知向下的流程 今天要记录的是一个通用服务层的模板方法，包含了前置校验、后置处理（是有点像拦截器= =）、finally操作。">
+<meta name="twitter:title" content="dubbo基础（五）——dubbo接口的特性设置">
+<meta name="twitter:description" content="dubbo的一些配置之前的文章中写了dubbo的初步使用和dubbo和springboot的使用整合，这里来总结下dubbo框架暴露接口常用的配置项。">
+<meta name="twitter:image" content="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/check%E8%AF%B4%E6%98%8E.png">
 
 
 
@@ -120,13 +130,13 @@
 
 
 
-  <link rel="canonical" href="https://zhanglijun1217.github.io/2019/02/01/设计模式——模板方法的应用/"/>
+  <link rel="canonical" href="https://zhanglijun1217.github.io/2019/03/31/dubbo基础（五）——dubbo接口的特性设置/"/>
 
 
 
 
 
-  <title>设计模式——模板方法的应用 | 张利君的博客</title>
+  <title>dubbo基础（五）——dubbo接口的特性设置 | 张利君的博客</title>
   
 
 
@@ -298,7 +308,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/02/01/设计模式——模板方法的应用/">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/03/31/dubbo基础（五）——dubbo接口的特性设置/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="张利君">
@@ -315,7 +325,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">设计模式——模板方法的应用</h1>
+          <h1 class="post-title" itemprop="name headline">dubbo基础（五）——dubbo接口的特性设置</h1>
         
 
         <div class="post-meta">
@@ -327,8 +337,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-01T16:07:57+08:00">
-                2019-02-01
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-31T16:53:39+08:00">
+                2019-03-31
               </time>
             
 
@@ -350,8 +360,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/设计模式/" itemprop="url" rel="index">
-                    <span itemprop="name">设计模式</span>
+                  <a href="/blog/categories/dubbo/" itemprop="url" rel="index">
+                    <span itemprop="name">dubbo</span>
                   </a>
                 </span>
 
@@ -367,7 +377,7 @@
 
           
           
-             <span id="/blog/2019/02/01/设计模式——模板方法的应用/" class="leancloud_visitors" data-flag-title="设计模式——模板方法的应用">
+             <span id="/blog/2019/03/31/dubbo基础（五）——dubbo接口的特性设置/" class="leancloud_visitors" data-flag-title="dubbo基础（五）——dubbo接口的特性设置">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -393,7 +403,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  977
+                  1,405
                 </span>
               
 
@@ -409,7 +419,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  4
+                  5
                 </span>
               
             </div>
@@ -430,24 +440,69 @@
       
 
       
-        <h2 id="模板方法"><a href="#模板方法" class="headerlink" title="模板方法"></a>模板方法</h2><h3 id="模板方法-1"><a href="#模板方法-1" class="headerlink" title="模板方法"></a>模板方法</h3><p>很多情况下代码中的业务都可以抽象出一个模板去解决，这时候经常需要用到模板方法。大家经常接触到的是一些业务方法的抽象模板，比如在计算优惠券的流程当中总是有一定的步骤：</p>
-<p>（1）先计算该商品是否可以拥有优惠券信息</p>
-<p>（2）再为该商品绑定优惠券信息</p>
-<p>（3）最后回调或者通知向下的流程</p>
-<p>今天要记录的是一个通用服务层的模板方法，包含了前置校验、后置处理（是有点像拦截器= =）、finally操作。</p>
-<h3 id="业务processor"><a href="#业务processor" class="headerlink" title="业务processor"></a>业务processor</h3><ol>
-<li>可以定义一个domainProcessor去代表业务操作的processor接口，这个接口可以承接泛型。</li>
+        <h2 id="dubbo的一些配置"><a href="#dubbo的一些配置" class="headerlink" title="dubbo的一些配置"></a>dubbo的一些配置</h2><p>之前的文章中写了dubbo的初步使用和dubbo和springboot的使用整合，这里来总结下dubbo框架暴露接口常用的配置项。</p>
+<a id="more"></a>
+<h3 id="启动时检查"><a href="#启动时检查" class="headerlink" title="启动时检查"></a>启动时检查</h3><p>dubbo提供了在服务启动时的一些检查机制，这个机制包括consumer端对服务提供者的检查、dubbo对注册中心的检查。可以看下官方文档中dubbo:reference标签中关于check属性的配置。</p>
+<p><img src="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/check%E8%AF%B4%E6%98%8E.png" alt=""></p>
+<p>可以看到是默认在启动时检查服务提供者是否存在，不可用时会抛出异常，组织spring初始化。</p>
+<p>我们这里可以将之前demo中的userService服务的消费者上配置check=true(默认就是true)，来看看在不启动服务提供者时的消费者控制台的报错：<br><img src="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/check%E9%94%99%E8%AF%AF.png" alt=""></p>
+<p>是经典的No Provider错误。这里官方文档也对这个配置做了说明：</p>
+<p>如果在配置文件中设置了<code>dubbo.reference.check=false</code>，则是强制改变所有reference的check值，就算配置中部分接口有声明，也会被覆盖。</p>
+<p>同时，也可以在配置文件中设置<code>dubbo.consumer.check=false</code>，这个是设置所有的reference的check属性<strong>默认值</strong>，当配置文件中有对单个reference的check的显式设置，会被覆盖掉 </p>
+<p>这里也可以去看下对注册中心不存在时的错误：</p>
+<p><img src="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/register%E8%BF%9E%E4%B8%8D%E4%B8%8A.png" alt=""></p>
+<p>如果我们在reference标签和register标签中显示配置check=”false”，这些错误只有在调用时才会报错。</p>
+<h3 id="超时"><a href="#超时" class="headerlink" title="超时"></a>超时</h3><p>在dubbo的service和reference标签中都有timeout设置，service标签中timeout是1000ms，代表远程服务调用时间；而reference标签中的timeout设置默认值是继承自dubbo:consumer标签中的默认值，也是1000ms。在前几篇dubbo配置中有提到，timeout的配置遵守一个规则：</p>
+<ul>
+<li>更精准的优先。方法级别配置会覆盖接口级别的配置，接口级别的配置会覆盖全局的provider、consumer配置。</li>
+<li>如果精准级别相同，消费方优先。当配置的颗粒度是相同的，如果消费方设置了超时属性，会覆盖服务提供方超时属性的配置。</li>
+</ul>
+<p>比如这里设置服务提供者的超时是5000ms：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;dubbo:service <span class="class"><span class="keyword">interface</span></span>=<span class="string">"service.user.UserService"</span> ref=<span class="string">"userService"</span> timeout=<span class="string">"5000"</span> </span><br><span class="line">               version=<span class="string">"0.0.1"</span> stub=<span class="string">"service.user.UserServiceStub"</span>&gt;</span><br><span class="line">&lt;/dubbo:service&gt;</span><br></pre></td></tr></table></figure>
+<p>而在消费者配置超时是2000ms：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;dubbo:reference id=<span class="string">"userService"</span> <span class="class"><span class="keyword">interface</span></span>=<span class="string">"service.user.UserService"</span> version=<span class="string">"0.0.1"</span> timeout=<span class="string">"2000"</span>/&gt;</span><br></pre></td></tr></table></figure>
+<p>在服务提供者加入一个3000ms的sleep，这里按照配置的优先级会是消费者的2000ms生效。这里会报dubbo接口调用超时的错误：(错误信息中接口调用花费了2004ms，超时生效的是2000ms配置，报错是waiting server-side response timeout)</p>
+<p><img src="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/%E6%8E%A5%E5%8F%A3%E8%B6%85%E6%97%B6.png" alt=""></p>
+<h3 id="重试次数"><a href="#重试次数" class="headerlink" title="重试次数"></a>重试次数</h3><p>在dubbo:service和dubbo:reference标签中可以设置retries属性来设置接口调用失败时的重试次数，这里重试此时指的是第一次调用之后的重试次数，并且这里的重试会遵守负载均衡的策略。</p>
+<p>service标签中的重试次数默认是2，而reference标签的默认重试次数继承consumer标签的默认次数也是2。这里去简单模拟下有三个服务提给者，调用失败的场景是依靠上边的超时设置，重试次数也尊属消费者优先的规则。</p>
+<p>在不同的端口暴露userService服务，每个服务会打印第几个服务，并且有对应的睡眠时间模拟调用：</p>
+<ol>
+<li>端口是20880，睡眠时间是5000ms</li>
 </ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">DomainProcessor</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 处理业务的方法 返回值现在是void的 也可以自己定义一个通用的类似于上下文的返回值</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> context</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">process</span><span class="params">(T context)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这里承接的泛型context是一个上下文的概念，指的是在一个业务处理processor中的上下文信息，其中可以有计算的参数，计算的结果和一些中间信息。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dubbo:protocol name=<span class="string">"dubbo"</span> port=<span class="string">"20880"</span> /&gt;</span><br><span class="line"></span><br><span class="line">&lt;dubbo:service <span class="class"><span class="keyword">interface</span></span>=<span class="string">"service.user.UserService"</span> ref=<span class="string">"userService"</span></span><br><span class="line">               version=<span class="string">"0.0.1"</span> stub=<span class="string">"service.user.UserServiceStub"</span>&gt;</span><br><span class="line">&lt;/dubbo:service&gt;</span><br></pre></td></tr></table></figure>
 <ol start="2">
-<li>做一个抽象类，去将其中的前置操作、biz操作、后置操作、finally操作定义出来。</li>
+<li>端口是20881，睡眠时间是5000ms</li>
 </ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">AbstractProcessor</span>&lt;<span class="title">T</span>&gt; <span class="keyword">implements</span> <span class="title">DomainProcessor</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 前置处理 主要做一些校验逻辑 编排的时候放在前边</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> context</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">preHandle</span><span class="params">(T context)</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 业务处理 这个是抽象方法 子类去实现具体的逻辑</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> context</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">bizHandle</span><span class="params">(T context)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 后置处理</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> context</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">postHandle</span><span class="params">(T context)</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * last 操作</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> context</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">finallyHandle</span><span class="params">(T context)</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 异常处理</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> context</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> e</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">exceptionHandle</span><span class="params">(T context, Exception e)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// TODO 打印error或者warn级别日志</span></span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> BizException(e.getMessage(), e);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">process</span><span class="params">(T context)</span> </span>&#123;</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 编排流程</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (!preHandle(context)) &#123;</span><br><span class="line"><span class="comment">//                log.warn("处理器前置处理失败，退出。context:&#123;&#125;", context);</span></span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 业务方法</span></span><br><span class="line">            bizHandle(context);</span><br><span class="line">            <span class="comment">// 后置操作</span></span><br><span class="line">            postHandle(context);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            exceptionHandle(context, e);</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            finallyHandle(context);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>可以看到，这里定义了前置操作，这里可以去对biz要用的参数进行一个校验或者一些前置操作，同时将biz定义为了抽象方法，意图在为了让子类去继承时一定要去实现bizHandle这个方法。而exceptionHandle和finallyHandle方法则定义了异常的处理和最终要做的（比如线程快照的清除）。而整个process方法其实就是整个处理器的入口，即对这整个流程的一个编排。</p>
-<p>可以看一个这个模板processor的的具体实现和测试类：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AbstractProcessorTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ThreadLocal&lt;String&gt; contextHolder = <span class="keyword">new</span> ThreadLocal&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// TODO test</span></span><br><span class="line">        TestContext testContext = <span class="keyword">new</span> TestContext();</span><br><span class="line">        contextHolder.set(<span class="string">"aaa"</span>);</span><br><span class="line">        TestProcessor testProcessor = <span class="keyword">new</span> TestProcessor();</span><br><span class="line">        <span class="comment">// 调用process的编排</span></span><br><span class="line">        testProcessor.process(testContext);</span><br><span class="line"></span><br><span class="line">        TestContext exContext = <span class="keyword">new</span> TestContext();</span><br><span class="line">        <span class="comment">// test bizHandle</span></span><br><span class="line">        testProcessor.process(exContext);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">TestProcessor</span> <span class="keyword">extends</span> <span class="title">AbstractProcessor</span>&lt;<span class="title">TestContext</span>&gt; </span>&#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">preHandle</span><span class="params">(TestContext context)</span> </span>&#123;</span><br><span class="line">            <span class="comment">// 前置的一个check或者一个前置操作</span></span><br><span class="line">            String s = contextHolder.get();</span><br><span class="line">            <span class="keyword">if</span> (s == <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"holder中字符串为空"</span>);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            context.setMessage(s);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">postHandle</span><span class="params">(TestContext context)</span> </span>&#123;</span><br><span class="line">            context.setPostStr(<span class="string">"post"</span>);</span><br><span class="line">            System.out.println(<span class="string">"processor 结果是："</span>+ context.isResult());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">finallyHandle</span><span class="params">(TestContext context)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (context.isResult()) &#123;</span><br><span class="line">                contextHolder.remove();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">bizHandle</span><span class="params">(TestContext context)</span> </span>&#123;</span><br><span class="line">            context.setResult(context.getMessage().length()&gt;<span class="number">0</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>这个模板可以作为之后一个处理器的抽象模板，能让代码逻辑很清晰的展现出来，也能解耦了各个处理模块，这里可以总结下。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dubbo:protocol name=<span class="string">"dubbo"</span> port=<span class="string">"20881"</span> /&gt;</span><br><span class="line"></span><br><span class="line">&lt;dubbo:service <span class="class"><span class="keyword">interface</span></span>=<span class="string">"service.user.UserService"</span> ref=<span class="string">"userService"</span></span><br><span class="line">               version=<span class="string">"0.0.1"</span> stub=<span class="string">"service.user.UserServiceStub"</span>&gt;</span><br><span class="line">&lt;/dubbo:service&gt;</span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li>端口是20882，睡眠时间是2000ms</li>
+</ol>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dubbo:protocol name=<span class="string">"dubbo"</span> port=<span class="string">"20882"</span> /&gt;</span><br><span class="line"></span><br><span class="line">&lt;dubbo:service <span class="class"><span class="keyword">interface</span></span>=<span class="string">"service.user.UserService"</span> ref=<span class="string">"userService"</span></span><br><span class="line">               version=<span class="string">"0.0.1"</span> stub=<span class="string">"service.user.UserServiceStub"</span>&gt;</span><br><span class="line">&lt;/dubbo:service&gt;</span><br></pre></td></tr></table></figure>
+<p>而在消费者端配置超时时间是3000ms，所以只有端口是20882提供的服务可以不会因为超时调用失败。</p>
+<p>消费端的配置：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;dubbo:reference id=<span class="string">"userService"</span> <span class="class"><span class="keyword">interface</span></span>=<span class="string">"service.user.UserService"</span> version=<span class="string">"0.0.1"</span> timeout=<span class="string">"3000"</span>/&gt;</span><br></pre></td></tr></table></figure>
+<p>服务启动之后，发起调用可以看到consumer端的日志：</p>
+<p><img src="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/%E9%87%8D%E8%AF%95%E6%AC%A1%E6%95%B0.png" alt=""></p>
+<p>对20880端口暴露的服务调用超时之后，因为默认的负载均衡策略是加权随机调用，这里重试调用了第三个服务接口调用成功。</p>
+<p>这里要知道重试应该配置在幂等的接口上，比如查询、更新等，因为会进行重试进行请求。</p>
+<h3 id="多版本功能"><a href="#多版本功能" class="headerlink" title="多版本功能"></a>多版本功能</h3><p>同一个服务要升级时可能出现服务不稳定的情况，可以使用版本号进行过度，不同的版本号之间是隔离的。</p>
+<p>在service标签上配置的version属性就是服务提供者的版本；而reference标签上的version则代表引用服务的版本。</p>
+<p>我们也在上边使用了0.0.1版本，而和spring boot整合的dubbo接口版本是boot-1.0.0。</p>
+<p>如果配置version=”*” 如下，则表示的是随机引用版本。</p>
+<p><code>&lt;dubbo:reference id=&quot;barService&quot; interface=&quot;com.foo.BarService&quot; version=&quot;*&quot; /&gt;</code></p>
+<h3 id="负载均衡"><a href="#负载均衡" class="headerlink" title="负载均衡"></a>负载均衡</h3><p>dubbo框架对集群环境下提供了多种负载均衡机制：</p>
+<ol>
+<li><p><strong>基于权重的随机负载均衡 Random LoadBalance (dubbo的默认的负载均衡策略)。</strong><br><img src="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/%E9%9A%8F%E6%9C%BA%E7%AD%96%E7%95%A5" alt=""></p>
+</li>
+<li><p><strong>基于权重的轮询负载均衡机制</strong>。</p>
+<p><img src="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/%E8%BD%AE%E8%AF%A2" alt=""></p>
+</li>
+<li><p><strong>最小活跃数负载均衡机制。</strong><br><img src="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/%E6%9C%80%E5%B0%8F%E6%B4%BB%E8%B7%83%E6%95%B0" alt=""></p>
+</li>
+<li><p><strong>一致性hash负载均衡(注意这里是一致性hash，因为集群中的服务节点可以增加、减少)。</strong></p>
+</li>
+</ol>
+<p><img src="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/%E4%B8%80%E8%87%B4%E6%80%A7hash" alt=""></p>
 
       
     </div>
@@ -475,12 +530,12 @@
   <!-- JS库 sweetalert 可修改路径 -->
   <script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script>
   <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-  <p><span>本文标题:</span><a href="/blog/2019/02/01/设计模式——模板方法的应用/">设计模式——模板方法的应用</a></p>
+  <p><span>本文标题:</span><a href="/blog/2019/03/31/dubbo基础（五）——dubbo接口的特性设置/">dubbo基础（五）——dubbo接口的特性设置</a></p>
   <p><span>文章作者:</span><a href="/" title="访问 张利君 的个人博客">张利君</a></p>
-  <p><span>发布时间:</span>2019年02月01日 - 16:02</p>
-  <p><span>最后更新:</span>2019年02月02日 - 00:02</p>
-  <p><span>原始链接:</span><a href="/blog/2019/02/01/设计模式——模板方法的应用/" title="设计模式——模板方法的应用">https://zhanglijun1217.github.io/2019/02/01/设计模式——模板方法的应用/</a>
-    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://zhanglijun1217.github.io/2019/02/01/设计模式——模板方法的应用/"  aria-label="复制成功！"></i></span>
+  <p><span>发布时间:</span>2019年03月31日 - 16:03</p>
+  <p><span>最后更新:</span>2019年04月01日 - 00:04</p>
+  <p><span>原始链接:</span><a href="/blog/2019/03/31/dubbo基础（五）——dubbo接口的特性设置/" title="dubbo基础（五）——dubbo接口的特性设置">https://zhanglijun1217.github.io/2019/03/31/dubbo基础（五）——dubbo接口的特性设置/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://zhanglijun1217.github.io/2019/03/31/dubbo基础（五）——dubbo接口的特性设置/"  aria-label="复制成功！"></i></span>
   </p>
   <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
 </div>
@@ -512,7 +567,7 @@
       
         <div class="post-tags">
           
-            <a href="/blog/tags/设计模式/" rel="tag"># 设计模式</a>
+            <a href="/blog/tags/dubbo接口属性/" rel="tag"># dubbo接口属性</a>
           
         </div>
       
@@ -525,8 +580,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/blog/2018/12/31/并发编程——基础拾遗/" rel="next" title="并发编程——基础拾遗">
-                <i class="fa fa-chevron-left"></i> 并发编程——基础拾遗
+              <a href="/blog/2019/03/20/dubbo基础（四）——dubbo的配置加载/" rel="next" title="dubbo基础（四）——dubbo的配置加载">
+                <i class="fa fa-chevron-left"></i> dubbo基础（四）——dubbo的配置加载
               </a>
             
           </div>
@@ -534,10 +589,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/blog/2019/02/21/并发编程——Thread-API/" rel="prev" title="并发编程——Thread API">
-                并发编程——Thread API <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -700,7 +751,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#模板方法"><span class="nav-number">1.</span> <span class="nav-text">模板方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#模板方法-1"><span class="nav-number">1.1.</span> <span class="nav-text">模板方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#业务processor"><span class="nav-number">1.2.</span> <span class="nav-text">业务processor</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">1.3.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#dubbo的一些配置"><span class="nav-number">1.</span> <span class="nav-text">dubbo的一些配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#启动时检查"><span class="nav-number">1.1.</span> <span class="nav-text">启动时检查</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#超时"><span class="nav-number">1.2.</span> <span class="nav-text">超时</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#重试次数"><span class="nav-number">1.3.</span> <span class="nav-text">重试次数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多版本功能"><span class="nav-number">1.4.</span> <span class="nav-text">多版本功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#负载均衡"><span class="nav-number">1.5.</span> <span class="nav-text">负载均衡</span></a></li></ol></li></ol></div>
             
 
           </div>
