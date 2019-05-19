@@ -2,16 +2,23 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://zhanglijun1217.github.io/2019/03/31/dubbo%E5%9F%BA%E7%A1%80%EF%BC%88%E4%BA%94%EF%BC%89%E2%80%94%E2%80%94dubbo%E6%8E%A5%E5%8F%A3%E7%9A%84%E7%89%B9%E6%80%A7%E8%AE%BE%E7%BD%AE/</loc>
+    <loc>https://zhanglijun1217.github.io/2019/05/19/redis%E5%91%BD%E4%BB%A4%E6%8B%BE%E9%81%97(%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%93%8D%E4%BD%9C)/</loc>
     
-    <lastmod>2019-03-31T16:57:40.965Z</lastmod>
+    <lastmod>2019-05-19T17:07:30.456Z</lastmod>
     
   </url>
   
   <url>
     <loc>https://zhanglijun1217.github.io/2018/12/31/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E2%80%94%E2%80%94%E5%9F%BA%E7%A1%80%E6%8B%BE%E9%81%97/</loc>
     
-    <lastmod>2019-03-31T16:57:33.322Z</lastmod>
+    <lastmod>2019-05-19T17:07:21.849Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://zhanglijun1217.github.io/2019/03/31/dubbo%E5%9F%BA%E7%A1%80%EF%BC%88%E4%BA%94%EF%BC%89%E2%80%94%E2%80%94dubbo%E6%8E%A5%E5%8F%A3%E7%9A%84%E7%89%B9%E6%80%A7%E8%AE%BE%E7%BD%AE/</loc>
+    
+    <lastmod>2019-03-31T16:57:40.965Z</lastmod>
     
   </url>
   
@@ -23,14 +30,14 @@
   </url>
   
   <url>
-    <loc>https://zhanglijun1217.github.io/2019/03/18/synchronized%E9%94%81%E5%AF%B9%E5%BA%94%E7%9A%84%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B%E7%9F%A5%E8%AF%86/</loc>
+    <loc>https://zhanglijun1217.github.io/2019/03/20/dubbo%E5%9F%BA%E7%A1%80%EF%BC%88%E4%B8%89%EF%BC%89%E2%80%94%E2%80%94spring-boot%E8%B0%83%E7%94%A8dubbo/</loc>
     
     <lastmod>2019-03-20T14:54:23.940Z</lastmod>
     
   </url>
   
   <url>
-    <loc>https://zhanglijun1217.github.io/2019/03/20/dubbo%E5%9F%BA%E7%A1%80%EF%BC%88%E4%B8%89%EF%BC%89%E2%80%94%E2%80%94spring-boot%E8%B0%83%E7%94%A8dubbo/</loc>
+    <loc>https://zhanglijun1217.github.io/2019/03/18/synchronized%E9%94%81%E5%AF%B9%E5%BA%94%E7%9A%84%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B%E7%9F%A5%E8%AF%86/</loc>
     
     <lastmod>2019-03-20T14:54:23.940Z</lastmod>
     
@@ -51,13 +58,6 @@
   </url>
   
   <url>
-    <loc>https://zhanglijun1217.github.io/2018/08/02/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E2%80%94%E2%80%94%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/</loc>
-    
-    <lastmod>2019-03-16T11:24:27.092Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>https://zhanglijun1217.github.io/2019/03/03/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E2%80%94%E2%80%94%E8%A3%85%E9%A5%B0%E8%80%85%E6%A8%A1%E5%BC%8F/</loc>
     
     <lastmod>2019-03-16T11:24:27.092Z</lastmod>
@@ -65,9 +65,9 @@
   </url>
   
   <url>
-    <loc>https://zhanglijun1217.github.io/2019/02/21/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E2%80%94%E2%80%94Thread-API/</loc>
+    <loc>https://zhanglijun1217.github.io/2018/08/02/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E2%80%94%E2%80%94%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/</loc>
     
-    <lastmod>2019-03-16T11:24:27.091Z</lastmod>
+    <lastmod>2019-03-16T11:24:27.092Z</lastmod>
     
   </url>
   
@@ -79,14 +79,21 @@
   </url>
   
   <url>
-    <loc>https://zhanglijun1217.github.io/2019/03/10/%E4%B8%80%E6%AC%A1%E6%8E%92%E6%9F%A5-jacocoData%E7%9A%84%E8%BF%87%E7%A8%8B/</loc>
+    <loc>https://zhanglijun1217.github.io/2019/02/21/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E2%80%94%E2%80%94Thread-API/</loc>
+    
+    <lastmod>2019-03-16T11:24:27.091Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://zhanglijun1217.github.io/2019/02/25/%E4%BD%BF%E7%94%A8telnet%E6%B5%8B%E8%AF%95dubbo%E6%8E%A5%E5%8F%A3%E5%88%9D%E4%BD%BF%E7%94%A8/</loc>
     
     <lastmod>2019-03-16T11:24:27.090Z</lastmod>
     
   </url>
   
   <url>
-    <loc>https://zhanglijun1217.github.io/2019/02/25/%E4%BD%BF%E7%94%A8telnet%E6%B5%8B%E8%AF%95dubbo%E6%8E%A5%E5%8F%A3%E5%88%9D%E4%BD%BF%E7%94%A8/</loc>
+    <loc>https://zhanglijun1217.github.io/2019/03/10/%E4%B8%80%E6%AC%A1%E6%8E%92%E6%9F%A5-jacocoData%E7%9A%84%E8%BF%87%E7%A8%8B/</loc>
     
     <lastmod>2019-03-16T11:24:27.090Z</lastmod>
     
