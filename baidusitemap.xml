@@ -4,19 +4,21 @@
 
     
   <url>
-    <loc>https://zhanglijun1217.github.io/blog/2019/07/22/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%97%AE%E4%B8%80%E9%81%93%E9%A2%98%E7%9A%84%E6%80%9D%E8%80%83/</loc>
-    <lastmod>2019-08-04T10:11:21.612Z</lastmod>
+    <loc>https://zhanglijun1217.github.io/blog/2019/08/04/%E4%BD%BF%E7%94%A8-DependsOn%E8%A7%A3%E5%86%B3%E4%B8%80%E4%B8%AAspring%E5%90%AF%E5%8A%A8%E9%97%AE%E9%A2%98/</loc>
+    <lastmod>2019-08-04T10:51:09.979Z</lastmod>
     <data>
         <display>
-        <title>一道题的思考</title>
-        <pubTime>2019-07-21T16:11:08.000Z</pubTime>
+        <title>使用@DependsOn解决一个spring启动问题</title>
+        <pubTime>2019-08-04T10:18:42.000Z</pubTime>
         
-        <tag>多线程</tag>
+        <tag>DependsOn注解</tag>
+         
+        <tag>spring启动</tag>
          
          
            
              
-              <breadCrumb title="并发基础" url="https://zhanglijun1217.github.io/blog/categories/%E5%B9%B6%E5%8F%91%E5%9F%BA%E7%A1%80/"/>
+              <breadCrumb title="spring" url="https://zhanglijun1217.github.io/blog/categories/spring/"/>
           
         </display>
     </data>
@@ -37,6 +39,26 @@
            
              
               <breadCrumb title="redis" url="https://zhanglijun1217.github.io/blog/categories/redis/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://zhanglijun1217.github.io/blog/2019/07/22/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%97%AE%E4%B8%80%E9%81%93%E9%A2%98%E7%9A%84%E6%80%9D%E8%80%83/</loc>
+    <lastmod>2019-08-04T10:11:21.612Z</lastmod>
+    <data>
+        <display>
+        <title>一道题的思考</title>
+        <pubTime>2019-07-21T16:11:08.000Z</pubTime>
+        
+        <tag>多线程</tag>
+         
+         
+           
+             
+              <breadCrumb title="并发基础" url="https://zhanglijun1217.github.io/blog/categories/%E5%B9%B6%E5%8F%91%E5%9F%BA%E7%A1%80/"/>
           
         </display>
     </data>
@@ -149,28 +171,6 @@
 
     
   <url>
-    <loc>https://zhanglijun1217.github.io/blog/2019/03/18/synchronized%E9%94%81%E5%AF%B9%E5%BA%94%E7%9A%84%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B%E7%9F%A5%E8%AF%86/</loc>
-    <lastmod>2019-03-20T14:54:23.940Z</lastmod>
-    <data>
-        <display>
-        <title>synchronized锁对应的内存模型知识</title>
-        <pubTime>2019-03-17T16:18:46.000Z</pubTime>
-        
-        <tag>synchronized</tag>
-         
-        <tag>内存模型</tag>
-         
-         
-           
-             
-              <breadCrumb title="并发编程" url="https://zhanglijun1217.github.io/blog/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
     <loc>https://zhanglijun1217.github.io/blog/2019/03/20/dubbo%E5%9F%BA%E7%A1%80%EF%BC%88%E4%B8%89%EF%BC%89%E2%80%94%E2%80%94spring-boot%E8%B0%83%E7%94%A8dubbo/</loc>
     <lastmod>2019-03-20T14:54:23.940Z</lastmod>
     <data>
@@ -186,6 +186,28 @@
            
              
               <breadCrumb title="dubbo" url="https://zhanglijun1217.github.io/blog/categories/dubbo/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://zhanglijun1217.github.io/blog/2019/03/18/synchronized%E9%94%81%E5%AF%B9%E5%BA%94%E7%9A%84%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B%E7%9F%A5%E8%AF%86/</loc>
+    <lastmod>2019-03-20T14:54:23.940Z</lastmod>
+    <data>
+        <display>
+        <title>synchronized锁对应的内存模型知识</title>
+        <pubTime>2019-03-17T16:18:46.000Z</pubTime>
+        
+        <tag>synchronized</tag>
+         
+        <tag>内存模型</tag>
+         
+         
+           
+             
+              <breadCrumb title="并发编程" url="https://zhanglijun1217.github.io/blog/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
           
         </display>
     </data>
@@ -319,6 +341,26 @@
 
     
   <url>
+    <loc>https://zhanglijun1217.github.io/blog/2019/02/25/%E4%BD%BF%E7%94%A8telnet%E6%B5%8B%E8%AF%95dubbo%E6%8E%A5%E5%8F%A3%E5%88%9D%E4%BD%BF%E7%94%A8/</loc>
+    <lastmod>2019-03-16T11:24:27.090Z</lastmod>
+    <data>
+        <display>
+        <title>使用telnet测试dubbo接口初使用</title>
+        <pubTime>2019-02-25T12:27:13.000Z</pubTime>
+        
+        <tag>telent</tag>
+         
+         
+           
+             
+              <breadCrumb title="dubbo" url="https://zhanglijun1217.github.io/blog/categories/dubbo/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>https://zhanglijun1217.github.io/blog/2019/03/10/%E4%B8%80%E6%AC%A1%E6%8E%92%E6%9F%A5-jacocoData%E7%9A%84%E8%BF%87%E7%A8%8B/</loc>
     <lastmod>2019-03-16T11:24:27.090Z</lastmod>
     <data>
@@ -334,26 +376,6 @@
            
              
               <breadCrumb title="bug记录" url="https://zhanglijun1217.github.io/blog/categories/bug%E8%AE%B0%E5%BD%95/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>https://zhanglijun1217.github.io/blog/2019/02/25/%E4%BD%BF%E7%94%A8telnet%E6%B5%8B%E8%AF%95dubbo%E6%8E%A5%E5%8F%A3%E5%88%9D%E4%BD%BF%E7%94%A8/</loc>
-    <lastmod>2019-03-16T11:24:27.090Z</lastmod>
-    <data>
-        <display>
-        <title>使用telnet测试dubbo接口初使用</title>
-        <pubTime>2019-02-25T12:27:13.000Z</pubTime>
-        
-        <tag>telent</tag>
-         
-         
-           
-             
-              <breadCrumb title="dubbo" url="https://zhanglijun1217.github.io/blog/categories/dubbo/"/>
           
         </display>
     </data>

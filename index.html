@@ -297,6 +297,208 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/08/04/使用-DependsOn解决一个spring启动问题/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="张利君">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="张利君的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2019/08/04/使用-DependsOn解决一个spring启动问题/" itemprop="url">使用@DependsOn解决一个spring启动问题</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-04T18:18:42+08:00">
+                2019-08-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/spring/" itemprop="url" rel="index">
+                    <span itemprop="name">spring</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2019/08/04/使用-DependsOn解决一个spring启动问题/" class="leancloud_visitors" data-flag-title="使用@DependsOn解决一个spring启动问题">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  429
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  2
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近遇到了一个启动失败的问题，原因是在bean初始化完成之后的钩子方法中使用获取容器中bean的工具类，(对应工具类之前的一篇博客 <a href="[https://zhanglijun1217.github.io/blog/2018/08/12/spring%E4%B8%AD%E6%A0%B9%E6%8D%AEApplication%E8%8E%B7%E5%8F%96BEAN%E7%9A%84%E5%B7%A5%E5%85%B7%E7%B1%BB/](https://zhanglijun1217.github.io/blog/2018/08/12/spring中根据Application获取BEAN的工具类/">获取springbean</a>)）。</p>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>这里具体的场景是我想实现一个bean在钩子方法中往一个策略map中注册自己作为一个策略使用，但是在启动的时候报错:</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/DepnedsOn%E5%90%AF%E5%8A%A8%E6%8A%A5%E9%94%99.png" alt=""></p>
+<p>第33行代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; <span class="function">T <span class="title">getBean</span><span class="params">(@NotNull Class&lt;T&gt; tClass)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">return</span> context.getBean(tClass);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到可能为空的是context，这个是通过在项目中启动时注入到ApplicationContextUtil中的静态变量context，很明显是在当前这个bean启动的时候，其钩子方法去调用这个变量还没实现context的注入。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">afterPropertiesSet</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    <span class="comment">// 策略工厂中注册 自身 的代码</span></span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<h2 id="解决"><a href="#解决" class="headerlink" title="解决"></a>解决</h2><p>这里主要是一个场景，其实在bean启动的时候是依赖ApplicationContextUtil这个bean的，但是因为getBean方法都static方法，在平常业务代码中调用都是容器启动完毕的时候，所以没有问题，但是这里是想实现在bean初始化时自动通过钩子往一个map工厂中注册bean实例，且该bean没有显示的@Resource依赖ApplicationContextUtil，所以在注册的时候applicationContextutil这个bean还没初始化好，这里在这些具体策略的类上加了@DependsOn(“applicationContextUtil”)</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="meta">@Slf</span>4j</span><br><span class="line"><span class="meta">@DependsOn</span>(value = <span class="string">"applicationContextUtil"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AStrategy</span> <span class="keyword">extends</span> <span class="title">AbstractStrategy</span> </span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这表示这个bean的初始化是依赖 applicationContextUtil 这个bean初始化完成之后(也就是静态变量上下文被注入)才去初始化的，这样启动就不会报NPE了。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/07/22/每日一问一道题的思考/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2173,204 +2375,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/03/10/一次排查-jacocoData的过程/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="张利君">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="张利君的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2019/03/10/一次排查-jacocoData的过程/" itemprop="url">一次排查$jacocoData的过程</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-10T21:58:02+08:00">
-                2019-03-10
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/bug记录/" itemprop="url" rel="index">
-                    <span itemprop="name">bug记录</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2019/03/10/一次排查-jacocoData的过程/" class="leancloud_visitors" data-flag-title="一次排查$jacocoData的过程">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  421
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  1
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h2><p>最近在开发过程中，遇到了一个奇怪的现象，在测试环境去利用反射拿一个类的字段时，发现拿到的field数组中多了一个奇怪的变量：$jacocoData，是一个static的boolean数组：</p>
-<p><img src="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/WX20190310-222010%402x.png" alt=""></p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/blog/2019/03/10/一次排查-jacocoData的过程/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2425,7 +2429,7 @@
               
                 <a href="/blog/archives/">
               
-                  <span class="site-state-item-count">47</span>
+                  <span class="site-state-item-count">48</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2447,7 +2451,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/blog/tags/index.html">
-                  <span class="site-state-item-count">47</span>
+                  <span class="site-state-item-count">49</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -2521,7 +2525,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">63.5k</span>
+    <span title="Site words total count">63.9k</span>
   
 </div>
 
@@ -2549,7 +2553,7 @@
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共63.5k字</span>
+  <span class="post-count">博客全站共63.9k字</span>
 </div>
 
         
