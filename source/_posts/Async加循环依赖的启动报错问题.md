@@ -3,7 +3,7 @@ title: '@Async加循环依赖的启动报错问题'
 copyright: true
 date: 2020-03-18 23:26:16
 tags: 
-	- @Async 
+	- Async注解
 	- 循环依赖
 categories:
 	- spring
