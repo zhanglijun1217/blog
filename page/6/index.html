@@ -297,7 +297,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/11/11/java8中的LocalDateTime/">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/02/01/设计模式——模板方法的应用/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="夸克">
@@ -316,7 +316,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/blog/2018/11/11/java8中的LocalDateTime/" itemprop="url">java8中的LocalDateTime</a></h1>
+                <a class="post-title-link" href="/blog/2019/02/01/设计模式——模板方法的应用/" itemprop="url">设计模式——模板方法的应用</a></h1>
         
 
         <div class="post-meta">
@@ -328,8 +328,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-11T21:51:44+08:00">
-                2018-11-11
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-01T16:07:57+08:00">
+                2019-02-01
               </time>
             
 
@@ -351,19 +351,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Java语法/" itemprop="url" rel="index">
-                    <span itemprop="name">Java语法</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Java语法/Java8/" itemprop="url" rel="index">
-                    <span itemprop="name">Java8</span>
+                  <a href="/blog/categories/设计模式/" itemprop="url" rel="index">
+                    <span itemprop="name">设计模式</span>
                   </a>
                 </span>
 
@@ -379,7 +368,7 @@
 
           
           
-             <span id="/blog/2018/11/11/java8中的LocalDateTime/" class="leancloud_visitors" data-flag-title="java8中的LocalDateTime">
+             <span id="/blog/2019/02/01/设计模式——模板方法的应用/" class="leancloud_visitors" data-flag-title="设计模式——模板方法的应用">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -405,7 +394,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  771
+                  977
                 </span>
               
 
@@ -443,15 +432,27 @@
 
       
         
-          <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>最近在项目中遇到了一些时间进行转化的小需求，比如一个时间添加多少天之后，两个时间的比较之类的。这里要去了解一下java8中的新增的时间API–LocalDateTime。</p>
-<p> 参考博客：<a href="http://rensanning.iteye.com/blog/2034622" target="_blank" rel="noopener"></a></p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/blog/2018/11/11/java8中的LocalDateTime/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
+          
+            <h2 id="模板方法"><a href="#模板方法" class="headerlink" title="模板方法"></a>模板方法</h2><h3 id="模板方法-1"><a href="#模板方法-1" class="headerlink" title="模板方法"></a>模板方法</h3><p>很多情况下代码中的业务都可以抽象出一个模板去解决，这时候经常需要用到模板方法。大家经常接触到的是一些业务方法的抽象模板，比如在计算优惠券的流程当中总是有一定的步骤：</p>
+<p>（1）先计算该商品是否可以拥有优惠券信息</p>
+<p>（2）再为该商品绑定优惠券信息</p>
+<p>（3）最后回调或者通知向下的流程</p>
+<p>今天要记录的是一个通用服务层的模板方法，包含了前置校验、后置处理（是有点像拦截器= =）、finally操作。</p>
+<h3 id="业务processor"><a href="#业务processor" class="headerlink" title="业务processor"></a>业务processor</h3><ol>
+<li>可以定义一个domainProcessor去代表业务操作的processor接口，这个接口可以承接泛型。</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">DomainProcessor</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 处理业务的方法 返回值现在是void的 也可以自己定义一个通用的类似于上下文的返回值</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> context</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">process</span><span class="params">(T context)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里承接的泛型context是一个上下文的概念，指的是在一个业务处理processor中的上下文信息，其中可以有计算的参数，计算的结果和一些中间信息。</p>
+<ol start="2">
+<li>做一个抽象类，去将其中的前置操作、biz操作、后置操作、finally操作定义出来。</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">AbstractProcessor</span>&lt;<span class="title">T</span>&gt; <span class="keyword">implements</span> <span class="title">DomainProcessor</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 前置处理 主要做一些校验逻辑 编排的时候放在前边</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> context</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">preHandle</span><span class="params">(T context)</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 业务处理 这个是抽象方法 子类去实现具体的逻辑</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> context</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">bizHandle</span><span class="params">(T context)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 后置处理</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> context</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">postHandle</span><span class="params">(T context)</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * last 操作</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> context</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">finallyHandle</span><span class="params">(T context)</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 异常处理</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> context</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> e</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">exceptionHandle</span><span class="params">(T context, Exception e)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// TODO 打印error或者warn级别日志</span></span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> BizException(e.getMessage(), e);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">process</span><span class="params">(T context)</span> </span>&#123;</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 编排流程</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (!preHandle(context)) &#123;</span><br><span class="line"><span class="comment">//                log.warn("处理器前置处理失败，退出。context:&#123;&#125;", context);</span></span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 业务方法</span></span><br><span class="line">            bizHandle(context);</span><br><span class="line">            <span class="comment">// 后置操作</span></span><br><span class="line">            postHandle(context);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            exceptionHandle(context, e);</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            finallyHandle(context);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，这里定义了前置操作，这里可以去对biz要用的参数进行一个校验或者一些前置操作，同时将biz定义为了抽象方法，意图在为了让子类去继承时一定要去实现bizHandle这个方法。而exceptionHandle和finallyHandle方法则定义了异常的处理和最终要做的（比如线程快照的清除）。而整个process方法其实就是整个处理器的入口，即对这整个流程的一个编排。</p>
+<p>可以看一个这个模板processor的的具体实现和测试类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AbstractProcessorTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ThreadLocal&lt;String&gt; contextHolder = <span class="keyword">new</span> ThreadLocal&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// TODO test</span></span><br><span class="line">        TestContext testContext = <span class="keyword">new</span> TestContext();</span><br><span class="line">        contextHolder.set(<span class="string">"aaa"</span>);</span><br><span class="line">        TestProcessor testProcessor = <span class="keyword">new</span> TestProcessor();</span><br><span class="line">        <span class="comment">// 调用process的编排</span></span><br><span class="line">        testProcessor.process(testContext);</span><br><span class="line"></span><br><span class="line">        TestContext exContext = <span class="keyword">new</span> TestContext();</span><br><span class="line">        <span class="comment">// test bizHandle</span></span><br><span class="line">        testProcessor.process(exContext);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">TestProcessor</span> <span class="keyword">extends</span> <span class="title">AbstractProcessor</span>&lt;<span class="title">TestContext</span>&gt; </span>&#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">preHandle</span><span class="params">(TestContext context)</span> </span>&#123;</span><br><span class="line">            <span class="comment">// 前置的一个check或者一个前置操作</span></span><br><span class="line">            String s = contextHolder.get();</span><br><span class="line">            <span class="keyword">if</span> (s == <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"holder中字符串为空"</span>);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            context.setMessage(s);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">postHandle</span><span class="params">(TestContext context)</span> </span>&#123;</span><br><span class="line">            context.setPostStr(<span class="string">"post"</span>);</span><br><span class="line">            System.out.println(<span class="string">"processor 结果是："</span>+ context.isResult());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">finallyHandle</span><span class="params">(TestContext context)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (context.isResult()) &#123;</span><br><span class="line">                contextHolder.remove();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">bizHandle</span><span class="params">(TestContext context)</span> </span>&#123;</span><br><span class="line">            context.setResult(context.getMessage().length()&gt;<span class="number">0</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>这个模板可以作为之后一个处理器的抽象模板，能让代码逻辑很清晰的展现出来，也能解耦了各个处理模块，这里可以总结下。</p>
+
+          
         
       
     </div>
@@ -506,7 +507,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/10/23/spring-boot配置jsp/">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/12/31/并发编程——基础拾遗/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="夸克">
@@ -525,7 +526,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/blog/2018/10/23/spring-boot配置jsp/" itemprop="url">spring boot配置jsp</a></h1>
+                <a class="post-title-link" href="/blog/2018/12/31/并发编程——基础拾遗/" itemprop="url">并发编程——基础拾遗</a></h1>
         
 
         <div class="post-meta">
@@ -537,216 +538,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-23T00:05:33+08:00">
-                2018-10-23
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/spring/" itemprop="url" rel="index">
-                    <span itemprop="name">spring</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/spring/spring-boot/" itemprop="url" rel="index">
-                    <span itemprop="name">spring boot</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2018/10/23/spring-boot配置jsp/" class="leancloud_visitors" data-flag-title="spring boot配置jsp">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  503
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  2
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="spring-boot中jsp的使用"><a href="#spring-boot中jsp的使用" class="headerlink" title="spring-boot中jsp的使用"></a>spring-boot中jsp的使用</h2><p>jsp是之前在学习java开发中会学习到的知识，虽然现在公司中虽然使用jsp越来越少，但是spring-boot配置jsp的使用还是应该去记录一下。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/blog/2018/10/23/spring-boot配置jsp/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/10/11/并发编程——ThreadPoolExecutor源码分析（二）/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2018/10/11/并发编程——ThreadPoolExecutor源码分析（二）/" itemprop="url">并发编程——ThreadPoolExecutor源码分析（二）</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-11T23:24:26+08:00">
-                2018-10-11
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-31T17:11:05+08:00">
+                2018-12-31
               </time>
             
 
@@ -796,7 +589,7 @@
 
           
           
-             <span id="/blog/2018/10/11/并发编程——ThreadPoolExecutor源码分析（二）/" class="leancloud_visitors" data-flag-title="并发编程——ThreadPoolExecutor源码分析（二）">
+             <span id="/blog/2018/12/31/并发编程——基础拾遗/" class="leancloud_visitors" data-flag-title="并发编程——基础拾遗">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -822,7 +615,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  3,654
+                  1,701
                 </span>
               
 
@@ -838,7 +631,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  13
+                  7
                 </span>
               
             </div>
@@ -860,10 +653,10 @@
 
       
         
-          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在上一篇中，我们分析了ThreadPoolExecutor中关键变量ctl，这篇我们继续来看ThreadPoolExecutor中的构造函数及其参数。其中参数的相关解释来源于源码中的相关注释。</p>
+          <h2 id="并发编程基础拾遗"><a href="#并发编程基础拾遗" class="headerlink" title="并发编程基础拾遗"></a>并发编程基础拾遗</h2><p>在看并发的书或者看并发相关的博客时，会发现一些知识点会遗漏或者之前没有看到，这里去总结一下。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/blog/2018/10/11/并发编程——ThreadPoolExecutor源码分析（二）/#more" rel="contents">
+            <a class="btn" href="/blog/2018/12/31/并发编程——基础拾遗/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -922,7 +715,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/10/10/java8增加的接口中默认方法/">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/12/24/设计模式——观察者模式/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="夸克">
@@ -941,7 +734,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/blog/2018/10/10/java8增加的接口中默认方法/" itemprop="url">java8增加的接口中默认方法</a></h1>
+                <a class="post-title-link" href="/blog/2018/12/24/设计模式——观察者模式/" itemprop="url">设计模式——观察者模式</a></h1>
         
 
         <div class="post-meta">
@@ -953,8 +746,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-10T17:06:06+08:00">
-                2018-10-10
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-24T23:48:39+08:00">
+                2018-12-24
               </time>
             
 
@@ -976,19 +769,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Java语法/" itemprop="url" rel="index">
-                    <span itemprop="name">Java语法</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Java语法/Java8/" itemprop="url" rel="index">
-                    <span itemprop="name">Java8</span>
+                  <a href="/blog/categories/设计模式/" itemprop="url" rel="index">
+                    <span itemprop="name">设计模式</span>
                   </a>
                 </span>
 
@@ -1004,7 +786,7 @@
 
           
           
-             <span id="/blog/2018/10/10/java8增加的接口中默认方法/" class="leancloud_visitors" data-flag-title="java8增加的接口中默认方法">
+             <span id="/blog/2018/12/24/设计模式——观察者模式/" class="leancloud_visitors" data-flag-title="设计模式——观察者模式">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1030,7 +812,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1,259
+                  3,653
                 </span>
               
 
@@ -1046,7 +828,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  5
+                  17
                 </span>
               
             </div>
@@ -1068,10 +850,10 @@
 
       
         
-          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近在工作中的一次小修改让自己应用到了java8中的新特性：接口默认方法，这里去简单记录下。在java8之后可以在接口定义方法的实现，成为default方法，类似于Scala中的trait。比如在Iterable接口中新增了foreach默认方法：
+          <h2 id="观察者模式"><a href="#观察者模式" class="headerlink" title="观察者模式"></a>观察者模式</h2><p>观察者模式也是我们经常会用到的设计模式之一，这里用一个气象站的一些数据变化通知气象板为例去记录一下观察者设计模式，值得一提的是java中提供了观察者模式的接口和类。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/blog/2018/10/10/java8增加的接口中默认方法/#more" rel="contents">
+            <a class="btn" href="/blog/2018/12/24/设计模式——观察者模式/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1130,7 +912,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/10/04/并发编程——ThreadPoolExecutor源码分析（一）/">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/12/24/test多个设备使用hexo/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="夸克">
@@ -1149,7 +931,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/blog/2018/10/04/并发编程——ThreadPoolExecutor源码分析（一）/" itemprop="url">并发编程——ThreadPoolExecutor源码分析（一）</a></h1>
+                <a class="post-title-link" href="/blog/2018/12/24/test多个设备使用hexo/" itemprop="url">test多个设备使用hexo</a></h1>
         
 
         <div class="post-meta">
@@ -1161,8 +943,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-04T18:26:46+08:00">
-                2018-10-04
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-24T00:44:00+08:00">
+                2018-12-24
               </time>
             
 
@@ -1184,19 +966,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/并发编程/" itemprop="url" rel="index">
-                    <span itemprop="name">并发编程</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/并发编程/并发基础/" itemprop="url" rel="index">
-                    <span itemprop="name">并发基础</span>
+                  <a href="/blog/categories/hexo/" itemprop="url" rel="index">
+                    <span itemprop="name">hexo</span>
                   </a>
                 </span>
 
@@ -1212,7 +983,7 @@
 
           
           
-             <span id="/blog/2018/10/04/并发编程——ThreadPoolExecutor源码分析（一）/" class="leancloud_visitors" data-flag-title="并发编程——ThreadPoolExecutor源码分析（一）">
+             <span id="/blog/2018/12/24/test多个设备使用hexo/" class="leancloud_visitors" data-flag-title="test多个设备使用hexo">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1238,204 +1009,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1,283
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  5
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>线程池是并发编程中最重要的应用之一，使用线程池可以防止大量的创建和销毁线程的过程，可以节省很多的内存空间，提高程序的响应率和cpu的利用率，并且也可以对线程进行统一管理和监控。这里将分几篇文章介绍一下线程池的源码分析。本篇是分析ThreadPoolExecutor中的ctl变量。并且去写了线程中的</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/blog/2018/10/04/并发编程——ThreadPoolExecutor源码分析（一）/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/09/30/vi命令小总结（二）/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2018/09/30/vi命令小总结（二）/" itemprop="url">vi命令小总结（二）</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-30T16:46:17+08:00">
-                2018-09-30
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2018/09/30/vi命令小总结（二）/" class="leancloud_visitors" data-flag-title="vi命令小总结（二）">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  151
+                  30
                 </span>
               
 
@@ -1474,10 +1048,8 @@
       
         
           
-            <h2 id="在vi编辑模式下显示行数"><a href="#在vi编辑模式下显示行数" class="headerlink" title="在vi编辑模式下显示行数"></a>在vi编辑模式下显示行数</h2><p>在vi编辑模式下可以显示下行数，比如在php调试模式下可以根据相应的行数的代码去打印值调试代码。</p>
-<p>方法：在vi模式下输入:set nu即可。也可以直接:line number跳转到对应的行数。</p>
-<p><img src="https://img-blog.csdnimg.cn/2018120300250641.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3psajEyMTc=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
-<h2 id="在vi编辑模式中撤回一个操作"><a href="#在vi编辑模式中撤回一个操作" class="headerlink" title="在vi编辑模式中撤回一个操作"></a>在vi编辑模式中撤回一个操作</h2><p>在INSERT模式下如果写了一些操作，然后想撤回这个操作，按一下esc之后输入u即可。如果是想撤回刚才那个撤回操作，可以按了esc之后点击Ctrl + r。</p>
+            <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>hexo是支持多设备去写你的博客的，这里参考的是这个资料：</p>
+<p><a href="https://blog.csdn.net/shile/article/details/78714189" target="_blank" rel="noopener">hexo多设备</a></p>
 
           
         
@@ -1534,7 +1106,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/09/24/spring-boot配置swagger/">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/12/19/集合中的深拷贝/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="夸克">
@@ -1553,7 +1125,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/blog/2018/09/24/spring-boot配置swagger/" itemprop="url">spring boot配置swagger</a></h1>
+                <a class="post-title-link" href="/blog/2018/12/19/集合中的深拷贝/" itemprop="url">集合中的深拷贝</a></h1>
         
 
         <div class="post-meta">
@@ -1565,8 +1137,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-24T02:29:00+08:00">
-                2018-09-24
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-19T22:11:18+08:00">
+                2018-12-19
               </time>
             
 
@@ -1588,19 +1160,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/spring/" itemprop="url" rel="index">
-                    <span itemprop="name">spring</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/spring/spring-boot/" itemprop="url" rel="index">
-                    <span itemprop="name">spring boot</span>
+                  <a href="/blog/categories/Java基础/" itemprop="url" rel="index">
+                    <span itemprop="name">Java基础</span>
                   </a>
                 </span>
 
@@ -1616,7 +1177,7 @@
 
           
           
-             <span id="/blog/2018/09/24/spring-boot配置swagger/" class="leancloud_visitors" data-flag-title="spring boot配置swagger">
+             <span id="/blog/2018/12/19/集合中的深拷贝/" class="leancloud_visitors" data-flag-title="集合中的深拷贝">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1642,7 +1203,401 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  628
+                  2,289
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  10
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="深拷贝与浅拷贝"><a href="#深拷贝与浅拷贝" class="headerlink" title="深拷贝与浅拷贝"></a>深拷贝与浅拷贝</h2><p>对对象的深拷贝和浅拷贝我们并不陌生。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/blog/2018/12/19/集合中的深拷贝/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/12/15/java集合类的一些总结——Arrays-asList和并集/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2018/12/15/java集合类的一些总结——Arrays-asList和并集/" itemprop="url">java集合类的一些总结——Arrays.asList和Guava操作集合</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-15T00:59:34+08:00">
+                2018-12-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java基础/" itemprop="url" rel="index">
+                    <span itemprop="name">Java基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2018/12/15/java集合类的一些总结——Arrays-asList和并集/" class="leancloud_visitors" data-flag-title="java集合类的一些总结——Arrays.asList和Guava操作集合">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,178
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  5
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="使用背景"><a href="#使用背景" class="headerlink" title="使用背景"></a>使用背景</h2><p>总结一下最近项目中使用到集合的两个点，一个是Arrays.asList这个方法使用的坑，另一个是利用Guava的Sets工具类去求并交集。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/blog/2018/12/15/java集合类的一些总结——Arrays-asList和并集/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/12/06/ClassNotFoundException和NoClassDefFoundError/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2018/12/06/ClassNotFoundException和NoClassDefFoundError/" itemprop="url">ClassNotFoundException和NoClassDefFoundError</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-06T01:07:01+08:00">
+                2018-12-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java基础/" itemprop="url" rel="index">
+                    <span itemprop="name">Java基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2018/12/06/ClassNotFoundException和NoClassDefFoundError/" class="leancloud_visitors" data-flag-title="ClassNotFoundException和NoClassDefFoundError">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  934
                 </span>
               
 
@@ -1680,10 +1635,10 @@
 
       
         
-          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>swagger是一个很好的restful形式的api文档，可以通过比较小的侵入来提供很好的restful的文档。因为swagger是依赖服务生成的，所以其实是依赖服务的，这也算是它的一个小缺点吧。但是其实如果一个项目习惯去手写文档之后，也是可以的，但是新的项目还是建议去用一些自动生成的文档，省去了很多麻烦。</p>
+          <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>极客时间上《Java核心技术36讲》第二讲中提到了一个问题：ClassNotFoundException和NoClassDefFoundError有什么区别？看到这个问题的时候，第一时间想到的就是一个是受检的异常，而另一个是一个Error，但是其实在真正的项目开发中这两个错误都遇到过，都是关于类或者文件jar包找不到的错误，这里去总结下其中的不同。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/blog/2018/09/24/spring-boot配置swagger/#more" rel="contents">
+            <a class="btn" href="/blog/2018/12/06/ClassNotFoundException和NoClassDefFoundError/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1742,7 +1697,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/09/21/两个切面配置的记录/">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/11/30/java平台与java是解释执行的正确性/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="夸克">
@@ -1761,7 +1716,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/blog/2018/09/21/两个切面配置的记录/" itemprop="url">两个切面配置的记录</a></h1>
+                <a class="post-title-link" href="/blog/2018/11/30/java平台与java是解释执行的正确性/" itemprop="url">java平台与java是解释执行的正确性</a></h1>
         
 
         <div class="post-meta">
@@ -1773,8 +1728,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-21T00:02:57+08:00">
-                2018-09-21
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-30T00:35:23+08:00">
+                2018-11-30
               </time>
             
 
@@ -1796,19 +1751,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/spring/" itemprop="url" rel="index">
-                    <span itemprop="name">spring</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/spring/spring-boot/" itemprop="url" rel="index">
-                    <span itemprop="name">spring boot</span>
+                  <a href="/blog/categories/Java基础/" itemprop="url" rel="index">
+                    <span itemprop="name">Java基础</span>
                   </a>
                 </span>
 
@@ -1824,7 +1768,7 @@
 
           
           
-             <span id="/blog/2018/09/21/两个切面配置的记录/" class="leancloud_visitors" data-flag-title="两个切面配置的记录">
+             <span id="/blog/2018/11/30/java平台与java是解释执行的正确性/" class="leancloud_visitors" data-flag-title="java平台与java是解释执行的正确性">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1850,7 +1794,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1,305
+                  1,020
                 </span>
               
 
@@ -1866,7 +1810,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  6
+                  4
                 </span>
               
             </div>
@@ -1888,10 +1832,10 @@
 
       
         
-          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>之前也学习过validate注解去校验一些参数的必要条件，这回工作中用的时候遇到了一些问题。这里都是使用spring boot框架去做的切面，省去了很多不需要的配置。这里去记录一下。</p>
+          <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>最近看了一点点极客时间上的《Java核心技术36讲》，打算把一些自己感兴趣或者不知道的点总结到博客中，方便对一些知识有一些整理和拾遗。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/blog/2018/09/21/两个切面配置的记录/#more" rel="contents">
+            <a class="btn" href="/blog/2018/11/30/java平台与java是解释执行的正确性/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1950,7 +1894,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/09/09/vi命令小总结/">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/11/26/守护线程和非守护线程/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="夸克">
@@ -1969,7 +1913,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/blog/2018/09/09/vi命令小总结/" itemprop="url">vi命令小总结</a></h1>
+                <a class="post-title-link" href="/blog/2018/11/26/守护线程和非守护线程/" itemprop="url">并发编程——并发基础：守护线程和非守护线程</a></h1>
         
 
         <div class="post-meta">
@@ -1981,8 +1925,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-09T22:04:52+08:00">
-                2018-09-09
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-26T01:09:04+08:00">
+                2018-11-26
               </time>
             
 
@@ -2004,8 +1948,19 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
+                  <a href="/blog/categories/并发编程/" itemprop="url" rel="index">
+                    <span itemprop="name">并发编程</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/并发编程/并发基础/" itemprop="url" rel="index">
+                    <span itemprop="name">并发基础</span>
                   </a>
                 </span>
 
@@ -2021,7 +1976,7 @@
 
           
           
-             <span id="/blog/2018/09/09/vi命令小总结/" class="leancloud_visitors" data-flag-title="vi命令小总结">
+             <span id="/blog/2018/11/26/守护线程和非守护线程/" class="leancloud_visitors" data-flag-title="并发编程——并发基础：守护线程和非守护线程">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -2047,7 +2002,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  415
+                  1,540
                 </span>
               
 
@@ -2063,7 +2018,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  1
+                  7
                 </span>
               
             </div>
@@ -2085,19 +2040,14 @@
 
       
         
-          
-            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>这篇去写一些最近在工作中get到的关于vi/vim命令的点，简单去记录下。</p>
-<h2 id="技能点"><a href="#技能点" class="headerlink" title="技能点"></a>技能点</h2><h3 id="在文件中快速删除一行"><a href="#在文件中快速删除一行" class="headerlink" title="在文件中快速删除一行"></a>在文件中快速删除一行</h3><p>在vi编辑文件的时候，发现有时要删除很多的文件内容，这个时候去一点点删除很慢，这里get到了一个快速删除一行的技能。在打开的文件中所要删除的行连续按两次d就可以快速删除一行，然后在用:wq保存即可。</p>
-<p><img src="https://img-blog.csdnimg.cn/20181203005303936.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3psajEyMTc=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
-<h3 id="解决没有正确关闭vi打开的文件"><a href="#解决没有正确关闭vi打开的文件" class="headerlink" title="解决没有正确关闭vi打开的文件"></a>解决没有正确关闭vi打开的文件</h3><p>有的时候我们在查看一个文件之后，直接ctrl+z去退出了文件，当我们再用vim命令去编辑文件的时候，这时候会发现报一个没有正确关闭这个文件的冲突错误，并且你不去解决就会一直存在。</p>
-<p><img src="https://img-blog.csdnimg.cn/20181203005248626.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3psajEyMTc=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
-<p>这里get到了去解决的方法，其实也是怪自己一看到一堆英文就不想看下去，这里其实已经写得很清楚了，这里提供了两种情况：</p>
-<p>（1）有可能另一个人也在编辑这个文件，它提醒你要注意两个人同时编辑不同的地方。</p>
-<p>（2）上一次编辑的session还在，这时候提供了解决办法：可以用recover或者vim -r 文件名去修复这个changes。</p>
-<p>可以看到当你没正确退出时，还保持着edit session，这时候会生成两个临时文件，我这里采用的是直接删除这两个文件即可。<br><img src="https://img-blog.csdnimg.cn/20181203005235670.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3psajEyMTc=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
-<p>运行 rm -rf .fileName.* 命令之后，再次打开之后就不会有冲突。 </p>
-
-          
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近在复习的时候，发现一个运行线程池拒绝策略demo中的main方法在运行了之后，进程并没有关闭。看了jconsole线程池中的线程都处于waiting状态。这里是跟我设置线程池的线程工厂中的设置线程是否为后台线程有关。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/blog/2018/11/26/守护线程和非守护线程/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -2152,7 +2102,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/09/05/springboot应用拦截器/">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/11/23/url拼接参数问题/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="夸克">
@@ -2171,7 +2121,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/blog/2018/09/05/springboot应用拦截器/" itemprop="url">springboot应用拦截器</a></h1>
+                <a class="post-title-link" href="/blog/2018/11/23/url拼接参数问题/" itemprop="url">url拼接参数问题</a></h1>
         
 
         <div class="post-meta">
@@ -2183,8 +2133,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-05T00:33:15+08:00">
-                2018-09-05
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-23T01:07:57+08:00">
+                2018-11-23
               </time>
             
 
@@ -2206,19 +2156,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/spring/" itemprop="url" rel="index">
-                    <span itemprop="name">spring</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/spring/spring-boot/" itemprop="url" rel="index">
-                    <span itemprop="name">spring boot</span>
+                  <a href="/blog/categories/bug记录/" itemprop="url" rel="index">
+                    <span itemprop="name">bug记录</span>
                   </a>
                 </span>
 
@@ -2234,7 +2173,7 @@
 
           
           
-             <span id="/blog/2018/09/05/springboot应用拦截器/" class="leancloud_visitors" data-flag-title="springboot应用拦截器">
+             <span id="/blog/2018/11/23/url拼接参数问题/" class="leancloud_visitors" data-flag-title="url拼接参数问题">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -2260,7 +2199,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  2,942
+                  564
                 </span>
               
 
@@ -2276,7 +2215,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  12
+                  2
                 </span>
               
             </div>
@@ -2298,10 +2237,10 @@
 
       
         
-          <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>在工作中看到了不少项目用到了拦截器，这里去总结一下spring-boot使用拦截器。拦截器是Spring提供的HandlerInterceptor（拦截器），其功能和过滤器类似，但是提供更精细的控制能力：在request被响应之前、request被响应之后、视图渲染之前以及request全部结束之后。我们不能通过拦截器修改request的内容，但可以通过抛出异常（或者返回false）来暂停request的执行。<br>
+          <h2 id="问题现象"><a href="#问题现象" class="headerlink" title="问题现象"></a>问题现象</h2><p>在最近的开发过程中要根据一堆id值去删除ES中的数据，就写了一个脚本接口，传入了idList。这里选择的是GET方式的接口，将idList以逗号分隔当做字符串传入当做参数，然后在接口中转换成List类型再对ES进行操作。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/blog/2018/09/05/springboot应用拦截器/#more" rel="contents">
+            <a class="btn" href="/blog/2018/11/23/url拼接参数问题/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -2351,7 +2290,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/blog/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/blog/">1</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/blog/page/7/">7</a><a class="page-number" href="/blog/page/8/">8</a><a class="extend next" rel="next" href="/blog/page/7/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/blog/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/blog/">1</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/blog/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/9/">9</a><a class="extend next" rel="next" href="/blog/page/7/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2401,7 +2340,7 @@
               
                 <a href="/blog/archives/">
               
-                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-count">82</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2412,7 +2351,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/blog/categories/index.html">
-                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-count">25</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -2423,7 +2362,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/blog/tags/index.html">
-                  <span class="site-state-item-count">77</span>
+                  <span class="site-state-item-count">87</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -2497,7 +2436,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">106.6k</span>
+    <span title="Site words total count">118.8k</span>
   
 </div>
 
@@ -2519,7 +2458,7 @@
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共106.6k字</span>
+  <span class="post-count">博客全站共118.8k字</span>
 </div>
 
 <br />
