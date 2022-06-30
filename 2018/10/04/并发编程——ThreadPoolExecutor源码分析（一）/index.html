@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="张利君的博客">
 <meta property="og:description" content="前言线程池是并发编程中最重要的应用之一，使用线程池可以防止大量的创建和销毁线程的过程，可以节省很多的内存空间，提高程序的响应率和cpu的利用率，并且也可以对线程进行统一管理和监控。这里将分几篇文章介绍一下线程池的源码分析。本篇是分析ThreadPoolExecutor中的ctl变量。并且去写了线程中的">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-10-13T08:50:48.452Z">
+<meta property="og:updated_time" content="2022-06-30T21:12:04.041Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="并发编程——ThreadPoolExecutor源码分析（一）">
 <meta name="twitter:description" content="前言线程池是并发编程中最重要的应用之一，使用线程池可以防止大量的创建和销毁线程的过程，可以节省很多的内存空间，提高程序的响应率和cpu的利用率，并且也可以对线程进行统一管理和监控。这里将分几篇文章介绍一下线程池的源码分析。本篇是分析ThreadPoolExecutor中的ctl变量。并且去写了线程中的">
@@ -492,7 +492,7 @@
   <p><span>本文标题:</span><a href="/blog/2018/10/04/并发编程——ThreadPoolExecutor源码分析（一）/">并发编程——ThreadPoolExecutor源码分析（一）</a></p>
   <p><span>文章作者:</span><a href="/" title="访问 张利君 的个人博客">张利君</a></p>
   <p><span>发布时间:</span>2018年10月04日 - 18:10</p>
-  <p><span>最后更新:</span>2018年10月13日 - 16:10</p>
+  <p><span>最后更新:</span>2022年07月01日 - 05:07</p>
   <p><span>原始链接:</span><a href="/blog/2018/10/04/并发编程——ThreadPoolExecutor源码分析（一）/" title="并发编程——ThreadPoolExecutor源码分析（一）">https://zhanglijun1217.github.io/2018/10/04/并发编程——ThreadPoolExecutor源码分析（一）/</a>
     <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://zhanglijun1217.github.io/2018/10/04/并发编程——ThreadPoolExecutor源码分析（一）/"  aria-label="复制成功！"></i></span>
   </p>
@@ -629,7 +629,7 @@
                 alt="张利君" />
             
               <p class="site-author-name" itemprop="name">张利君</p>
-              <p class="site-description motion-element" itemprop="description">坚持是一种力量</p>
+              <p class="site-description motion-element" itemprop="description">愿赌服输</p>
           </div>
 
           <nav class="site-state motion-element">
@@ -639,7 +639,7 @@
               
                 <a href="/blog/archives/">
               
-                  <span class="site-state-item-count">48</span>
+                  <span class="site-state-item-count">63</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -650,7 +650,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/blog/categories/index.html">
-                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-count">22</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -661,7 +661,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/blog/tags/index.html">
-                  <span class="site-state-item-count">49</span>
+                  <span class="site-state-item-count">69</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -737,7 +737,7 @@
     <footer id="footer" class="footer">
       <div class="footer-inner">
         <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>
@@ -751,14 +751,8 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">63.9k</span>
+    <span title="Site words total count">94.0k</span>
   
-</div>
-
-<div class="powered-by">
-<i class="fa fa-user-md"></i><span id="busuanzi_container_site_uv">
-  本站访客数:<span id="busuanzi_value_site_uv"></span>
-</span>
 </div>
 
 <!-- 
@@ -779,8 +773,27 @@
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共63.9k字</span>
+  <span class="post-count">博客全站共94.0k字</span>
 </div>
+
+<br />
+<span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
+<script>
+    var now = new Date(); 
+    function createtime() { 
+        var grt= new Date("08/10/2018 17:38:00");//在此处修改你的建站时间
+        now.setTime(now.getTime()+250); 
+        days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days); 
+        hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours); 
+        if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum); 
+        mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;} 
+        seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum); 
+        snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;} 
+        document.getElementById("timeDate").innerHTML = "本站已安全运行 "+dnum+" 天 "; 
+        document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒"; 
+    } 
+setInterval("createtime()",250);
+</script>
 
         
 
@@ -824,8 +837,6 @@
   
 
 
-  
-
 
 
 
@@ -864,11 +875,6 @@
   
   
     <script type="text/javascript" src="/blog/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/blog/lib/canvas-nest/canvas-nest.min.js"></script>
   
 
 
