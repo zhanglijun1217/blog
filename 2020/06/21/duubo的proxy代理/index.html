@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Arrays.asList,集合操作," />
+  <meta name="keywords" content="dubbo中的代理," />
 
 
 
@@ -79,18 +79,21 @@
 
 
 
-<meta name="description" content="使用背景总结一下最近项目中使用到集合的两个点，一个是Arrays.asList这个方法使用的坑，另一个是利用Guava的Sets工具类去求并交集。">
-<meta name="keywords" content="Arrays.asList,集合操作">
+<meta name="description" content="Proxy层 proxy层是dubbo中的动态代理层，主要是为了屏蔽dubbo内部Cluster、Protocol概念设计，能让业务层像调用本地方法一样去发起RPC调用。">
+<meta name="keywords" content="dubbo中的代理">
 <meta property="og:type" content="article">
-<meta property="og:title" content="java集合类的一些总结——Arrays.asList和Guava操作集合">
-<meta property="og:url" content="https://zhanglijun1217.github.io/2018/12/15/java集合类的一些总结——Arrays-asList和并集/index.html">
+<meta property="og:title" content="duubo的proxy代理">
+<meta property="og:url" content="https://zhanglijun1217.github.io/2020/06/21/duubo的proxy代理/index.html">
 <meta property="og:site_name" content="夸克的博客">
-<meta property="og:description" content="使用背景总结一下最近项目中使用到集合的两个点，一个是Arrays.asList这个方法使用的坑，另一个是利用Guava的Sets工具类去求并交集。">
+<meta property="og:description" content="Proxy层 proxy层是dubbo中的动态代理层，主要是为了屏蔽dubbo内部Cluster、Protocol概念设计，能让业务层像调用本地方法一样去发起RPC调用。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2022-06-30T21:12:04.034Z">
+<meta property="og:image" content="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701064957928.png">
+<meta property="og:image" content="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701064322108.png">
+<meta property="og:updated_time" content="2022-06-30T22:50:15.292Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="java集合类的一些总结——Arrays.asList和Guava操作集合">
-<meta name="twitter:description" content="使用背景总结一下最近项目中使用到集合的两个点，一个是Arrays.asList这个方法使用的坑，另一个是利用Guava的Sets工具类去求并交集。">
+<meta name="twitter:title" content="duubo的proxy代理">
+<meta name="twitter:description" content="Proxy层 proxy层是dubbo中的动态代理层，主要是为了屏蔽dubbo内部Cluster、Protocol概念设计，能让业务层像调用本地方法一样去发起RPC调用。">
+<meta name="twitter:image" content="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701064957928.png">
 
 
 
@@ -120,13 +123,13 @@
 
 
 
-  <link rel="canonical" href="https://zhanglijun1217.github.io/2018/12/15/java集合类的一些总结——Arrays-asList和并集/"/>
+  <link rel="canonical" href="https://zhanglijun1217.github.io/2020/06/21/duubo的proxy代理/"/>
 
 
 
 
 
-  <title>java集合类的一些总结——Arrays.asList和Guava操作集合 | 夸克的博客</title>
+  <title>duubo的proxy代理 | 夸克的博客</title>
   
 
 
@@ -298,7 +301,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/12/15/java集合类的一些总结——Arrays-asList和并集/">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/06/21/duubo的proxy代理/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="夸克">
@@ -315,7 +318,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">java集合类的一些总结——Arrays.asList和Guava操作集合</h1>
+          <h1 class="post-title" itemprop="name headline">duubo的proxy代理</h1>
         
 
         <div class="post-meta">
@@ -327,8 +330,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-15T00:59:34+08:00">
-                2018-12-15
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-06-21T16:41:30+08:00">
+                2020-06-21
               </time>
             
 
@@ -350,8 +353,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Java基础/" itemprop="url" rel="index">
-                    <span itemprop="name">Java基础</span>
+                  <a href="/blog/categories/dubbo/" itemprop="url" rel="index">
+                    <span itemprop="name">dubbo</span>
                   </a>
                 </span>
 
@@ -367,7 +370,7 @@
 
           
           
-             <span id="/blog/2018/12/15/java集合类的一些总结——Arrays-asList和并集/" class="leancloud_visitors" data-flag-title="java集合类的一些总结——Arrays.asList和Guava操作集合">
+             <span id="/blog/2020/06/21/duubo的proxy代理/" class="leancloud_visitors" data-flag-title="duubo的proxy代理">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -393,7 +396,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1,178
+                  1,482
                 </span>
               
 
@@ -409,7 +412,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  5
+                  7
                 </span>
               
             </div>
@@ -430,25 +433,38 @@
       
 
       
-        <h2 id="使用背景"><a href="#使用背景" class="headerlink" title="使用背景"></a>使用背景</h2><p>总结一下最近项目中使用到集合的两个点，一个是Arrays.asList这个方法使用的坑，另一个是利用Guava的Sets工具类去求并交集。</p>
+        <h2 id="Proxy层"><a href="#Proxy层" class="headerlink" title="Proxy层"></a>Proxy层</h2><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701064957928.png" alt="image-20220701064957928"></p>
+<p>proxy层是dubbo中的动态代理层，主要是为了屏蔽dubbo内部Cluster、Protocol概念设计，能让业务层像调用本地方法一样去发起RPC调用。</p>
 <a id="more"></a>
-<h2 id="使用总结"><a href="#使用总结" class="headerlink" title="使用总结"></a>使用总结</h2><h3 id="Arrays-asList的坑"><a href="#Arrays-asList的坑" class="headerlink" title="Arrays.asList的坑"></a>Arrays.asList的坑</h3><p>先上结论：</p>
 <ul>
-<li>Arrays.asList这个方法不适用于基本类型：byte,short,int,long,float,double,boolean</li>
-<li>该方法将数组和列表动态链接起来，当其中一个更新后，另一个也会更新</li>
-<li>不支持add和remove方法<br>（1）首先对于第一点，这个方法不适用于基本类型，并不是不能用于基本类型，看一下下面的代码：<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span>[] int_array = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;;</span><br><span class="line">    List&lt;<span class="keyword">int</span>[]&gt; ints = Arrays.asList(int_array);</span><br><span class="line">    <span class="comment">// 对于基本类型，会打印一个元素结果</span></span><br><span class="line">    System.out.println(ints);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<li><p>在Consumer层进行引用服务时，通过动态代理把引用的dubbo接口转化为Invoker对象，Dubbo内部也是通过Invoker和Cluster、Protocol层进行交互。</p>
+<ul>
+<li>对应着ProxyFactory的方法：<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment"> * create proxy.</span></span><br><span class="line"><span class="comment"> * 创建代理 在引用dubbo服务时使用，引用的最终是代理对象</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> invoker</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> proxy</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Adaptive</span>(&#123;PROXY_KEY&#125;)</span><br><span class="line">&lt;T&gt; <span class="function">T <span class="title">getProxy</span><span class="params">(Invoker&lt;T&gt; invoker)</span> <span class="keyword">throws</span> RpcException</span>;</span><br></pre></td></tr></table></figure>
 </li>
 </ul>
-<p>输出：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[[I@610455d6]</span><br></pre></td></tr></table></figure></p>
-<p>从Arrays.asList返回List的泛型可知，这个工具方法将基本类型的数组只转成了一个元素的列表。因为在Arrays.asList中，该方法接受一个变长参数，一般可以看做数组参数，但是因为int[]本身就是一个类型，所以data变量作为参数传递时，编译器认为只传了一个变量，这个变量的类型是int数组，所以会这样。基本类型是不能作为泛型的参数，按道理应该使用包装类型，这里没有报错是因为数组是可以泛型化的，所以在转换后list中有一个类型为int[]的数组。值得注意的是，如果这时打印出其中的class，会返回class[I。因为jvm不可能输出int[]对应的array类型，array属于java.lang.reflect包，通过反射访问数组这个类，编译时生成的这个class值。<br>（2）对于第二点，我们可以尝试改变数组中的值时，可以看看对应list中的值：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">String[] string_array = &#123;<span class="string">"aa"</span>, <span class="string">"bb"</span>, <span class="string">"cc"</span>&#125;;</span><br><span class="line">       List&lt;String&gt; stringList = Arrays.asList(string_array);</span><br><span class="line"></span><br><span class="line">       System.out.println(<span class="string">"============改变数组前============"</span>);</span><br><span class="line">       System.out.println(stringList);</span><br><span class="line"></span><br><span class="line">       <span class="comment">// 改变数组</span></span><br><span class="line">       string_array[<span class="number">1</span>] = <span class="string">"change"</span>;</span><br><span class="line">       System.out.println(<span class="string">"============改变数组后============"</span>);</span><br><span class="line">       System.out.println(stringList);</span><br><span class="line">       <span class="comment">// 改变list</span></span><br><span class="line">       stringList.set(<span class="number">1</span>, <span class="string">"change2"</span>);</span><br><span class="line">       System.out.println(<span class="string">"============改变list后============"</span>);</span><br><span class="line">       System.out.println(string_array[<span class="number">1</span>]);</span><br></pre></td></tr></table></figure></p>
-<p>输出结果：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">============改变数组前============</span><br><span class="line">[aa, bb, cc]</span><br><span class="line">============改变数组后============</span><br><span class="line">[aa, change, cc]</span><br><span class="line">============改变list后============</span><br><span class="line">change2</span><br></pre></td></tr></table></figure></p>
-<p>这个通过源码很好理解，可以看一下asList的源码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SafeVarargs</span></span><br><span class="line"> <span class="meta">@SuppressWarnings</span>(<span class="string">"varargs"</span>)</span><br><span class="line"> <span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; <span class="function">List&lt;T&gt; <span class="title">asList</span><span class="params">(T... a)</span> </span>&#123;</span><br><span class="line">     <span class="keyword">return</span> <span class="keyword">new</span> ArrayList&lt;&gt;(a);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure></p>
-<p>new ArrayList构造函数代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> E[] a;</span><br><span class="line"> ArrayList(E[] array) &#123;</span><br><span class="line">            a = Objects.requireNonNull(array);</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure></p>
-<p>从源码中得到asList就是将数组作为返回的List的实际引用，即List中的数组就是要转成list的数组，所以当更改数组中的值时，list中的值也会变化，list列表中的值变更也相当于变更了其中的数组，也就是源数据数组。这就是所谓的链接在一起。Arrays.asList体现的是适配器模式，只是转换接口（array到list），后台的数据仍是数组。<br>（3）第三点是数组转换之后的List是不支持remove和add方法的。这里说的不支持，是调用add或者remove方法之后会抛出一个异常 java.lang.UnsupportedOperationException。一开始感到奇怪，ArrayList为什么不支持add和remove方法？这里去看了返回的ArrayList的源码，这个ArrayList并不是常用的ArrayList，而是在Arrays中定义的一个内部类：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ArrayList</span>&lt;<span class="title">E</span>&gt; <span class="keyword">extends</span> <span class="title">AbstractList</span>&lt;<span class="title">E</span>&gt;</span></span><br><span class="line"><span class="class">       <span class="keyword">implements</span> <span class="title">RandomAccess</span>, <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span></span></span><br><span class="line"><span class="class">   </span>&#123;</span><br><span class="line">       <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> serialVersionUID = -<span class="number">2764017481108945198L</span>;</span><br><span class="line">       <span class="keyword">private</span> <span class="keyword">final</span> E[] a;</span><br><span class="line"></span><br><span class="line">       ArrayList(E[] array) &#123;</span><br><span class="line">           a = Objects.requireNonNull(array);</span><br><span class="line">       &#125;</span><br><span class="line">       ... <span class="comment">// 省略一些代码</span></span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure></p>
-<p>这个内部类虽然继承了AbstractList，但是没有去实现其中的add和remove方法，可以看下AbstractList中定义的默认add方法的实现：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">     * &#123;<span class="doctag">@inheritDoc</span>&#125;</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * &lt;p&gt;This implementation always throws an</span></span><br><span class="line"><span class="comment">     * &#123;<span class="doctag">@code</span> UnsupportedOperationException&#125;.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> UnsupportedOperationException &#123;<span class="doctag">@inheritDoc</span>&#125;</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> ClassCastException            &#123;<span class="doctag">@inheritDoc</span>&#125;</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> NullPointerException          &#123;<span class="doctag">@inheritDoc</span>&#125;</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IllegalArgumentException      &#123;<span class="doctag">@inheritDoc</span>&#125;</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IndexOutOfBoundsException     &#123;<span class="doctag">@inheritDoc</span>&#125;</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">(<span class="keyword">int</span> index, E element)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> UnsupportedOperationException();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
-<p>可以看到如果没有去实现add方法，那么会抛出这个异常，这里因为也叫做ArrayList，所以还是比较容易踩坑。clear、remove方法也是一样的原因。<br>关于Arrays.asList的代码github地址：<br><a href="https://github.com/zhanglijun1217/java8/tree/master/src/Arrays_asList" target="_blank" rel="noopener">https://github.com/zhanglijun1217/java8/tree/master/src/Arrays_asList</a></p>
-<h3 id="Guava中的Sets工具类求交集"><a href="#Guava中的Sets工具类求交集" class="headerlink" title="Guava中的Sets工具类求交集"></a>Guava中的Sets工具类求交集</h3><p>近期也去使用了一个求集合交集的场景。这里去简单记录下Guava中的这个用法。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Sets.intersection(set1, set2);</span><br></pre></td></tr></table></figure></p>
-<p>这个方法返回的是一个新的集合去承接传入两个集合的交集的。Guava也提供了对集合操作很多其他方法，比如并集、差集、全集等，这个后面会去总结。</p>
+</li>
+<li><p>在Provider层进行导出暴露服务时，通过动态代理实现Invoker对象和真正dubbo服务实现类的转换，进而调用到dubbo服务。</p>
+<ul>
+<li>对应着ProxyFactory的getInvoker方法<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * create invoker.</span></span><br><span class="line"><span class="comment"> * 代理工程创建Invoker 在export导出服务时使用</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &lt;T&gt;</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> proxy</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> type</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> url</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> invoker</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Adaptive</span>(&#123;PROXY_KEY&#125;)</span><br><span class="line">&lt;T&gt; <span class="function">Invoker&lt;T&gt; <span class="title">getInvoker</span><span class="params">(T proxy, Class&lt;T&gt; type, URL url)</span> <span class="keyword">throws</span> RpcException</span>;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="客户端的代理逻辑"><a href="#客户端的代理逻辑" class="headerlink" title="客户端的代理逻辑"></a>客户端的代理逻辑</h3><p>在客户端Invoker模型是Dubbo内部封装的客户端发起网络调用的模型，通过ProxyFactory.getProxy(invoker)生成代理对象供客户端业务引用调用，屏蔽了内部细节。</p>
+<p>客户端于服务引用时调用的getProxy方法生成的代理类，可以看到都是将拦截逻辑用InvokerInvocationHandler实现，也就是消费端引用的dubbo远程对象，都是一个代理对象，会在发起调用时走到InvokerInvocationHandler的invoke方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (method.getDeclaringClass() == Object.class) &#123;</span><br><span class="line">            <span class="comment">// object类方法直接调用</span></span><br><span class="line">            <span class="keyword">return</span> method.invoke(invoker, args);</span><br><span class="line">        &#125;</span><br><span class="line">        String methodName = method.getName();</span><br><span class="line">        Class&lt;?&gt;[] parameterTypes = method.getParameterTypes();</span><br><span class="line">        <span class="keyword">if</span> (parameterTypes.length == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="string">"toString"</span>.equals(methodName)) &#123;</span><br><span class="line">                <span class="keyword">return</span> invoker.toString();</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"$destroy"</span>.equals(methodName)) &#123;</span><br><span class="line">                invoker.destroy();</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"hashCode"</span>.equals(methodName)) &#123;</span><br><span class="line">                <span class="keyword">return</span> invoker.hashCode();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (parameterTypes.length == <span class="number">1</span> &amp;&amp; <span class="string">"equals"</span>.equals(methodName)) &#123;</span><br><span class="line">            <span class="keyword">return</span> invoker.equals(args[<span class="number">0</span>]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 封装创建RPCInvocation</span></span><br><span class="line">        RpcInvocation rpcInvocation = <span class="keyword">new</span> RpcInvocation(method, invoker.getInterface().getName(), args);</span><br><span class="line">        <span class="comment">// Invoker的url生成serviceKey</span></span><br><span class="line">        String serviceKey = invoker.getUrl().getServiceKey();</span><br><span class="line">        rpcInvocation.setTargetServiceUniqueName(serviceKey);</span><br><span class="line">      </span><br><span class="line">        <span class="keyword">if</span> (consumerModel != <span class="keyword">null</span>) &#123;</span><br><span class="line">            rpcInvocation.put(Constants.CONSUMER_MODEL, consumerModel);</span><br><span class="line">            rpcInvocation.put(Constants.METHOD_MODEL, consumerModel.getMethodModel(method));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 这里调用被代理的Invoker对象  主要看几个层级的 @See 集群容错的ClusterInvoker、 Consumer端的Filter链、AbstractInvoke.invoke方法、DubboInvoker.doInvoke()方法</span></span><br><span class="line">        <span class="comment">// 返回值 @See AsyncRpcResult</span></span><br><span class="line">        <span class="comment">// invoke完成之后 调用调用结果的recreate()方法 如果存在异常 在客户端抛出对应的异常</span></span><br><span class="line">        <span class="keyword">return</span> invoker.invoke(rpcInvocation).recreate();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="服务端代理逻辑"><a href="#服务端代理逻辑" class="headerlink" title="服务端代理逻辑"></a>服务端代理逻辑</h3><p>在服务端也用到了动态代理和Invoker模型。服务端的Invoker代表可执行对象，provider端的真正dubbo实现类被封装为ProxyInvoker（通过ProxyFactory.getInvoker(proxy)方法，这里的proxy是dubbo真正实现类），对不同的dubbo接口服务实现都抽象为ProxyInvoker模型来实现调用。</p>
+<p>为dubbo服务实现类生成代理也有jdk动态代理和Javassist动态代理两种实现。<br>无论哪种实现Dubbo服务实现类都会被AbstractProxyInvoker，调用invoke方法时，会委托给子类的doInvoke方法，两个代理框架有不一样的实现。</p>
+<p>其中invoke方法如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Result <span class="title">invoke</span><span class="params">(Invocation invocation)</span> <span class="keyword">throws</span> RpcException </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 子类实现doInvoke方法 即具体的ProxyFactory实现 （jdk或者javassist）</span></span><br><span class="line">            <span class="comment">//  比如 JavassistProxyFactory中实现doInvoke是通过调用字节码动态生成的Wrapper的子类 调用其invokeMethod方法</span></span><br><span class="line">            <span class="comment">// 内部会调用dubbo服务实现类的方法</span></span><br><span class="line">            Object value = doInvoke(proxy, invocation.getMethodName(), invocation.getParameterTypes(), invocation.getArguments());</span><br><span class="line">            <span class="comment">// 基于value创建一个CompltableFuture</span></span><br><span class="line">			CompletableFuture&lt;Object&gt; future = wrapWithFuture(value);</span><br><span class="line">            CompletableFuture&lt;AppResponse&gt; appResponseFuture = future.handle((obj, t) -&gt; &#123;</span><br><span class="line">                <span class="comment">// 根据dubbo返回值封装的future 注册一个任务 将真正返回值包装到AppResponse</span></span><br><span class="line">                AppResponse result = <span class="keyword">new</span> AppResponse();</span><br><span class="line">                <span class="keyword">if</span> (t != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (t <span class="keyword">instanceof</span> CompletionException) &#123;</span><br><span class="line">                        result.setException(t.getCause());</span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        result.setException(t);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    result.setValue(obj);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> result;</span><br><span class="line">            &#125;);</span><br><span class="line">            <span class="comment">// 包装一层AsyncRpcResult返回给上层Invoker</span></span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> AsyncRpcResult(appResponseFuture, invocation);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InvocationTargetException e) &#123;</span><br><span class="line">            <span class="keyword">if</span> (RpcContext.getContext().isAsyncStarted() &amp;&amp; !RpcContext.getContext().stopAsync()) &#123;</span><br><span class="line">                logger.error(<span class="string">"Provider async started, but got an exception from the original method, cannot write the exception back to consumer because an async result may have returned the new thread."</span>, e);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> AsyncRpcResult.newDefaultAsyncResult(<span class="keyword">null</span>, e.getTargetException(), invocation);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Throwable e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> RpcException(<span class="string">"Failed to invoke remote proxy method "</span> + invocation.getMethodName() + <span class="string">" to "</span> + getUrl() + <span class="string">", cause: "</span> + e.getMessage(), e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>doInvoke的两种实现：</p>
+<ul>
+<li><p>jdkJdkRpcProxyFactory实现：就是用java反射调用具体的dubbo服务实现类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// JdkRpcProxyFactory.getInvoker</span></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> &lt;T&gt; <span class="function">Invoker&lt;T&gt; <span class="title">getInvoker</span><span class="params">(T proxy, Class&lt;T&gt; type, URL url)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// jdk反射 来封装dubbo服务实现类的代理封装</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> AbstractProxyInvoker&lt;T&gt;(proxy, type, url) &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">protected</span> Object <span class="title">doInvoke</span><span class="params">(T proxy, String methodName,</span></span></span><br><span class="line"><span class="function"><span class="params">                                      Class&lt;?&gt;[] parameterTypes,</span></span></span><br><span class="line"><span class="function"><span class="params">                                      Object[] arguments)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">                <span class="comment">// 直接反射调用</span></span><br><span class="line">                Method method = proxy.getClass().getMethod(methodName, parameterTypes);</span><br><span class="line">                <span class="keyword">return</span> method.invoke(proxy, arguments);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>JavassistProxyFactory实现：利用Wrapper的invokeMethod方法封装实现调用具体的dubbo服务实现类。其中Wrapper是利用Javassist框架生成的动态代理类，来完成对dubbo服务实现类真正方法的调用。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// getInvoker 服务导出时使用 封装dubbo服务实现类为invoker</span></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">public</span> &lt;T&gt; <span class="function">Invoker&lt;T&gt; <span class="title">getInvoker</span><span class="params">(T proxy, Class&lt;T&gt; type, URL url)</span> </span>&#123;</span><br><span class="line">      <span class="comment">// TODO Wrapper cannot handle this scenario correctly: the classname contains '$'</span></span><br><span class="line">      <span class="comment">// 字节码生成的Wrapper实现类 对传入的proxy（export场景是dubbo服务实现类）进行包装</span></span><br><span class="line">      <span class="keyword">final</span> Wrapper wrapper = Wrapper.getWrapper(proxy.getClass().getName().indexOf(<span class="string">'$'</span>) &lt; <span class="number">0</span> ? proxy.getClass() : type);</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> AbstractProxyInvoker&lt;T&gt;(proxy, type, url) &#123;</span><br><span class="line">          <span class="comment">// 实现doInvoke方法 会从AbstractProxyInvoker.invoke中调用</span></span><br><span class="line">          <span class="meta">@Override</span></span><br><span class="line">          <span class="function"><span class="keyword">protected</span> Object <span class="title">doInvoke</span><span class="params">(T proxy, String methodName,</span></span></span><br><span class="line"><span class="function"><span class="params">                                    Class&lt;?&gt;[] parameterTypes,</span></span></span><br><span class="line"><span class="function"><span class="params">                                    Object[] arguments)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">              <span class="comment">// 调用Invoker.invoke方法时会委托给wrapper.invokeMethod方法</span></span><br><span class="line">              <span class="keyword">return</span> wrapper.invokeMethod(proxy, methodName, parameterTypes, arguments);</span><br><span class="line">          &#125;</span><br><span class="line">      &#125;;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// Invoker.invoke --&gt; AbstractProxyInvoker.invoke --&gt; AbstractProxyInvoker.doInvoke --&gt; Wrapper.getWrapper.invokeMethod</span></span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="代理层总结"><a href="#代理层总结" class="headerlink" title="代理层总结"></a>代理层总结</h3><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701064322108.png" alt="image-20220701064322108">代理层在在dubbo-rpc-api包内，Consumer层的Proxy屏蔽了复杂的网络交互、集群策略、Dubbo内部的Invoker等概念，提供给上层业务是Dubbo接口，像本地方法一样的去发起远程调用；而Provider端的Wrapper的动态代理封装了不同的Dubbo服务实现类，统一转换为Dubbo的Invoker模型。代理层让业务接口和Dubbo框架无缝对接。</p>
 
       
     </div>
@@ -476,12 +492,12 @@
   <!-- JS库 sweetalert 可修改路径 -->
   <script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script>
   <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-  <p><span>本文标题:</span><a href="/blog/2018/12/15/java集合类的一些总结——Arrays-asList和并集/">java集合类的一些总结——Arrays.asList和Guava操作集合</a></p>
+  <p><span>本文标题:</span><a href="/blog/2020/06/21/duubo的proxy代理/">duubo的proxy代理</a></p>
   <p><span>文章作者:</span><a href="/" title="访问 夸克 的个人博客">夸克</a></p>
-  <p><span>发布时间:</span>2018年12月15日 - 00:12</p>
-  <p><span>最后更新:</span>2022年07月01日 - 05:07</p>
-  <p><span>原始链接:</span><a href="/blog/2018/12/15/java集合类的一些总结——Arrays-asList和并集/" title="java集合类的一些总结——Arrays.asList和Guava操作集合">https://zhanglijun1217.github.io/2018/12/15/java集合类的一些总结——Arrays-asList和并集/</a>
-    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://zhanglijun1217.github.io/2018/12/15/java集合类的一些总结——Arrays-asList和并集/"  aria-label="复制成功！"></i></span>
+  <p><span>发布时间:</span>2020年06月21日 - 16:06</p>
+  <p><span>最后更新:</span>2022年07月01日 - 06:07</p>
+  <p><span>原始链接:</span><a href="/blog/2020/06/21/duubo的proxy代理/" title="duubo的proxy代理">https://zhanglijun1217.github.io/2020/06/21/duubo的proxy代理/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://zhanglijun1217.github.io/2020/06/21/duubo的proxy代理/"  aria-label="复制成功！"></i></span>
   </p>
   <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
 </div>
@@ -513,9 +529,7 @@
       
         <div class="post-tags">
           
-            <a href="/blog/tags/Arrays-asList/" rel="tag"># Arrays.asList</a>
-          
-            <a href="/blog/tags/集合操作/" rel="tag"># 集合操作</a>
+            <a href="/blog/tags/dubbo中的代理/" rel="tag"># dubbo中的代理</a>
           
         </div>
       
@@ -528,8 +542,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/blog/2018/12/06/ClassNotFoundException和NoClassDefFoundError/" rel="next" title="ClassNotFoundException和NoClassDefFoundError">
-                <i class="fa fa-chevron-left"></i> ClassNotFoundException和NoClassDefFoundError
+              <a href="/blog/2020/06/01/duubo注解整合spring原理/" rel="next" title="duubo注解整合spring原理">
+                <i class="fa fa-chevron-left"></i> duubo注解整合spring原理
               </a>
             
           </div>
@@ -538,8 +552,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/blog/2018/12/19/集合中的深拷贝/" rel="prev" title="集合中的深拷贝">
-                集合中的深拷贝 <i class="fa fa-chevron-right"></i>
+              <a href="/blog/2021/03/22/mybatis连接池的实现/" rel="prev" title="mybatis连接池的实现">
+                mybatis连接池的实现 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -703,7 +717,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#使用背景"><span class="nav-number">1.</span> <span class="nav-text">使用背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用总结"><span class="nav-number">2.</span> <span class="nav-text">使用总结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Arrays-asList的坑"><span class="nav-number">2.1.</span> <span class="nav-text">Arrays.asList的坑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Guava中的Sets工具类求交集"><span class="nav-number">2.2.</span> <span class="nav-text">Guava中的Sets工具类求交集</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Proxy层"><span class="nav-number">1.</span> <span class="nav-text">Proxy层</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#客户端的代理逻辑"><span class="nav-number">1.1.</span> <span class="nav-text">客户端的代理逻辑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#服务端代理逻辑"><span class="nav-number">1.2.</span> <span class="nav-text">服务端代理逻辑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代理层总结"><span class="nav-number">1.3.</span> <span class="nav-text">代理层总结</span></a></li></ol></li></ol></div>
             
 
           </div>
