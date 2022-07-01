@@ -1854,7 +1854,7 @@
 <li>每个节点上的关键字都有一个指针，指针指向子树的所有节点索引值都小于当前索引值，都大于上一个索引值。</li>
 <li>所有叶子节点都在同一层。</li>
 </ul>
-<p><img src="/Users/zhanglijun/Library/Application%20Support/typora-user-images/image-20220701101529208.png" alt="image-20220701101529208"></p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220702044034037.png" alt="image-20220702044034037"></p>
 <p>B-Tree中索引和除了索引之外的列是放在一起的，非叶子节点没有冗余索引，同时上层节点中索引关联的指针指向叶子节点，索引节点的左边孩子节点都比索引值小，右边节点都比索引值大。</p>
 <p>这样的多路搜索已经降低了树的高度。</p>
 <p>但Mysql还是采用了B+Tree。</p>
