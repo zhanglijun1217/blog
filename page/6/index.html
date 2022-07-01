@@ -297,7 +297,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/02/01/设计模式——模板方法的应用/">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/05/29/innodb的bufferPool/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="夸克">
@@ -316,7 +316,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/blog/2019/02/01/设计模式——模板方法的应用/" itemprop="url">设计模式——模板方法的应用</a></h1>
+                <a class="post-title-link" href="/blog/2019/05/29/innodb的bufferPool/" itemprop="url">innodb的bufferPool</a></h1>
         
 
         <div class="post-meta">
@@ -328,8 +328,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-01T16:07:57+08:00">
-                2019-02-01
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-29T10:22:22+08:00">
+                2019-05-29
               </time>
             
 
@@ -351,8 +351,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/设计模式/" itemprop="url" rel="index">
-                    <span itemprop="name">设计模式</span>
+                  <a href="/blog/categories/mysql/" itemprop="url" rel="index">
+                    <span itemprop="name">mysql</span>
                   </a>
                 </span>
 
@@ -368,7 +368,7 @@
 
           
           
-             <span id="/blog/2019/02/01/设计模式——模板方法的应用/" class="leancloud_visitors" data-flag-title="设计模式——模板方法的应用">
+             <span id="/blog/2019/05/29/innodb的bufferPool/" class="leancloud_visitors" data-flag-title="innodb的bufferPool">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -394,622 +394,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  977
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  4
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="模板方法"><a href="#模板方法" class="headerlink" title="模板方法"></a>模板方法</h2><h3 id="模板方法-1"><a href="#模板方法-1" class="headerlink" title="模板方法"></a>模板方法</h3><p>很多情况下代码中的业务都可以抽象出一个模板去解决，这时候经常需要用到模板方法。大家经常接触到的是一些业务方法的抽象模板，比如在计算优惠券的流程当中总是有一定的步骤：</p>
-<p>（1）先计算该商品是否可以拥有优惠券信息</p>
-<p>（2）再为该商品绑定优惠券信息</p>
-<p>（3）最后回调或者通知向下的流程</p>
-<p>今天要记录的是一个通用服务层的模板方法，包含了前置校验、后置处理（是有点像拦截器= =）、finally操作。</p>
-<h3 id="业务processor"><a href="#业务processor" class="headerlink" title="业务processor"></a>业务processor</h3><ol>
-<li>可以定义一个domainProcessor去代表业务操作的processor接口，这个接口可以承接泛型。</li>
-</ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">DomainProcessor</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 处理业务的方法 返回值现在是void的 也可以自己定义一个通用的类似于上下文的返回值</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> context</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">process</span><span class="params">(T context)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这里承接的泛型context是一个上下文的概念，指的是在一个业务处理processor中的上下文信息，其中可以有计算的参数，计算的结果和一些中间信息。</p>
-<ol start="2">
-<li>做一个抽象类，去将其中的前置操作、biz操作、后置操作、finally操作定义出来。</li>
-</ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">AbstractProcessor</span>&lt;<span class="title">T</span>&gt; <span class="keyword">implements</span> <span class="title">DomainProcessor</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 前置处理 主要做一些校验逻辑 编排的时候放在前边</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> context</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">preHandle</span><span class="params">(T context)</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 业务处理 这个是抽象方法 子类去实现具体的逻辑</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> context</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">bizHandle</span><span class="params">(T context)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 后置处理</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> context</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">postHandle</span><span class="params">(T context)</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * last 操作</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> context</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">finallyHandle</span><span class="params">(T context)</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 异常处理</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> context</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> e</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">exceptionHandle</span><span class="params">(T context, Exception e)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// TODO 打印error或者warn级别日志</span></span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> BizException(e.getMessage(), e);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">process</span><span class="params">(T context)</span> </span>&#123;</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 编排流程</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (!preHandle(context)) &#123;</span><br><span class="line"><span class="comment">//                log.warn("处理器前置处理失败，退出。context:&#123;&#125;", context);</span></span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 业务方法</span></span><br><span class="line">            bizHandle(context);</span><br><span class="line">            <span class="comment">// 后置操作</span></span><br><span class="line">            postHandle(context);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            exceptionHandle(context, e);</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            finallyHandle(context);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>可以看到，这里定义了前置操作，这里可以去对biz要用的参数进行一个校验或者一些前置操作，同时将biz定义为了抽象方法，意图在为了让子类去继承时一定要去实现bizHandle这个方法。而exceptionHandle和finallyHandle方法则定义了异常的处理和最终要做的（比如线程快照的清除）。而整个process方法其实就是整个处理器的入口，即对这整个流程的一个编排。</p>
-<p>可以看一个这个模板processor的的具体实现和测试类：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AbstractProcessorTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ThreadLocal&lt;String&gt; contextHolder = <span class="keyword">new</span> ThreadLocal&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// TODO test</span></span><br><span class="line">        TestContext testContext = <span class="keyword">new</span> TestContext();</span><br><span class="line">        contextHolder.set(<span class="string">"aaa"</span>);</span><br><span class="line">        TestProcessor testProcessor = <span class="keyword">new</span> TestProcessor();</span><br><span class="line">        <span class="comment">// 调用process的编排</span></span><br><span class="line">        testProcessor.process(testContext);</span><br><span class="line"></span><br><span class="line">        TestContext exContext = <span class="keyword">new</span> TestContext();</span><br><span class="line">        <span class="comment">// test bizHandle</span></span><br><span class="line">        testProcessor.process(exContext);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">TestProcessor</span> <span class="keyword">extends</span> <span class="title">AbstractProcessor</span>&lt;<span class="title">TestContext</span>&gt; </span>&#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">preHandle</span><span class="params">(TestContext context)</span> </span>&#123;</span><br><span class="line">            <span class="comment">// 前置的一个check或者一个前置操作</span></span><br><span class="line">            String s = contextHolder.get();</span><br><span class="line">            <span class="keyword">if</span> (s == <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"holder中字符串为空"</span>);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            context.setMessage(s);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">postHandle</span><span class="params">(TestContext context)</span> </span>&#123;</span><br><span class="line">            context.setPostStr(<span class="string">"post"</span>);</span><br><span class="line">            System.out.println(<span class="string">"processor 结果是："</span>+ context.isResult());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">finallyHandle</span><span class="params">(TestContext context)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (context.isResult()) &#123;</span><br><span class="line">                contextHolder.remove();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">bizHandle</span><span class="params">(TestContext context)</span> </span>&#123;</span><br><span class="line">            context.setResult(context.getMessage().length()&gt;<span class="number">0</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>这个模板可以作为之后一个处理器的抽象模板，能让代码逻辑很清晰的展现出来，也能解耦了各个处理模块，这里可以总结下。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/12/31/并发编程——基础拾遗/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2018/12/31/并发编程——基础拾遗/" itemprop="url">并发编程——基础拾遗</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-31T17:11:05+08:00">
-                2018-12-31
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/并发编程/" itemprop="url" rel="index">
-                    <span itemprop="name">并发编程</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/并发编程/并发基础/" itemprop="url" rel="index">
-                    <span itemprop="name">并发基础</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2018/12/31/并发编程——基础拾遗/" class="leancloud_visitors" data-flag-title="并发编程——基础拾遗">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1,701
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  7
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="并发编程基础拾遗"><a href="#并发编程基础拾遗" class="headerlink" title="并发编程基础拾遗"></a>并发编程基础拾遗</h2><p>在看并发的书或者看并发相关的博客时，会发现一些知识点会遗漏或者之前没有看到，这里去总结一下。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/blog/2018/12/31/并发编程——基础拾遗/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/12/24/设计模式——观察者模式/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2018/12/24/设计模式——观察者模式/" itemprop="url">设计模式——观察者模式</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-24T23:48:39+08:00">
-                2018-12-24
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/设计模式/" itemprop="url" rel="index">
-                    <span itemprop="name">设计模式</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2018/12/24/设计模式——观察者模式/" class="leancloud_visitors" data-flag-title="设计模式——观察者模式">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  3,653
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  17
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="观察者模式"><a href="#观察者模式" class="headerlink" title="观察者模式"></a>观察者模式</h2><p>观察者模式也是我们经常会用到的设计模式之一，这里用一个气象站的一些数据变化通知气象板为例去记录一下观察者设计模式，值得一提的是java中提供了观察者模式的接口和类。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/blog/2018/12/24/设计模式——观察者模式/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/12/24/test多个设备使用hexo/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2018/12/24/test多个设备使用hexo/" itemprop="url">test多个设备使用hexo</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-24T00:44:00+08:00">
-                2018-12-24
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/hexo/" itemprop="url" rel="index">
-                    <span itemprop="name">hexo</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2018/12/24/test多个设备使用hexo/" class="leancloud_visitors" data-flag-title="test多个设备使用hexo">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  30
+                  299
                 </span>
               
 
@@ -1048,8 +433,19 @@
       
         
           
-            <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>hexo是支持多设备去写你的博客的，这里参考的是这个资料：</p>
-<p><a href="https://blog.csdn.net/shile/article/details/78714189" target="_blank" rel="noopener">hexo多设备</a></p>
+            <h2 id="Buffer-Pool的内存结构"><a href="#Buffer-Pool的内存结构" class="headerlink" title="Buffer Pool的内存结构"></a>Buffer Pool的内存结构</h2><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701102240583.png" alt="image-20220701102240583"></p>
+<ul>
+<li>由多个缓存数据页和管理这些数据页的链表数据组成。</li>
+<li>每个缓存页都有对应的描述数据，各个链表中除了基础节点存储头尾节点、节点个数之外，链表上的都是缓存页的描述数据。</li>
+<li>LRU链表在缓存页不足时采用一些列冷热数据分离、热区数据分段移动到链表头部等算法来链表尾部的缓存页刷入磁盘。</li>
+<li>这三个链表组合使用，BufferPool中的缓存页的使用、刷盘、空闲管理是一个动态的过程。</li>
+</ul>
+<h2 id="多个Buffer-Pool和Buffer-Pool中的chunk划分"><a href="#多个Buffer-Pool和Buffer-Pool中的chunk划分" class="headerlink" title="多个Buffer Pool和Buffer Pool中的chunk划分"></a>多个Buffer Pool和Buffer Pool中的chunk划分</h2><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701102249934.png" alt="image-20220701102249934"></p>
+<ul>
+<li>Buffer Pool可以有多个，这样可以降低线程并发操作链表维护的成本，加大并发能力</li>
+<li>Buffer Pool中有多个chunk划分，每个chunk是一系列的描述数据块和缓存页，多个chunk共享free、flush、lru链表。这样划分在Buffer Pool动态扩容时可以申请的内存小一点，避免申请多个连续的内存，降低碎片的产生。</li>
+<li>show Engine innodb status。可以查看Buffer Pool和管理的链表使用情况。</li>
+</ul>
 
           
         
@@ -1106,7 +502,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/12/19/集合中的深拷贝/">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/05/21/redis命令拾遗-哈希表/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="夸克">
@@ -1125,7 +521,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/blog/2018/12/19/集合中的深拷贝/" itemprop="url">集合中的深拷贝</a></h1>
+                <a class="post-title-link" href="/blog/2019/05/21/redis命令拾遗-哈希表/" itemprop="url">redis命令拾遗(哈希表)</a></h1>
         
 
         <div class="post-meta">
@@ -1137,8 +533,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-19T22:11:18+08:00">
-                2018-12-19
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-21T13:48:48+08:00">
+                2019-05-21
               </time>
             
 
@@ -1160,8 +556,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Java基础/" itemprop="url" rel="index">
-                    <span itemprop="name">Java基础</span>
+                  <a href="/blog/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
                   </a>
                 </span>
 
@@ -1177,7 +573,7 @@
 
           
           
-             <span id="/blog/2018/12/19/集合中的深拷贝/" class="leancloud_visitors" data-flag-title="集合中的深拷贝">
+             <span id="/blog/2019/05/21/redis命令拾遗-哈希表/" class="leancloud_visitors" data-flag-title="redis命令拾遗(哈希表)">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1203,7 +599,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  2,289
+                  37
                 </span>
               
 
@@ -1219,7 +615,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  10
+                  1
                 </span>
               
             </div>
@@ -1241,14 +637,11 @@
 
       
         
-          <h2 id="深拷贝与浅拷贝"><a href="#深拷贝与浅拷贝" class="headerlink" title="深拷贝与浅拷贝"></a>深拷贝与浅拷贝</h2><p>对对象的深拷贝和浅拷贝我们并不陌生。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/blog/2018/12/19/集合中的深拷贝/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
+          
+            <h3 id="redis哈希表操作命令"><a href="#redis哈希表操作命令" class="headerlink" title="redis哈希表操作命令"></a>redis哈希表操作命令</h3><p>redis也支持对hash表结构进行操作，体现在下边几个命令。</p>
+<h4 id="hset-hash-field-value"><a href="#hset-hash-field-value" class="headerlink" title="hset hash field value"></a>hset hash field value</h4><p>这个命令</p>
+
+          
         
       
     </div>
@@ -1303,7 +696,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/12/15/java集合类的一些总结——Arrays-asList和并集/">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/05/20/jvm参数分类/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="夸克">
@@ -1322,7 +715,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/blog/2018/12/15/java集合类的一些总结——Arrays-asList和并集/" itemprop="url">java集合类的一些总结——Arrays.asList和Guava操作集合</a></h1>
+                <a class="post-title-link" href="/blog/2019/05/20/jvm参数分类/" itemprop="url">JVM参数分类</a></h1>
         
 
         <div class="post-meta">
@@ -1334,8 +727,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-15T00:59:34+08:00">
-                2018-12-15
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-20T00:17:24+08:00">
+                2019-05-20
               </time>
             
 
@@ -1359,597 +752,6 @@
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/blog/categories/Java基础/" itemprop="url" rel="index">
                     <span itemprop="name">Java基础</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2018/12/15/java集合类的一些总结——Arrays-asList和并集/" class="leancloud_visitors" data-flag-title="java集合类的一些总结——Arrays.asList和Guava操作集合">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1,178
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  5
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="使用背景"><a href="#使用背景" class="headerlink" title="使用背景"></a>使用背景</h2><p>总结一下最近项目中使用到集合的两个点，一个是Arrays.asList这个方法使用的坑，另一个是利用Guava的Sets工具类去求并交集。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/blog/2018/12/15/java集合类的一些总结——Arrays-asList和并集/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/12/06/ClassNotFoundException和NoClassDefFoundError/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2018/12/06/ClassNotFoundException和NoClassDefFoundError/" itemprop="url">ClassNotFoundException和NoClassDefFoundError</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-06T01:07:01+08:00">
-                2018-12-06
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Java基础/" itemprop="url" rel="index">
-                    <span itemprop="name">Java基础</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2018/12/06/ClassNotFoundException和NoClassDefFoundError/" class="leancloud_visitors" data-flag-title="ClassNotFoundException和NoClassDefFoundError">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  934
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  3
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>极客时间上《Java核心技术36讲》第二讲中提到了一个问题：ClassNotFoundException和NoClassDefFoundError有什么区别？看到这个问题的时候，第一时间想到的就是一个是受检的异常，而另一个是一个Error，但是其实在真正的项目开发中这两个错误都遇到过，都是关于类或者文件jar包找不到的错误，这里去总结下其中的不同。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/blog/2018/12/06/ClassNotFoundException和NoClassDefFoundError/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/11/30/java平台与java是解释执行的正确性/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2018/11/30/java平台与java是解释执行的正确性/" itemprop="url">java平台与java是解释执行的正确性</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-30T00:35:23+08:00">
-                2018-11-30
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Java基础/" itemprop="url" rel="index">
-                    <span itemprop="name">Java基础</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2018/11/30/java平台与java是解释执行的正确性/" class="leancloud_visitors" data-flag-title="java平台与java是解释执行的正确性">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1,020
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  4
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>最近看了一点点极客时间上的《Java核心技术36讲》，打算把一些自己感兴趣或者不知道的点总结到博客中，方便对一些知识有一些整理和拾遗。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/blog/2018/11/30/java平台与java是解释执行的正确性/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/11/26/守护线程和非守护线程/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2018/11/26/守护线程和非守护线程/" itemprop="url">并发编程——并发基础：守护线程和非守护线程</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-26T01:09:04+08:00">
-                2018-11-26
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/并发编程/" itemprop="url" rel="index">
-                    <span itemprop="name">并发编程</span>
                   </a>
                 </span>
 
@@ -1959,8 +761,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/并发编程/并发基础/" itemprop="url" rel="index">
-                    <span itemprop="name">并发基础</span>
+                  <a href="/blog/categories/Java基础/JVM/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM</span>
                   </a>
                 </span>
 
@@ -1976,7 +778,7 @@
 
           
           
-             <span id="/blog/2018/11/26/守护线程和非守护线程/" class="leancloud_visitors" data-flag-title="并发编程——并发基础：守护线程和非守护线程">
+             <span id="/blog/2019/05/20/jvm参数分类/" class="leancloud_visitors" data-flag-title="JVM参数分类">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -2002,204 +804,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1,540
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  7
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近在复习的时候，发现一个运行线程池拒绝策略demo中的main方法在运行了之后，进程并没有关闭。看了jconsole线程池中的线程都处于waiting状态。这里是跟我设置线程池的线程工厂中的设置线程是否为后台线程有关。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/blog/2018/11/26/守护线程和非守护线程/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/11/23/url拼接参数问题/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2018/11/23/url拼接参数问题/" itemprop="url">url拼接参数问题</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-23T01:07:57+08:00">
-                2018-11-23
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/bug记录/" itemprop="url" rel="index">
-                    <span itemprop="name">bug记录</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2018/11/23/url拼接参数问题/" class="leancloud_visitors" data-flag-title="url拼接参数问题">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  564
+                  512
                 </span>
               
 
@@ -2237,14 +842,1508 @@
 
       
         
-          <h2 id="问题现象"><a href="#问题现象" class="headerlink" title="问题现象"></a>问题现象</h2><p>在最近的开发过程中要根据一堆id值去删除ES中的数据，就写了一个脚本接口，传入了idList。这里选择的是GET方式的接口，将idList以逗号分隔当做字符串传入当做参数，然后在接口中转换成List类型再对ES进行操作。</p>
+          <h2 id="JVM参数的分类"><a href="#JVM参数的分类" class="headerlink" title="JVM参数的分类"></a>JVM参数的分类</h2><p>常用的JVM参数可以大致的分为三类，下边简单的将JVM的参数做一个分类，作为一个JVM参数的简单总结。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/blog/2018/11/23/url拼接参数问题/#more" rel="contents">
+            <a class="btn" href="/blog/2019/05/20/jvm参数分类/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
           <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/05/19/redis命令拾遗(字符串操作)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2019/05/19/redis命令拾遗(字符串操作)/" itemprop="url">redis命令拾遗(字符串操作)</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-19T01:09:46+08:00">
+                2019-05-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2019/05/19/redis命令拾遗(字符串操作)/" class="leancloud_visitors" data-flag-title="redis命令拾遗(字符串操作)">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,187
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  4
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>前一段时间一直在忙，拉下了一些知识的学习，现在努力追赶修补中。= =</p>
+<p>当然也有一些新的知识的学习，但其实更多的是关于一些知识的拾遗。之前在工作当中发现对redis命令掌握的还不是很完善，所以想花比较少的碎片时间去写一下redis常用命令的拾遗。</p>
+<h2 id="redis命令"><a href="#redis命令" class="headerlink" title="redis命令"></a>redis命令</h2><p>对这些命令的拾遗记录是在网站：<a href="http://redisdoc.com/" target="_blank" rel="noopener">http://redisdoc.com</a>上进行学习的，很简单明了，推荐给大家进行学习拾遗。</p>
+<p>这里只是把日常会被忽略或者遗忘的点进行一下梳理，并不是每个知识点的一个总结。</p>
+<h3 id="字符串操作"><a href="#字符串操作" class="headerlink" title="字符串操作"></a>字符串操作</h3><p>####set命令</p>
+<p>set可以通过一系列参数进行修改：</p>
+<ul>
+<li>ex seconds ：将键的过期时间设置为seconds秒，具体的命令是set key value EX seconds。等同于执行setex key second value。</li>
+<li>px milliseconds：和ex一样，只不过单位是毫秒，具体的命令是 set key value PX milliseconds。等同于执行psetex key milliseconds value。</li>
+<li>nx / xx： set key value nx等价于 setnx key value；set key value xx是当键存在才设置值，没有setxx这个吗命令，这两个设置值失败的时候，set命令会返回nil，而直接使用setnx命令，则返回的是0和1。</li>
+</ul>
+<h4 id="setex命令"><a href="#setex命令" class="headerlink" title="setex命令"></a>setex命令</h4><p>setex命令效果等价于执行下边两个命令：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span> key value</span><br><span class="line">expire key seconds</span><br></pre></td></tr></table></figure>
+<p>但是不同的是，setex是一个原子的操作，它是在同一时间完成设置值和过期时间的操作，经常用在存储缓存时候。</p>
+<p>setex设置成功时候 返回ok。</p>
+<p>同样psetex只是单位是毫秒而已。</p>
+<h4 id="get命令"><a href="#get命令" class="headerlink" title="get命令"></a>get命令</h4><p>get命令不用多说，但是注意get命令只是用在字符串操作，如果key对应的值不是字符串类型，那么返回一个错误。</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/WX20190519-020316.png" alt=""></p>
+<h4 id="getset命令"><a href="#getset命令" class="headerlink" title="getset命令"></a>getset命令</h4><p>此命令的作用是：将key设置为value，并且返回key在被设置之前的值。如果key之前不存在，则返回nil。当键key存在但不是字符串时，会报错。</p>
+<h4 id="strlen命令"><a href="#strlen命令" class="headerlink" title="strlen命令"></a>strlen命令</h4><p>返回字符串key的长度，当key不是字符串时，返回一个错误。如果key不存在，返回0。</p>
+<h4 id="append命令"><a href="#append命令" class="headerlink" title="append命令"></a>append命令</h4><p>append命令：如果已经存在key并且它的值是一个字符串，append命令将value追加到key对应值的末尾。如果key不存在，append命令会像执行set key value一样将值设置为对应的key的值。</p>
+<p>append命令的返回值是值字符串的长度。</p>
+<p>注意append的时间复杂度是平摊o(1)</p>
+<h4 id="setrange-key-offset-value"><a href="#setrange-key-offset-value" class="headerlink" title="setrange key offset value"></a>setrange key offset value</h4><p>指从偏移量offset开始，用value参数覆写value值。这个命令会确保字符串足够长以便于设置value到对应的偏移量。比如字符串只有5个字符长，但设置的offset是10，那么会在原来字符串值到偏移量之间设置零字节(“\x00”)进行填充。</p>
+<p>这个命令的返回值是被修改之后字符串值的长度</p>
+<h4 id="getrange-key-start-end"><a href="#getrange-key-start-end" class="headerlink" title="getrange key start end"></a>getrange key start end</h4><p>这个命令指的是返回键key对应的字符串值的指定部分，字符串的截取范围由start end两个参数决定(包括start和end在内)。start和end支持负数偏移量，-1代表最后一个字符，-2代表倒数第二个字符。但是注意只能按照字符串顺序获取，不能倒序获取<strong>(比如 getrange key -1 -3)</strong></p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/getrange%E5%91%BD%E4%BB%A4.png" alt=""></p>
+<h4 id="incr-key"><a href="#incr-key" class="headerlink" title="incr key"></a>incr key</h4><p>incr虽然是自增的含义命令，但其实是一个属于字符串的操作，redis并未提供一个专用的整数类型，所以键key存储的值在执行incr命令的时候会被翻译解释为十进制64位有符号整数。</p>
+<p>如果incr操作的key值对应不存在，那么先会初始化为0，然后再执行incr命令。</p>
+<p>如果key值不能被解释为数字，那么会返回一个错误。</p>
+<h4 id="incrby-key-increment"><a href="#incrby-key-increment" class="headerlink" title="incrby key increment"></a>incrby key increment</h4><p>和incr一样的含义，只不过有递增量为increment。同样的递减是有对应的decr key和decrby key decrement。</p>
+<h4 id="incrbyfloat-key-increment"><a href="#incrbyfloat-key-increment" class="headerlink" title="incrbyfloat key increment"></a>incrbyfloat key increment</h4><p>这个就是针对浮点数的增加计算。注意incrbyfloat命令计算的结果最多只保留小数点后面17位。</p>
+<h4 id="mset-key-value-key-value-…"><a href="#mset-key-value-key-value-…" class="headerlink" title="mset key value [key value …]"></a>mset key value [key value …]</h4><p>同时为多个键设置值，这个命令是一个原子操作，所有给定键会在同一时间内被设置，并且具有set的特性，会覆盖key对应原来的值。如果仅是在不存在的情况下设置值，可以用msetnx，msetnx也是一个原子操作，如果多个key中有一个key没有设置上，那么所有的key都不会设置对应的值。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/03/31/dubbo基础（五）——dubbo接口的特性设置/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2019/03/31/dubbo基础（五）——dubbo接口的特性设置/" itemprop="url">dubbo基础（五）——dubbo接口的特性设置</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-31T16:53:39+08:00">
+                2019-03-31
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/dubbo/" itemprop="url" rel="index">
+                    <span itemprop="name">dubbo</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2019/03/31/dubbo基础（五）——dubbo接口的特性设置/" class="leancloud_visitors" data-flag-title="dubbo基础（五）——dubbo接口的特性设置">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,405
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  5
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="dubbo的一些配置"><a href="#dubbo的一些配置" class="headerlink" title="dubbo的一些配置"></a>dubbo的一些配置</h2><p>之前的文章中写了dubbo的初步使用和dubbo和springboot的使用整合，这里来总结下dubbo框架暴露接口常用的配置项。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/blog/2019/03/31/dubbo基础（五）——dubbo接口的特性设置/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/03/22/一条sql执行的过程/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2019/03/22/一条sql执行的过程/" itemprop="url">一条sql执行的过程</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-22T10:18:44+08:00">
+                2019-03-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/mysql/" itemprop="url" rel="index">
+                    <span itemprop="name">mysql</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2019/03/22/一条sql执行的过程/" class="leancloud_visitors" data-flag-title="一条sql执行的过程">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,152
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  4
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="MySql内部组件的结构"><a href="#MySql内部组件的结构" class="headerlink" title="MySql内部组件的结构"></a>MySql内部组件的结构</h2><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701101919878.png" alt="image-20220701101919878"></p>
+<p>如图所示：客户端发来一条SQL语句之后，Mysql内部组件会：</p>
+<ul>
+<li>连接器：管理客户端发来的连接，对其中的用户校验权限，管理MySql内部的连接池。</li>
+<li>词法分析器：对Sql语法、词法进行校验、分析。解析出一个语法树让MySql理解要去做什么事情。</li>
+<li>优化器：会对SQL可选的索引等条件计算成本，生成执行计划给执行器去执行。</li>
+<li>执行器：按照执行计划，去调用存储引擎的接口，来获取SQL语句的结果。</li>
+</ul>
+<h3 id="一条sql交互的过程"><a href="#一条sql交互的过程" class="headerlink" title="一条sql交互的过程"></a>一条sql交互的过程</h3><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701101933226.png" alt="image-20220701101933226"></p>
+<h3 id="binlog是什么"><a href="#binlog是什么" class="headerlink" title="binlog是什么"></a>binlog是什么</h3><p>binlog是MySqlServer层实现的二进制逻辑日志，和redo log不同，redo log记录的是物理日志（表空间 + 区号 + 数据页 + 偏移量 + 修改内容），binlog的内容大概是（user表id = 1的记录name更新为xxx）是一个逻辑日志。同时redo log是innodb存储引擎实现事务中的持久性特性而存在的，在其他存储引擎不存在，而binlog是mysql都有的。</p>
+<ul>
+<li>Mysql Server层逻辑日志。（所有引擎共享）</li>
+<li>Binlog是逻辑日志，记录的是语句的原始逻辑。</li>
+<li>Binlog是追加写的，不限制大小，不会像redo log覆盖几个文件循环写。</li>
+</ul>
+<p>在事务Commit时，会写binlog，这个过程存在于redo log的二阶段提交过程。因为binlog常用于数据恢复和主从同步，所以要保证redo和binlog的一致性采用了两阶段。</p>
+<h3 id="Innodb存储引擎执行sql的过程（以更新语句为例）"><a href="#Innodb存储引擎执行sql的过程（以更新语句为例）" class="headerlink" title="Innodb存储引擎执行sql的过程（以更新语句为例）"></a>Innodb存储引擎执行sql的过程（以更新语句为例）</h3><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701101948332.png" alt="image-20220701101948332"></p>
+<ol>
+<li>从磁盘加载数据到Buffer Pool中，innodb中的sql操作都需要加载数据到Buffer Pool中。加载数据都是以数据页的形式加载到内存中，Buffer Pool中也是数据页的形式存在的。</li>
+<li>写undo log文件，一次更新语句需要写undolog保证事务的原子性（回滚时找到历史版本的数据）。同时undo log形成版本链，和ReadView来完成MVCC的并发控制。</li>
+<li>更新Buffer Pool内存中记录的数据，更新完之后内存数据和磁盘数据不一致，数据页为脏页。</li>
+<li>写redo log到内存中的redo log buffer，为后面redo log刷盘做准备。</li>
+<li>准备提交事务的阶段，redo log刷新到磁盘，有几种策略（立即刷入、刷入OS缓存、不刷入）。这个阶段也可以理解为redo log的prepare阶段。（两阶段来保证redo log和binlog的一致性）</li>
+<li>准备提交事务的阶段，在mysql server层的binlog写入磁盘，也有几种刷盘策略。</li>
+<li>提交事务阶段，redolog写入commit标志，redolog的二阶段，此阶段之后事务才算真正提交。</li>
+<li>之后的Buffer Pool会根据lru、flush链表的刷盘策略将脏页刷入磁盘。（此步不在事务阶段，线程异步刷入）</li>
+</ol>
+<ul>
+<li>为什么在事务阶段写这么多日志？<br>因为innodb引擎要实现事务，undo log其实保证了事务回滚时的原子性，回滚到undo log版本链上的历史数据。</li>
+</ul>
+<p>而redo log用于实现持久性，只要redo log和binlog的两阶段完成，就能保证这次变更是crash safe的，不会丢失。</p>
+<p>binlog也会用于数据恢复和主从同步，是server层面的二进制逻辑日志，记录了语句信息。</p>
+<ul>
+<li>为什么不直接写入磁盘数据文件？</li>
+</ul>
+<p>写那么多的日志都是在文件末尾追加写，相当于是追加写，是顺序IO；而因为更新数据要维护不同的索引树，数据的分布在磁盘上访问是随机IO，效率不是一个数量级的，这样innodb选择去写这些日志，异步线程去刷新内存中的脏页到磁盘上，来提高事务的效率。</p>
+<ul>
+<li>在压测数据库可以关注哪些指标？<ul>
+<li>QPS和TPS</li>
+<li>IOPS：机器的随机IO能力。每秒可以执行多少个随机IO请求。这个指标很关键，访问磁盘中的数据就是随机IO，压测时候可以观察这个性能。</li>
+<li>吞吐量：机器的磁盘每秒可以读写的字节数据量。事务过程中会写redo binlog等日志文件，这个指标决定了大量redo log刷盘的性能。</li>
+<li>latency：每写入一条数据的延迟。越低越好。</li>
+<li>CPU负载：肯定是重要指标</li>
+<li>网络负载：如果带宽打满，肯定也是瓶颈。</li>
+<li>内存负载：内存吃紧肯定也是瓶颈。</li>
+</ul>
+</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/03/20/dubbo基础（四）——dubbo的配置加载/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2019/03/20/dubbo基础（四）——dubbo的配置加载/" itemprop="url">dubbo基础（四）——dubbo的配置加载</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-20T23:06:06+08:00">
+                2019-03-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/dubbo/" itemprop="url" rel="index">
+                    <span itemprop="name">dubbo</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2019/03/20/dubbo基础（四）——dubbo的配置加载/" class="leancloud_visitors" data-flag-title="dubbo基础（四）——dubbo的配置加载">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  972
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  3
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="dubbo的配置"><a href="#dubbo的配置" class="headerlink" title="dubbo的配置"></a>dubbo的配置</h2><p>在之前的文章中配置了spring boot和dubbo框架的使用（传送门：<a href="https://zhanglijun1217.github.io/blog/2019/03/20/dubbo%E5%9F%BA%E7%A1%80%EF%BC%88%E4%B8%89%EF%BC%89%E2%80%94%E2%80%94spring-boot%E8%B0%83%E7%94%A8dubbo/">springboot使用dubbo框架</a>），看到了把dubbo相关的配置配置在了配置文件中。这里官方文档中也去讲解了对应的dubbo配置的加载。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/blog/2019/03/20/dubbo基础（四）——dubbo的配置加载/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/03/20/dubbo基础（三）——spring-boot调用dubbo/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2019/03/20/dubbo基础（三）——spring-boot调用dubbo/" itemprop="url">dubbo基础（三）——spring boot调用dubbo</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-20T22:11:35+08:00">
+                2019-03-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/dubbo/" itemprop="url" rel="index">
+                    <span itemprop="name">dubbo</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2019/03/20/dubbo基础（三）——spring-boot调用dubbo/" class="leancloud_visitors" data-flag-title="dubbo基础（三）——spring boot调用dubbo">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,065
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  5
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="dubbo集成spring-boot"><a href="#dubbo集成spring-boot" class="headerlink" title="dubbo集成spring boot"></a>dubbo集成spring boot</h2><p>spring boot肯定是现在用的做多的开发框架，而dubbo框架是最流行的rpc框架之一，整合springboot和dubbo的使用很有必要。本篇博客还是根据上一篇中的dubbo简单demo的简单示例来整合spring boot。(上一篇传送门：<a href="https://zhanglijun1217.github.io/blog/2019/03/18/dubbo%E5%9F%BA%E7%A1%80%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%E2%80%94%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E8%B0%83%E7%94%A8demo/">dubbo-demo</a>)</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/blog/2019/03/20/dubbo基础（三）——spring-boot调用dubbo/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/03/18/dubbo基础（二）——一个简单调用demo/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2019/03/18/dubbo基础（二）——一个简单调用demo/" itemprop="url">dubbo基础（二）——一个简单调用demo</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-18T22:51:21+08:00">
+                2019-03-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/dubbo/" itemprop="url" rel="index">
+                    <span itemprop="name">dubbo</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2019/03/18/dubbo基础（二）——一个简单调用demo/" class="leancloud_visitors" data-flag-title="dubbo基础（二）——一个简单调用demo">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,570
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  7
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="get-start"><a href="#get-start" class="headerlink" title="get start"></a>get start</h2><p>在上一篇中介绍了dubbo诞生的背景和框架的特性：<a href="https://zhanglijun1217.github.io/blog/2019/03/06/dubbo%E5%9F%BA%E7%A1%80%EF%BC%88%E4%B8%80%EF%BC%89%E2%80%94%E2%80%94%E6%A6%82%E5%BF%B5%E5%8F%8A%E5%9F%BA%E6%9C%AC%E6%A1%86%E6%9E%B6/">dubbo概念和基本概念</a>，这里就来一个dubbo的简单使用小体验。</p>
+<h3 id="dubbo注册中心安装"><a href="#dubbo注册中心安装" class="headerlink" title="dubbo注册中心安装"></a>dubbo注册中心安装</h3><p>dubbo中的官方文档的快速启动使用的是multicast广播注册中心暴露服务地址，这里选择的是使用zk作为注册中心，因为zk是很多公司作为dubbo注册中心，并且zk也是dubbo官方文档中推荐使用的注册中心。</p>
+<p>本次是使用的mac上安装的zk，安装步骤：<a href="https://www.jianshu.com/p/5491d16e6abd" target="_blank" rel="noopener">mac下安装zk</a></p>
+<h3 id="dubbo-demo建立"><a href="#dubbo-demo建立" class="headerlink" title="dubbo-demo建立"></a>dubbo-demo建立</h3><p>此次是采用maven构建整个项目。整个项目中的module结构如下：</p>
+<p><img src="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/WX20190318-230924.png" alt=""></p>
+<p>其中：</p>
+<ul>
+<li>common-interface是抽离出的公用接口，其实这里就是将provider中的接口和consumer中的接口抽离出来</li>
+<li>order-service-consumer是此次设置的dubbo-consumer，模拟的是一个订单服务，里面有一个初始化订单的方法。</li>
+<li>user-service-provider是此次设置的dubbo服务提供者，模拟的是一个用户服务，在初始化订单时肯定要查询用户服务的接口。</li>
+</ul>
+<h4 id="maven依赖"><a href="#maven依赖" class="headerlink" title="maven依赖"></a>maven依赖</h4><p>此次在项目中的依赖用到了dubbo的依赖，因为使用的是zk注册中心，所以这里要引入zk的客户端依赖，这里要注意的是<strong>dubbo2.6版本之后是要引入zk的curator客户端</strong>。</p>
+<p>dubbo依赖：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- https:<span class="comment">//mvnrepository.com/artifact/com.alibaba/dubbo  这个dubbo版本是集成了spring的 --&gt;</span></span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;com.alibaba&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;dubbo&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;2.6.2&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+<p>zk client依赖</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- curator-framework --&gt;</span><br><span class="line">&lt;!-- dubbo2.6 以上版本要引入curator 的 zk客户端 --&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.apache.curator&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;curator-framework&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;2.12.0&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+<h4 id="provider"><a href="#provider" class="headerlink" title="provider"></a>provider</h4><p>由dubbo的架构图可知</p>
+<p><img src="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/dubbo-architecture.jpg" alt="dubbo整体结构"></p>
+<p>provider提供的服务要先注册在注册中心上，这里就要去配置provider相关的配置。</p>
+<p>可以看到provider要提供的接口服务：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function">List&lt;UserAddress&gt; <span class="title">getUserAddressList</span><span class="params">(String userId)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里可以给一个简单实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserServiceImpl</span> <span class="keyword">implements</span> <span class="title">UserService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;UserAddress&gt; <span class="title">getUserAddressList</span><span class="params">(String userId)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">"调用到了消费者"</span>);</span><br><span class="line">        <span class="keyword">final</span> UserAddress userAddress1 = <span class="keyword">new</span> UserAddress()</span><br><span class="line">                .setUserId(<span class="number">1L</span>)</span><br><span class="line">                .setAddressId(<span class="number">1L</span>)</span><br><span class="line">                .setAddressNo(<span class="string">"123"</span>)</span><br><span class="line">                .setAddressStr(<span class="string">"庆丰大街"</span>)</span><br><span class="line">                .setUserName(<span class="string">"小张"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">final</span> UserAddress userAddress2  = <span class="keyword">new</span> UserAddress()</span><br><span class="line">                .setUserId(<span class="number">1L</span>)</span><br><span class="line">                .setAddressId(<span class="number">2L</span>)</span><br><span class="line">                .setAddressNo(<span class="string">"456"</span>)</span><br><span class="line">                .setAddressStr(<span class="string">"西湖"</span>)</span><br><span class="line">                .setUserName(<span class="string">"小王"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ArrayList&lt;UserAddress&gt;()&#123;&#123;</span><br><span class="line">            add(userAddress1);</span><br><span class="line">            add(userAddress2);</span><br><span class="line">        &#125;&#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的关键是provider的xml配置：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span>?&gt;</span><br><span class="line">&lt;beans xmlns=<span class="string">"http://www.springframework.org/schema/beans"</span></span><br><span class="line">       xmlns:xsi=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span><br><span class="line">       xmlns:dubbo=<span class="string">"http://dubbo.apache.org/schema/dubbo"</span></span><br><span class="line">       xsi:schemaLocation=<span class="string">"http://www.springframework.org/schema/beans</span></span><br><span class="line"><span class="string">        http://www.springframework.org/schema/beans/spring-beans-4.3.xsd</span></span><br><span class="line"><span class="string">         http://dubbo.apache.org/schema/dubbo</span></span><br><span class="line"><span class="string">         http://dubbo.apache.org/schema/dubbo/dubbo.xsd"</span>&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!-- 提供方应用信息，用于计算依赖关系 --&gt;</span><br><span class="line">    &lt;dubbo:application name=<span class="string">"dubbo-demo"</span>  /&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!-- 注册的地址 --&gt;</span><br><span class="line">    &lt;dubbo:registry address=<span class="string">"zookeeper://127.0.0.1:2181"</span> /&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!-- 使用dubbo协议在<span class="number">20880</span>端口暴露服务 --&gt;</span><br><span class="line">    &lt;dubbo:protocol name=<span class="string">"dubbo"</span> port=<span class="string">"20880"</span> /&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!-- 生命要暴露的服务接口 --&gt;</span><br><span class="line">    &lt;dubbo:service <span class="class"><span class="keyword">interface</span></span>=<span class="string">"service.user.UserService"</span> ref=<span class="string">"userService"</span> /&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!-- 实现服务 --&gt;</span><br><span class="line">    &lt;bean id=<span class="string">"userService"</span> <span class="class"><span class="keyword">class</span></span>=<span class="string">"service.impl.UserServiceImpl"</span> /&gt;</span><br><span class="line"></span><br><span class="line">&lt;/beans&gt;</span><br></pre></td></tr></table></figure>
+<p>其中的配置：</p>
+<ul>
+<li>application标签，提供了服务提供方应用信息，用于计算依赖关系和dubbo-admin中的界面信息</li>
+<li>registry标签，这个标签标明了注册中心和注册中心的地址，这里可以支持多种协议和多种写法，具体见官方文档。</li>
+<li>protocol标签，这里是暴露在20880端口的服务，这里的端口可以修改。</li>
+<li>service标签，这里是声明要暴露的用户服务接口，ref为spring环境中的bean的id。</li>
+<li>bean标签，这里是spring的操作，将实现作为spring bean管理。</li>
+</ul>
+<p>这里可以简单的测试一下服务是否注册成功：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestProvider</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">// 加载spring配置</span></span><br><span class="line">        ClassPathXmlApplicationContext applicationContext = <span class="keyword">new</span> ClassPathXmlApplicationContext(<span class="string">"provider.xml"</span>);</span><br><span class="line">        <span class="comment">// 启动spring环境</span></span><br><span class="line">        applicationContext.start();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 使程序hang住  不退出</span></span><br><span class="line">        System.in.read();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>启动这个测试程序后可以用telnet测试一下服务是否在本地的zk上注册上去</p>
+<p><img src="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/dubbo%E6%9C%AC%E5%9C%B0telnet.png" alt=""></p>
+<p>zk也可以看到多了一个dubbo节点：<br><img src="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/zk-dubbo.png" alt=""></p>
+<h4 id="consumer"><a href="#consumer" class="headerlink" title="consumer"></a>consumer</h4><p>同样consumer也要先实现order服务的接口</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OrderServiceImpl</span> <span class="keyword">implements</span> <span class="title">OrderService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> UserService userService;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 生成订单过程：</span></span><br><span class="line"><span class="comment">     *  调用远程接口 查询用户信息</span></span><br><span class="line"><span class="comment">     *  将用户信息去生成订单</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">initOrder</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        List&lt;UserAddress&gt; userAddressList = userService.getUserAddressList(<span class="string">"1"</span>);</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">null</span> != userAddressList &amp;&amp; userAddressList.size() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            System.out.println(<span class="string">"调用远程接口完成"</span>);</span><br><span class="line"></span><br><span class="line">            Optional.of(userAddressList).ifPresent(System.out::println);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>配置对应的consumer.xml文件</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span>?&gt;</span><br><span class="line">&lt;beans xmlns=<span class="string">"http://www.springframework.org/schema/beans"</span></span><br><span class="line">       xmlns:xsi=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span><br><span class="line">       xmlns:dubbo=<span class="string">"http://dubbo.apache.org/schema/dubbo"</span> xmlns:context=<span class="string">"http://www.springframework.org/schema/context"</span></span><br><span class="line">       xsi:schemaLocation=<span class="string">"http://www.springframework.org/schema/beans</span></span><br><span class="line"><span class="string">        http://www.springframework.org/schema/beans/spring-beans-4.3.xsd</span></span><br><span class="line"><span class="string">         http://dubbo.apache.org/schema/dubbo</span></span><br><span class="line"><span class="string">         http://dubbo.apache.org/schema/dubbo/dubbo.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd"</span>&gt;</span><br><span class="line"></span><br><span class="line">    &lt;dubbo:application name=<span class="string">"dubbo-demo"</span> /&gt;</span><br><span class="line"></span><br><span class="line">    &lt;dubbo:registry address=<span class="string">"zookeeper://127.0.0.1:2181"</span> /&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!-- 引用远程接口 --&gt;</span><br><span class="line">    &lt;dubbo:reference id=<span class="string">"userService"</span> <span class="class"><span class="keyword">interface</span></span>=<span class="string">"service.user.UserService"</span> /&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!-- 启动包扫描 --&gt;</span><br><span class="line">    &lt;context:component-scan base-<span class="keyword">package</span>=<span class="string">"service.impl"</span> /&gt;</span><br><span class="line"></span><br><span class="line">&lt;/beans&gt;</span><br></pre></td></tr></table></figure>
+<p>这里多了一个dubbo的reference标签，这里就是要引用刚才暴露的接口。</p>
+<p>在实现里看到了将实现类作为spring bean管理，这里在xml中开启了包扫描。</p>
+<p>这里去写一个简单的test程序去测试写的consumer程序：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestConsumer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SneakyThrows</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        ClassPathXmlApplicationContext applicationContext = <span class="keyword">new</span> ClassPathXmlApplicationContext(<span class="string">"consumer.xml"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 启动spring环境</span></span><br><span class="line">        applicationContext.start();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 拿到orderService这个bean</span></span><br><span class="line">        OrderService bean = applicationContext.getBean(OrderService.class);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 调用 测试是否调用了远程接口</span></span><br><span class="line">        bean.initOrder();</span><br><span class="line"></span><br><span class="line">        System.in.read();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>同时这里也启动这个test类，看控制台中的输出观察是否调用了远程接口。</p>
+<p>可以看到在TestConsumer控制台输出</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">调用远程接口完成</span><br><span class="line">[UserAddress(addressId=1, addressNo=123, addressStr=庆丰大街, userName=小张, userId=1), UserAddress(addressId=2, addressNo=456, addressStr=西湖, userName=小王, userId=1)]</span><br></pre></td></tr></table></figure>
+<p>在TestProvider控制台输出</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">调用到了消费者</span><br></pre></td></tr></table></figure>
+<p>可以看到调用成功。</p>
+<h2 id="github"><a href="#github" class="headerlink" title="github"></a>github</h2><p>此次的代码已上传至github: <a href="https://github.com/zhanglijun1217/dubbo-demo" target="_blank" rel="noopener">github</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/03/18/synchronized锁对应的内存模型知识/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2019/03/18/synchronized锁对应的内存模型知识/" itemprop="url">synchronized锁对应的内存模型知识</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-18T00:18:46+08:00">
+                2019-03-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/并发编程/" itemprop="url" rel="index">
+                    <span itemprop="name">并发编程</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2019/03/18/synchronized锁对应的内存模型知识/" class="leancloud_visitors" data-flag-title="synchronized锁对应的内存模型知识">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  29
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  1
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>synchronized锁在并发编程的学习和面试中都占有着比较重要的地位，而且</p>
+
+          
         
       
     </div>
@@ -2290,7 +2389,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/blog/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/blog/">1</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/blog/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/9/">9</a><a class="extend next" rel="next" href="/blog/page/7/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/blog/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/blog/">1</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/blog/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/10/">10</a><a class="extend next" rel="next" href="/blog/page/7/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2340,7 +2439,7 @@
               
                 <a href="/blog/archives/">
               
-                  <span class="site-state-item-count">82</span>
+                  <span class="site-state-item-count">100</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2351,7 +2450,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/blog/categories/index.html">
-                  <span class="site-state-item-count">25</span>
+                  <span class="site-state-item-count">26</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -2362,7 +2461,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/blog/tags/index.html">
-                  <span class="site-state-item-count">87</span>
+                  <span class="site-state-item-count">107</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -2436,7 +2535,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">118.8k</span>
+    <span title="Site words total count">149.2k</span>
   
 </div>
 
@@ -2458,7 +2557,7 @@
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共118.8k字</span>
+  <span class="post-count">博客全站共149.2k字</span>
 </div>
 
 <br />

@@ -297,6 +297,283 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2022/07/01/并发编程面试题总结/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2022/07/01/并发编程面试题总结/" itemprop="url">并发编程面试题总结</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2022-07-01T10:53:45+08:00">
+                2022-07-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/面试题总结/" itemprop="url" rel="index">
+                    <span itemprop="name">面试题总结</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2022/07/01/并发编程面试题总结/" class="leancloud_visitors" data-flag-title="并发编程面试题总结">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,033
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  4
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <ol>
+<li>Java线程的状态有哪些？</li>
+<li>状态迁移大概是怎样的？wait()、sleep()、LockSupport.lock、synchronized、lock.lock()执行之后对应的锁状态是哪些？</li>
+<li>如何实现线程通讯？</li>
+<li>Callable和Runnable的区别？</li>
+<li>interrupt()方法怎么中断的线程？如何响应中断？</li>
+<li>CPU的三级缓存模型是怎么样的？</li>
+<li>什么是JMM工作模型？为什么要这样去划分工作内存和共享内存？</li>
+<li>并发的三个特性是什么？什么叫做可见性？什么叫做有序性？</li>
+<li>指令重排是什么？</li>
+<li>如何禁止指令重排？</li>
+<li>volatile的底层实现原理是什么？</li>
+<li>什么是mesi缓存一致性协议？</li>
+<li>synchronized有哪些用法？static方法锁的是什么？</li>
+<li>synchronized在jdk高版本有什么优化？</li>
+<li>什么叫轻量级锁？</li>
+<li>什么叫偏向锁？偏向锁的过程？</li>
+<li>什么叫自旋锁？</li>
+<li>上边这几种锁的适用场景？</li>
+<li>synchronized的底层实现原理是什么？什么是Monitor对象？</li>
+<li>wait()方法和notify()方法为什么一定要在synchronized区域中调用。</li>
+<li>锁竞争的过程，竞争失败会怎样，如何被唤醒？</li>
+<li>什么是用户态和内核态？为什么线程上下文切换会是开销大的操作？</li>
+<li>可重入锁ReentrantLock和synchronized的区别？</li>
+<li>如果利用AQS实现的可重入锁？</li>
+<li>AQS内部原理？</li>
+<li>怎么实现的公平锁？</li>
+<li>怎么实现的锁超时等待？</li>
+<li>怎么实现的加锁失败在队列中等待？</li>
+<li>Conditional怎么在AQS中实现？</li>
+<li>AQS还有哪些应用？</li>
+<li>JUC这个包常用什么？怎么看待JUC这个包的结构？能分几层？</li>
+<li>有哪些阻塞队列？</li>
+<li>CAS是什么？</li>
+<li>以AtomicInteger为例，怎么依赖CAS实现？UnSafe怎么在其中使用的？</li>
+<li>CAS的ABA问题是什么？如何解决？</li>
+<li>UnSafe还在哪用到了？</li>
+<li>线程池的工作原理？</li>
+<li>线程池核心参数？</li>
+<li>为什么要自己实现线程池参数而不用Executors工具类？</li>
+<li>怎么对线程池进行监控？</li>
+<li>submit和execute方法有什么区别，在异常处理方面有什么区别？</li>
+<li>FutureTask怎么实现的？如何实现get阻塞等待的？怎么实现cancel的？</li>
+<li>线程池核心线程数量大小选择？</li>
+<li>线程池如何实现线程退出的？</li>
+<li>线程池的优点？</li>
+<li>线程池如何优雅关闭？</li>
+<li>线程死锁怎么排查的？</li>
+<li>生产者消费者模型</li>
+<li>CountDownLatch、Semaphore、CyclicBarrier都什么作用？用在什么场景？</li>
+<li>CompletableFuture怎么使用？使用有什么注意点吗？</li>
+<li>Future和CompletableFuture区别，怎么实现非阻塞的获取结果异步回调的？</li>
+<li>ThreadLocal实现原理？</li>
+<li>ThreadLocal和Thread的关系？</li>
+<li>ThreadLocal使用场景有哪些？</li>
+<li>ThreadLocal会内存泄漏吗？</li>
+<li>ThreadLocalMap怎么解决hash碰撞的？</li>
+<li>ThreadLocalMap怎么删除无用元素的？</li>
+<li>ThreadLocalMap内部结构</li>
+<li>为什么ThreadLocal的引用是WeakedHashMap？</li>
+<li>ThreadLocal怎么跨线程引用？</li>
+<li>了解ThredLocal的扩展吗？比如Netty的FastThreadLocal？</li>
+<li>什么是ForkJoin？什么是工作窃取算法？</li>
+<li>Stream的原理是什么？Stream并行流怎么实现的？</li>
+<li>HashMap put流程？</li>
+<li>为什么HashMap负载因子是0.75？</li>
+<li>HashMap数据结构是什么样的？</li>
+<li>为什么要采用红黑树？</li>
+<li>描述一下红黑树的结构？</li>
+<li>为什么长度是2的整数次幂？</li>
+<li>HashMap是线程安全的吗？HashTable呢？</li>
+<li>HashMap线程不安全的点在哪？</li>
+<li>扩容的时候为什么会发生死循环？</li>
+<li>ConcurrentHashMap怎么实现的线程安全？</li>
+<li>ConcurrentHashMap1.7和1.8的区别？</li>
+<li>ConcurrentHashMap size()操作怎么计算的？一定会加锁吗？</li>
+<li>ArrayList扩容机制是什么？</li>
+<li>LinkedList和ArrayList适用于什么场景？</li>
+<li>LinkedList是双向链表吗？</li>
+<li>线程安全的List或者Set有哪些？</li>
+<li>HashSet怎么实现的？</li>
+<li>CopyOnWrite机制适合于什么场景？</li>
+<li>LongAdder怎么实现更高的效率？</li>
+<li>了解过无锁队列Disputor吗？原理是什么？</li>
+</ol>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2022/07/01/B-树能三层高度承载的数据大小/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -437,6 +714,1170 @@
 <p>以三层高度为例，一颗B+树能承载的数据量是多少？</p>
 <p>这里只考虑聚簇索引，数据页大小16kb，假设一行用户记录大小为1kb，所以叶子节点一个数据页存放记录16条。 对于非叶子节点，一个目录项由主键id和页号组成，主键id是（bigint）8个字节，Innodb中页号指针6个字节，所以一个非叶子节点的数据页有大概 16k / (8+6) = 1170条目录项记录。</p>
 <p>那么此时高度为3的树可以存放 1170 <em> 1170 </em> 16 约等于2000w的数据，所以2000w以内的数据的索引树高度大概是1到3层。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2021/11/25/一些系统调优案例的总结/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2021/11/25/一些系统调优案例的总结/" itemprop="url">一些系统调优案例的总结</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-11-25T10:31:26+08:00">
+                2021-11-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/系统调优/" itemprop="url" rel="index">
+                    <span itemprop="name">系统调优</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2021/11/25/一些系统调优案例的总结/" class="leancloud_visitors" data-flag-title="一些系统调优案例的总结">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,316
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  9
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="1-SQL造成大对象JVM频繁full-gc"><a href="#1-SQL造成大对象JVM频繁full-gc" class="headerlink" title="1. SQL造成大对象JVM频繁full gc"></a>1. SQL造成大对象JVM频繁full gc</h2><p>哪些场景会频繁full gc？</p>
+<ul>
+<li>内存泄漏（对象没有及时被回收，某些代码问题导致）</li>
+<li>死循环一直创建对象</li>
+<li>一直创建大对象</li>
+</ul>
+<p>主要看下大对象的场景：</p>
+<ul>
+<li>可能来源于数据库，查询的结果集太大。</li>
+<li>第三方接口传输的对象</li>
+<li>消息队列的消息太大</li>
+</ul>
+<h3 id="一个排查步骤"><a href="#一个排查步骤" class="headerlink" title="一个排查步骤"></a>一个排查步骤</h3><ul>
+<li>是否有吻合时间点的发布？机器的CPU、网络IO、带宽是否正常？如果有先回滚和隔离机器。</li>
+<li>观察内存监控，是否有逐渐上升的内存占用，且触发GC之后没办法释放内存（内存泄漏）</li>
+<li>如果无内存泄漏(内存在每次fullgc之后能降下来)<ul>
+<li>jmap -histo工具查看存活对象</li>
+<li>jmap -dump:format=b,file=file [pid]命令dump内存快照。利用mat工具分析<ul>
+<li>dump内存占用很小，考虑堆外内存的占用。</li>
+<li>dump分析占用最多的对象和相关调用栈，查看可疑代码。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>比如：sql查出来的大对象一般伴随着网络IO变大，时间点吻合可以重点欢迎是不是sql的原因。</li>
+</ul>
+<h3 id="案例原因"><a href="#案例原因" class="headerlink" title="案例原因"></a>案例原因</h3><ul>
+<li>一个in list查找，参数没有判空，导致条件没有带上，查询命中很多记录。</li>
+<li>sql一般会复用mybatis模板，某个sql模板如果参数没校验，可能产生大量记录的查询。</li>
+</ul>
+<h2 id="2-内存泄漏案例"><a href="#2-内存泄漏案例" class="headerlink" title="2. 内存泄漏案例"></a>2. 内存泄漏案例</h2><ul>
+<li>内存溢出：程序没有足够的内存分配对象，会发生内存溢出。</li>
+<li>内存泄漏：对象没有及时释放，导致内存逐渐增加，就是内存泄漏。内存泄漏一般不会造成程序无法运行，但是会不断的累计造成内存不足，明显现象：触发了GC之后内存占用率不下降，且缓慢上升。<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103254617.png" alt="image-20220701103254617"></li>
+</ul>
+<h3 id="案例及原因"><a href="#案例及原因" class="headerlink" title="案例及原因"></a>案例及原因</h3><ul>
+<li>本地内存存放商品数据，如果只存放热点商品，内存占用不会太大。但是如果全量商品加载到内存中，那么内存会不够。</li>
+<li>每个缓存记录加了7天的失效时间，保证淘汰掉不是热点访问的商品数据。</li>
+<li>经过一次重构之后，过期时间功能失效，没有过期时间淘汰，本地缓存越来越大。</li>
+<li>在一定时间之后，报警内存不足。dump内存之后发现缓存了大量的商品数据，造成内存泄漏，且因为本地缓存的引用一直没办法被GC清除。</li>
+</ul>
+<h2 id="3-磁盘IO导致线程阻塞"><a href="#3-磁盘IO导致线程阻塞" class="headerlink" title="3. 磁盘IO导致线程阻塞"></a>3. 磁盘IO导致线程阻塞</h2><ul>
+<li>日常的CPU高的问题可以通过标准步骤：<ul>
+<li>top -H - p pid来查看cpu使用率高的线程id</li>
+<li>线程id转换16进制</li>
+<li>jstack -l pid | grep ‘线程id16进制’</li>
+</ul>
+</li>
+<li>但是有时候cpu突刺可能是在一个很短的时间内发生，此时可以采用shell脚本自动执行jstack，比如5s执行一次stack，每次执行完成之后放到不同的日志文件中。只保留2000个日志文件。</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>!/bin/bash</span><br><span class="line">num=0</span><br><span class="line">log="/tmp/jstack_thread_log/thread_info"</span><br><span class="line"></span><br><span class="line">cd /tmp</span><br><span class="line">if [ ! -d "jstack_thread_log" ]; then</span><br><span class="line">   mkdir jstack_thread_log</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">while ((num &lt;= 10000));</span><br><span class="line"></span><br><span class="line">  do</span><br><span class="line"></span><br><span class="line">    ID=`ps -ef | grep java | grep gaea | grep -v "grep" | awk '&#123;print $2&#125;'`</span><br><span class="line">  </span><br><span class="line">    if [ -n "$ID" ]; then</span><br><span class="line">  jstack $ID &gt;&gt; $&#123;log&#125;  </span><br><span class="line">    fi</span><br><span class="line"></span><br><span class="line">    num=$(( $num + 1 ))</span><br><span class="line"></span><br><span class="line">    mod=$(( $num%100 ))</span><br><span class="line"></span><br><span class="line">    if [ $mod -eq 0 ]; then</span><br><span class="line">  back=$log$num</span><br><span class="line">  mv $log $back</span><br><span class="line">    fi</span><br><span class="line">    </span><br><span class="line">    sleep 5</span><br><span class="line"></span><br><span class="line">done</span><br></pre></td></tr></table></figure>
+<p>下一次响应变慢的时候，找到对应时间点的jstack日志文件，里面有很多线程阻塞在logback输出日志的过程，后来精简了log + 配置日志异步输出，则问题得以解决。</p>
+<h2 id="4-死锁案例"><a href="#4-死锁案例" class="headerlink" title="4. 死锁案例"></a>4. 死锁案例</h2><h3 id="1-update顺序导致的死锁"><a href="#1-update顺序导致的死锁" class="headerlink" title="1. update顺序导致的死锁"></a>1. update顺序导致的死锁</h3><h4 id="一个关单定时任务和人工后台关单的死锁案例"><a href="#一个关单定时任务和人工后台关单的死锁案例" class="headerlink" title="一个关单定时任务和人工后台关单的死锁案例"></a>一个关单定时任务和人工后台关单的死锁案例</h4><p>背景：<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103317304.png" alt="image-20220701103317304"></p>
+<ol>
+<li>定时关单的sql及加锁分析。<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">update</span> <span class="keyword">order</span> <span class="keyword">set</span> <span class="keyword">status</span> = <span class="string">'canceled'</span> <span class="keyword">where</span> created_time &gt; <span class="string">'2020-01-01 08:00:00'</span> <span class="keyword">and</span> created_time &lt; <span class="string">'2020-01-01 08:00:00'</span> <span class="keyword">and</span> <span class="keyword">status</span> = <span class="string">'UNPAID'</span>;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>因为created_time是二级索引，会先给二级索引加锁，再给对应的聚簇索引加锁。（加锁步骤如下所示）<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103343047.png" alt="image-20220701103343047"></p>
+<ol start="2">
+<li>后台关单的sql及加锁分析</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">update</span> t_order <span class="keyword">set</span> <span class="keyword">status</span> = <span class="string">'CANCELLED'</span> <span class="keyword">where</span> <span class="keyword">id</span> <span class="keyword">in</span> (<span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>) <span class="keyword">and</span> <span class="keyword">status</span> = <span class="string">'UNPAID'</span></span><br></pre></td></tr></table></figure>
+<p>直接在聚簇索引的记录上加锁：<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103353119.png" alt="image-20220701103353119"></p>
+<p>可以看到定时任务的sql对主键索引加锁顺序是5，4，3，2。而后台的sql对主键加锁顺序是2，3，5。</p>
+<p>比如第一个sql对3加锁之后，尝试对2加锁时发现后台取消的sql事务已经对2加锁，而此时第二个sql又尝试对3加锁，两个sql互相等待对方的锁，也就发生了死锁。</p>
+<p>解决办法：</p>
+<ul>
+<li>sql从语句上0保证加锁顺序一致。也就是都按照id排序加锁防止死锁。</li>
+<li>或者让批量操作，变为单个执行，减少锁占用的粒度和时间。</li>
+<li>取消订单都加一个分布式锁排队执行。</li>
+</ul>
+<h2 id="5-后台导出数据引发的OOM"><a href="#5-后台导出数据引发的OOM" class="headerlink" title="5. 后台导出数据引发的OOM"></a>5. 后台导出数据引发的OOM</h2><p>问题描述：公司的后台系统，导出功能之后偶发性的发生OOM。</p>
+<h3 id="排查步骤"><a href="#排查步骤" class="headerlink" title="排查步骤"></a>排查步骤</h3><ol>
+<li>因为是偶发性的，所以认为是后台系统的内存不足，单方面加大了内存。</li>
+<li>但是没有解决问题，只是降低了OOM的频率。加入参数-XX:+HeapDumpOnOutOfMemoryError参数，来触发OOM时自动dump内存。</li>
+<li>dump内存之后进行分析，确认了大量string对象，跟其引用都是导出excel处服务。</li>
+<li>结合Arthas查看，导出执行时间比较长，但是会在短时间内执行导出很多次，且用户session和参数是一致的。</li>
+<li>现象总结就是短时间内多次导出相同的数据，且操作人是一个，产生大量的string对象。未能及时在年轻代清除（比如空间担保机制、比如超过了对象的阈值、比如创建对象速度过快未进行标记就晋升到老年代）。</li>
+<li>最后排查是点击导出按钮没有在点击时置灰，导出交互会引导操作人多次点击，每次点击都会去读数据库的几万数据且导出excel，方法执行比较慢，对象无法回收，导致内存溢出。</li>
+<li>最后解决：前端导出之后置灰，响应了之后才可以继续点击，且减少了查询订单信息的非必字段来瘦身对象，且分批次查询数据库改为了多线程。之后没有出现OOM。</li>
+</ol>
+<h2 id="6-网站流量暴增后，网站反应出现卡顿"><a href="#6-网站流量暴增后，网站反应出现卡顿" class="headerlink" title="6. 网站流量暴增后，网站反应出现卡顿"></a>6. 网站流量暴增后，网站反应出现卡顿</h2><p>问题描述：在测试环境的页面速度很快，但到生产会变慢。推测访问量增大之后，对象创建变多，频繁的GC导致STW。</p>
+<ol>
+<li>定位：使用jstat -gc pid指令观察JVM的GC次数，且观察Eden区增长的速度，来观察到触发MinorGC频率特别高，FullGC的触发频率次数和MinorGC几乎一致，甚至更多，这样导致STW业务线程，造成网页出现卡顿。</li>
+<li>猜想是触发了老年代的空间担保机制，新生代在minorGC之前发现老年代可用连续空间比新生代所有对象小（或者是历次晋升的平均大小），就会触发空间担保机制，进而触发一次fullGC。</li>
+<li>调大内存，老年代内存变大，且新生代的内存也变大，对象触发MinorGC的频次减少。</li>
+<li>但是还是会发生卡顿，且卡顿时间比之前更长，发生卡顿频率降低。</li>
+<li>继续jstat -gc pid观察，发现GC的次数不多，但是每次GC的时间变大，推测是因为内存调整变大，GC时间被拉长了。</li>
+<li>jinfo看到使用的是parallel垃圾回收器的组合，想到特点是多线程进行回收，但是整个回收过程会STW，造成GC期间不能正常使用。</li>
+<li>这里替换为parNew + CMS垃圾回收器，CMS在垃圾回收阶段可以和用户线程并发执行，能有效的减少STW时间。</li>
+<li>替换之后要设置合理的触发CMSGC的阈值，如果太大，比如在垃圾回收过程因为内存不足再次因为Concurrent mode failure触发full gc，会导致CMS退化为Serial Old单线程回收，整个回收过程都会STW。 总之使用了CMS要注意GC日志中是否有Concurrent mode failure关键字。</li>
+</ol>
+<h2 id="7-未设置元空间大小应用启动很慢"><a href="#7-未设置元空间大小应用启动很慢" class="headerlink" title="7. 未设置元空间大小应用启动很慢"></a>7. 未设置元空间大小应用启动很慢</h2><p>MetaSpace会存放静态变量和很多类的信息，在启动时如果不设置元空间大小，则默认21M。</p>
+<ol>
+<li>启动时间很长，且GC日志显示频发触发FullGC metaSpace不足</li>
+<li>查看启动参数，未设置初始化的metaSpace大小。默认是21m</li>
+<li>启动时会加载很多类，大量使用MetaSpace，21m很快被用完触发FullGC，然后MetaSpace动态扩容，然后再full gc再扩容的过程，使得启动变慢。</li>
+<li>-XX：MetaspaceSize 参数意思是触发元空间fullgc的阈值。max的参数代表元空间最大值，设置为-1时也受制于直接内存的大小。</li>
+</ol>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2021/10/01/mysql面试题总结/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2021/10/01/mysql面试题总结/" itemprop="url">mysql面试题总结</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-10-01T10:55:21+08:00">
+                2021-10-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/面试题总结/" itemprop="url" rel="index">
+                    <span itemprop="name">面试题总结</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2021/10/01/mysql面试题总结/" class="leancloud_visitors" data-flag-title="mysql面试题总结">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,673
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  6
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <ol>
+<li><p>描述一下B+树索引的结构？</p>
+</li>
+<li><p>什么叫做聚簇索引？<br>聚簇索引是指叶子节点包含完整数据列，即主键索引和其余所有数据列，innodb中以主键索引构建的B+Tree即为聚簇索引，按照主键id排序。其余的索引皆为稀疏索引。</p>
+</li>
+<li><p>B树和B+树的区别是什么？为什么选用B+树？</p>
+</li>
+<li><p>为什么不使用Hash结构来作索引？</p>
+</li>
+</ol>
+<ul>
+<li>Hash不能很好的支持范围查询</li>
+<li>hash碰撞问题</li>
+<li>hash一般需要一段连续的空间来存储hash表，这样方便维护hash表内部的链表或者数组的移动。</li>
+</ul>
+<ol start="5">
+<li>为什么不用二叉树来做索引？</li>
+</ol>
+<ul>
+<li>极端情况会弱化为链表，查找速度很慢。</li>
+<li>数据变多，树会变的很高，导致查找时IO次数增多。</li>
+</ul>
+<ol start="6">
+<li>为什么不用红黑树来做索引？</li>
+</ol>
+<ul>
+<li>红黑树的高度维护</li>
+<li>插入效率不高，需要维护平衡，伴随着左旋/右旋操作</li>
+<li>虽然平衡了，但是要树高度也会随着数据量变大而增高。</li>
+</ul>
+<ol start="7">
+<li><p>为什么建议主键用自增id而不使用UUID？</p>
+<ul>
+<li>因为聚簇索引是按照主键进行排序的，如果是UUID则是无序插入，是一个随机过程，可能在维护B+树时频繁造成页分裂和记录移动的场景，增加了不必要的磁盘开销。</li>
+<li>自增id占用的空间更小，能承载更多的数据。</li>
+</ul>
+</li>
+<li><p>什么是索引覆盖？什么是回表？</p>
+</li>
+</ol>
+<ul>
+<li>查询的字段和条件字段能从索引中直接获取，不需要回表查找聚簇索引。</li>
+<li>回表：从二级索引过滤完成之后，需要根据二级索引关联的主键值去聚簇索引中读取完整的数据列。</li>
+</ul>
+<ol start="9">
+<li>索引失效的场景有哪些？</li>
+</ol>
+<ul>
+<li>索引列使用函数、运算等操作，不能使用索引。</li>
+<li>in、is not null、!=、or等操作命中记录数太多，不如直接聚簇索引查询，可能成本分析导致不能走索引。</li>
+<li>联合索引没有使用最左前缀原则。</li>
+<li>order by、group by没有使用到所以，用了文件排序或者临时表完成。</li>
+<li>索引字段发生了隐式替换。</li>
+<li>like的通配符在最前面 like ‘%xxx’</li>
+</ul>
+<ol start="10">
+<li>设计索引的原则有哪些？需要注意哪些问题？</li>
+<li>常见的SQL优化方向有哪些？怎么做SQL优化？</li>
+<li>explain type列有哪些值，代表什么含义？</li>
+<li>explain extra列有哪些值，代表什么含义？</li>
+<li>索引下推是什么？</li>
+<li>为什么联合索引是最左前缀原则？</li>
+<li>索引树大约有多高？能存多少数据？</li>
+<li>非叶子节点存放的是什么？</li>
+</ol>
+<ul>
+<li>非叶子节点是目录项数据页，其中存放的是索引值和指向叶子节点（或者下层非叶子节点）的页号。</li>
+</ul>
+<ol start="18">
+<li>事务的四大特性？<br>ACID:</li>
+</ol>
+<ul>
+<li>A：原子性</li>
+<li>C：一致性</li>
+<li>I：隔离性</li>
+<li>D：持久性</li>
+</ul>
+<ol start="19">
+<li>原子性怎么实现的？</li>
+</ol>
+<ul>
+<li>在写记录的操作会写undo log，记录上隐藏列的roll_pointer会指向上一条版本记录，如果需要回滚可以找到对应的历史版本记录，保证了原子性。</li>
+</ul>
+<ol start="20">
+<li>持久性怎么实现的？</li>
+</ol>
+<ul>
+<li>持久性是通过redo log写磁盘来实现的。</li>
+<li>对数据修改的物理日志，比如“对表空间号为2的数据页号为50的偏移量xx地址的记录修改数据内容是什么”，在事务过程中会写入磁盘。</li>
+<li>redolog写入是二阶段，和binlog保持了一致性。redo log可以设置在事务提交的时候写到OS Cache缓存或者磁盘。</li>
+</ul>
+<ol start="21">
+<li>事务的隔离级别有哪些？</li>
+</ol>
+<ul>
+<li>RU、RC、RR、串行化</li>
+</ul>
+<ol start="22">
+<li>不同隔离级别在并发读写下有哪些问题？</li>
+</ol>
+<ul>
+<li>脏写：事务内修改了一个未提交事务修改的值。</li>
+<li>脏读：事务内读到了一个未提交事务修改的值。</li>
+<li>不可重复读：事务内多次读的结果不一致。</li>
+<li>幻读：读到了符合条件的多条新增记录。</li>
+</ul>
+<ol start="23">
+<li>什么是MVCC？</li>
+</ol>
+<ol start="24">
+<li>什么是undo log？</li>
+<li>什么是redo log？</li>
+<li>一条SQL执行的过程是怎样的？</li>
+<li>Mysql有那些锁？</li>
+<li>插入一条SQL的过程？</li>
+<li>RR隔离级别下可重复读的原理？</li>
+<li>RR下的加锁语句分析。</li>
+<li>Innodb和Myisam存储引擎的区别有哪些？</li>
+</ol>
+<ul>
+<li>Innodb支持事务、行锁。而Myisam不支持事务和行锁。</li>
+<li>Innodb数据在聚簇索引上，而Myisam存储引擎索引和数据分离，索引只保存指向数据文件的地址指针。</li>
+</ul>
+<ol start="32">
+<li>Buffer Pool是什么？描述一下结构和运行原理？</li>
+</ol>
+<ol start="33">
+<li>Mysql count(字段) 和 count(*) 有什么区别？哪个效率高？</li>
+</ol>
+<ul>
+<li>count(字段)不统计null值。</li>
+<li>效率相差不大，就是字段有二级索引会直接扫描二级索引，效率更高。</li>
+</ul>
+<ol start="34">
+<li>什么是file sort，怎么避免？</li>
+</ol>
+<ul>
+<li>不能使用到索引的order by场景会使用文件排序，文件排序可能在内存，也可能在磁盘中排序，效率很低。</li>
+<li>避免使用索引排序。</li>
+</ul>
+<ol start="35">
+<li>连接查询的原理是什么样子的？</li>
+</ol>
+<ul>
+<li>嵌套循环查询（有索引）和基于块的嵌套循环查询（没有索引，利用join_buffer）。</li>
+<li>连接查询分为驱动表和被驱动表，驱动表每行记录会一直和被驱动表进行查询。</li>
+</ul>
+<ol start="36">
+<li>连接查询有什么优化吗？什么是基于块的嵌套循环查询？</li>
+</ol>
+<ul>
+<li>对连接的字段加索引</li>
+<li>连接查询不能使用索引则调整join_buffer的大小。</li>
+</ul>
+<ol start="37">
+<li>GAP锁的作用是什么？</li>
+</ol>
+<ul>
+<li>GAP锁之间不相互阻塞，只阻塞插入过程的插入意向锁，避免在RR隔离级别下插入幻影记录。</li>
+</ul>
+<ol start="38">
+<li>RR怎么解决一部分的幻读问题？</li>
+</ol>
+<ul>
+<li>快照读场景：事务内多次快照读，只会在第一次快照读时生成对应的ReadView，通过MVCC访问机制，去访问对应的undo log版本链，来解决了不可重复读和幻读问题。</li>
+<li>当前读：如果当前读是加锁读，那么是通过加GAP锁来防止间隙处插入符合条件新的记录。Gap锁阻塞插入意向锁，所以是通过锁排队场景来避免当前读的幻读的。</li>
+</ul>
+<ol start="39">
+<li>什么是binlog？和redolog的区别是什么？</li>
+<li>死锁是怎么发生的？怎么检测死锁？</li>
+<li>如何避免死锁？</li>
+</ol>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701105558852.png" alt="image-20220701105558852"></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2021/10/01/JVM面试题总结/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2021/10/01/JVM面试题总结/" itemprop="url">JVM面试题总结</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-10-01T10:34:42+08:00">
+                2021-10-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/面试题总结/" itemprop="url" rel="index">
+                    <span itemprop="name">面试题总结</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2021/10/01/JVM面试题总结/" class="leancloud_visitors" data-flag-title="JVM面试题总结">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,085
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  4
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <ol>
+<li>为什么堆区域采用分代？</li>
+</ol>
+<ul>
+<li>年轻代一般放新创建的对象，内存占用小，GC频繁但时间短。</li>
+<li>老年代存放生命周期长的对象，内存占用大，GC不频繁时间长。</li>
+<li>这样分代按照对象生命周期划分了区域，绝大部分都在年轻代创建之后被回收，实在不行还可以晋升老年代，有一定缓冲和保护内存的作用。</li>
+</ul>
+<ol start="2">
+<li>新生代为什么选择复制算法？为什么会有Survivor区域</li>
+</ol>
+<ul>
+<li>新生代分为Eden、S0、S1区，S区一个时间只能使用一个。新创建的对象会首先分配在Eden区，如果Eden不够会MinorGC放入S0区，下次MinorGC会清理Eden和S0，将存活对象复制到S1区。</li>
+<li>划分Survivor区主要是为了实现复制算法，复制算法的好处是复制之后内存是规整的，可以采用指针碰撞的方式来移动指针分配内存，不会有空间碎片。且复制之后可以一次性清除一个被复制的区域，效率高；缺点是只利用了一般的Survivor区域，利用率低。但是一般对象会在MinorGC之后被回收，存活对象很少，所以Survivor区不会很大。</li>
+</ul>
+<ol start="3">
+<li>jdk有哪些类加载器？</li>
+<li>双亲委派模型？</li>
+<li>如何打破双亲委派模型？有哪些实例是打破的？</li>
+<li>类加载的过程，每一步都干了什么？</li>
+<li>JVM内存区域模型描述一下。</li>
+<li>如何判定一个对象是垃圾对象？</li>
+<li>哪些对象可以作为GCRoots？</li>
+<li>为什么标记不采用引用计数法？</li>
+<li>CMS垃圾回收有哪些过程？</li>
+<li>什么操作或者场景下发生FullGC</li>
+<li>描述一下java对象四种引用和应用场景。</li>
+<li>new一个对象一定堆上分配吗？</li>
+<li>逃逸分析和标量替换是什么？</li>
+<li>JIT编译会做哪些事情？</li>
+<li>常见的垃圾回收器及其特点？</li>
+<li>CMS垃圾收集器一定不会STW吗？哪些阶段会STW，哪些阶段会并发执行？</li>
+<li>描述一下Java对象的结构？对象头中的结构？</li>
+<li>G1垃圾回收器的特点什么？</li>
+<li>G1垃圾回收器和CMS的区别是什么？</li>
+<li>常用的JVM参数有哪些？</li>
+<li>常用的JDK调优工具有哪些？</li>
+<li>线上CPU打满怎么排查？</li>
+<li>内存泄漏和内存溢出有什么区别？</li>
+</ol>
+<ul>
+<li>内存泄漏：已经无用的对象还被GCRoots连通引用，被标记为存活无法回收，</li>
+<li>内存溢出：当前内存不足以开辟出连续内存用来分配对象，则会内存溢出。</li>
+</ul>
+<ol start="25">
+<li>OOM有哪些类型？怎么排查OOM？</li>
+</ol>
+<ul>
+<li>OOM：unable to create new native thread。线程栈也是堆内存的一部分，当无法创建机器的native线程会报错OOM。</li>
+<li>OOM：MetaSpace。元空间无可用内存会OOM，比如加载了很多类或者动态生成了很多类，导致元空间内存溢出。</li>
+<li>OOM：heapSpcae。堆空间内存溢出，比如老年代FullGC之后还是没有足够空间，则会OOM</li>
+<li>OOM：directMemory。直接空间（堆外内存）不足也会造成OOM。</li>
+</ul>
+<ol start="26">
+<li>线上JVM调优经验？</li>
+<li>线上其他问题排查经验？</li>
+<li>线上频繁出现FullGC怎么排查？</li>
+<li>什么是老年代空间担保机制？ promotion failure</li>
+<li>在CMS中，什么是Concurrent mode failure，怎么触发的，有什么结果？</li>
+<li>元空间不足会FullGC吗？元空间的参数不设置会怎么样？</li>
+<li>线程的状态有哪些？调用sleep和Locksupport.park、synchronized锁阻塞、lock.lock分别是什么状态？</li>
+<li>常量池在JVM内存的哪个区域？常量池中存放的是什么？</li>
+<li>JVM内存模型中，线程私有的区域都有哪些？</li>
+<li>什么是直接内存？怎么应用？怎么对直接内存进行垃圾回收。</li>
+<li>OOM之后的Dump文件很小，且分析没有异常，可能是发生什么？</li>
+<li>什么是栈帧？栈帧中存放哪些结构？</li>
+<li>1.7的方法区和1.8的元空间有什么区别？为什么要废弃方法区？常量池和静态变量1.8jdk在哪个区域？</li>
+</ol>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2021/08/14/索引数据结构的选择/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2021/08/14/索引数据结构的选择/" itemprop="url">索引数据结构的选择</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-08-14T10:14:00+08:00">
+                2021-08-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/mysql/" itemprop="url" rel="index">
+                    <span itemprop="name">mysql</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2021/08/14/索引数据结构的选择/" class="leancloud_visitors" data-flag-title="索引数据结构的选择">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  994
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  3
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="二叉树"><a href="#二叉树" class="headerlink" title="二叉树"></a>二叉树</h2><p>什么是二叉树？</p>
+<ul>
+<li>每个节点至多只有两棵子树，左子树和右子树。左子树和右子树。</li>
+<li>逻辑上二叉树有五种基本形态，空二叉树、只有一个根节点的二叉树、只有左子树、只有右子树、完全二叉树（满二叉树）</li>
+<li>遍历二叉树有前序遍历、中序遍历、后续遍历。</li>
+</ul>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701101436662.png" alt="image-20220701101436662"></p>
+<p>数据库的索引是要求排好序的数据结构。引入了二叉查找树。</p>
+<h2 id="二叉查找树"><a href="#二叉查找树" class="headerlink" title="二叉查找树"></a>二叉查找树</h2><ul>
+<li>在二叉树的基础上，加上左子树的节点值总是小于根的节点值，右子树的节点值总是大于跟的节点值，也就是左子树节点值 &lt; 根的节点值 &lt; 右子树节点值。</li>
+</ul>
+<p>设计合理的时候可以将一组数据转化为二叉查找树，时间复杂度和二分查找一致。<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701101447155.png" alt="image-20220701101447155"></p>
+<p>但是存在设计不合理的场景：<br>当二叉查找树不平衡，可能退化为一个线性的链表，查找时间复杂度高了起来。<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701101456153.png" alt="image-20220701101456153"></p>
+<p>二叉搜索树可能不平衡，所以再看下平衡二叉树</p>
+<h2 id="平衡二叉树（AVL树）"><a href="#平衡二叉树（AVL树）" class="headerlink" title="平衡二叉树（AVL树）"></a>平衡二叉树（AVL树）</h2><ul>
+<li>符合二叉查找树的定义，然后再满足任何节点的两个子树的高度之差的绝对值不超过1。</li>
+</ul>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701101509334.png" alt="image-20220701101509334"></p>
+<p>相对于二叉查找树，平衡二叉树查找效率稳定。</p>
+<p>但也有缺点：</p>
+<ul>
+<li>查询速度快，但是插入数据时需要维护平衡二叉树，需要1次或多次左旋或者右旋来完成更改节点之后的平衡性。</li>
+<li>平衡二叉树随着数据增多，高度会增加，作为索引的数据结构可能查找一个数据可能要好多次IO。</li>
+</ul>
+<h2 id="B-tree和B-Tree"><a href="#B-tree和B-Tree" class="headerlink" title="B-tree和B+Tree"></a>B-tree和B+Tree</h2><p>平衡二叉树存在树过高导致的IO问题，B-Tree用来解决的思想是在每一个节点上存放多个元素，来降低树的高度，以来减少磁盘IO。</p>
+<h3 id="B-Tree"><a href="#B-Tree" class="headerlink" title="B-Tree"></a>B-Tree</h3><p>B-Tree是一个多路搜索树，m阶的B-tree有如下特性：</p>
+<ul>
+<li>每个节点最多有m棵子树。</li>
+<li>若根节点不是叶子节点，则至少有两个孩子。</li>
+<li>每个节点上存有关键字（索引值），且节点的子树按照关键字排序。</li>
+<li>每个节点上的关键字都有一个指针，指针指向子树的所有节点索引值都小于当前索引值，都大于上一个索引值。</li>
+<li>所有叶子节点都在同一层。</li>
+</ul>
+<p><img src="/Users/zhanglijun/Library/Application%20Support/typora-user-images/image-20220701101529208.png" alt="image-20220701101529208"></p>
+<p>B-Tree中索引和除了索引之外的列是放在一起的，非叶子节点没有冗余索引，同时上层节点中索引关联的指针指向叶子节点，索引节点的左边孩子节点都比索引值小，右边节点都比索引值大。</p>
+<p>这样的多路搜索已经降低了树的高度。</p>
+<p>但Mysql还是采用了B+Tree。</p>
+<h3 id="B-Tree-1"><a href="#B-Tree-1" class="headerlink" title="B+Tree"></a>B+Tree</h3><p>是B-Tree的变种，也是一种多路搜索树，有几点不同：</p>
+<ul>
+<li>非叶子节点的子树指针与索引个数相同</li>
+<li>非叶子节点只存储索引信息，不存放其余的列。</li>
+<li>非叶子节点冗余了索引值。</li>
+<li>所有叶子节点之间用双向指针连接，形成双向链表。</li>
+<li>叶子节点存放索引之外，还存放了其余列。<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701101549392.png" alt="image-20220701101549392"></li>
+</ul>
+<h4 id="为什么用B-Tree而不用B树？"><a href="#为什么用B-Tree而不用B树？" class="headerlink" title="为什么用B+Tree而不用B树？"></a>为什么用B+Tree而不用B树？</h4><ol>
+<li><p>非叶子节点不存放数据，单个节点能装下更多索引的值，降低了树的高度。<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701101605998.png" alt="image-20220701101605998"></p>
+</li>
+<li><p>叶子节点双向指针连接，叶子节点中记录项用单向指针连接，提高了区间访问和范围查找的效率。</p>
+</li>
+</ol>
+<h2 id="Hash结构"><a href="#Hash结构" class="headerlink" title="Hash结构"></a>Hash结构</h2><p>为什么不使用hash结构来存放索引呢？</p>
+<ul>
+<li>hash碰撞和扩容问题。</li>
+<li>hash数据结构也能快速根据索引列定位数据。hash算法的优点</li>
+<li>hash能支持 = in查询，但对于范围查询不好支持。</li>
+</ul>
 
           
         
@@ -1369,1094 +2810,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2021/07/12/redis实现分布式锁/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2021/07/12/redis实现分布式锁/" itemprop="url">redis实现分布式锁</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-07-12T07:22:22+08:00">
-                2021-07-12
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/分布式锁/" itemprop="url" rel="index">
-                    <span itemprop="name">分布式锁</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2021/07/12/redis实现分布式锁/" class="leancloud_visitors" data-flag-title="redis实现分布式锁">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1,292
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  5
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="关键点"><a href="#关键点" class="headerlink" title="关键点"></a>关键点</h1><p>有四个关键点：</p>
-<ul>
-<li>原子性</li>
-<li>过期时间</li>
-<li>锁续期</li>
-<li>正确释放锁</li>
-</ul>
-<h2 id="原子性"><a href="#原子性" class="headerlink" title="原子性"></a>原子性</h2><p>按照分布式锁的实现比如用两个命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">redis.set(key,value);</span><br><span class="line">redis.expire(key, time, unit);</span><br></pre></td></tr></table></figure></p>
-<p>但是这个不是原子性的。比如设置了key和value，但是没有设置失效时间，则会出现死锁的问题。</p>
-<h2 id="过期时间"><a href="#过期时间" class="headerlink" title="过期时间"></a>过期时间</h2><p>这个没啥可说的，分布式锁防止死锁的做法。</p>
-<h2 id="锁续期"><a href="#锁续期" class="headerlink" title="锁续期"></a>锁续期</h2><p>当业务执行时间超过超时时间，则可能出现其他客户端获取锁从而并发执行，失去了分布式锁的意义。这时候就是锁续期。</p>
-<p><strong>开辟另外一个线程，专门用于锁续期，加锁的时候就起个线程进行死循环续期，核心流程就是判断锁的时间过了三分之一则就重新续期为上锁时间。</strong> 比如，加锁时间是3s，执行1s没有释放锁之后，会为这个key的锁重新设置超时时间为3s。</p>
-<h2 id="正确释放锁"><a href="#正确释放锁" class="headerlink" title="正确释放锁"></a>正确释放锁</h2><p>释放锁可能有问题：</p>
-<ol>
-<li>可能释放别人的锁。其实还是上边提到的问题，比如锁设置了3s的超时时间，执行了4s，但是这时别的客户端或者线程获取了锁，所以可能删除了其他客户端的锁。</li>
-<li>而且别的客户端可能上来就是搞破坏，可能有代码实现的问题，未加锁就解锁。</li>
-</ol>
-<p>这两个问题总结起来就是要正确的释放锁。</p>
-<ul>
-<li>利用锁续期机制，防止业务没执行完成就释放锁的情况</li>
-<li>释放的时候要判断是否为自己加的锁，避免释放别人的锁。</li>
-</ul>
-<p>关于锁续期的伪代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">// 标识当前锁是否在运行中</span><br><span class="line">private volatile boolean isRunning;</span><br><span class="line"></span><br><span class="line">// 抢锁成功</span><br><span class="line">if (RESULT_OK.equals(client.setNxPx(key, value, ttl))) &#123;</span><br><span class="line">    // 启动续期线程</span><br><span class="line">    renewalTask = new RenewTask(new IRenewalHandler() &#123;</span><br><span class="line">        @Override</span><br><span class="line">        public void callBack() throws LockException &#123;</span><br><span class="line">            // 刷新值</span><br><span class="line">            client.expire(key, ttl &lt;= 0 ? 10 : ttl);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;, ttl);</span><br><span class="line">    renewalTask.start();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 省略释放锁的代码 里面也要维护isRunning</span><br><span class="line"></span><br><span class="line">// 续期线程的逻辑</span><br><span class="line">@Override</span><br><span class="line">public void run() &#123;</span><br><span class="line">    while (isRunning) &#123;</span><br><span class="line">        try &#123;</span><br><span class="line">            // 1、续租，刷新值</span><br><span class="line">            call.callBack();</span><br><span class="line">            LOGGER.info(&quot;续租成功!&quot;);</span><br><span class="line">            // 2、三分之一过期时间续租</span><br><span class="line">            TimeUnit.SECONDS.sleep(this.ttl * 1000 / 3);</span><br><span class="line">        &#125; catch (InterruptedException e) &#123;</span><br><span class="line">            close();</span><br><span class="line">        &#125; catch (LockException e) &#123;</span><br><span class="line">            close();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public void close() &#123;</span><br><span class="line">    isRunning = false;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>另一个是要在删除时判断出是否为此次加锁，因为是分布式的，线程id可能重复，所以不能单单用线程id作为value，这里建议是用当前业务上下文中的userId或者其他随机数。但这里也要注意一下线程安全问题，因为在解锁（删除锁）时如果是先判断再删除，则有原子性问题：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// 代码有原子性问题</span><br><span class="line">if (userId).equals(redis.get(lockKey)) &#123;</span><br><span class="line">    redis.delete(key);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>此原子性问题可能是：比如在get之后，del之前锁超时自动释放，那么可能在执行del的时候还是删除了刚刚加锁的其他客户端。当然如果保证了锁续期，那么这里不会出现此原子性问题，但是还是建议这里判断删除是用lua脚本提供原子性：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// 如果get的值等于传进来的值，就给它del</span><br><span class="line">if redis.call(&quot;get&quot;,KEYS[1])==ARGV[1] then</span><br><span class="line">  return redis.call(&quot;del&quot;,KEYS[1])</span><br><span class="line">else</span><br><span class="line">  return 0</span><br><span class="line">end</span><br></pre></td></tr></table></figure></p>
-<h1 id="Redis的部署方式"><a href="#Redis的部署方式" class="headerlink" title="Redis的部署方式"></a>Redis的部署方式</h1><ul>
-<li>单机<br>单机模式下面就是一台redis为分布式锁的存储，优点是方便易部署，缺点是存在单机故障。</li>
-<li>哨兵（Sentinel）<br>有单点故障，会搞几个slave从节点做备份，redis很好支持了sentinel模式。<br>但是这里涉及master和slave的数据一致性问题。锁写到master，没有同步到slave，slave选举为master之后slave中没有锁，相当于此时其他客户端也能加锁。</li>
-<li>集群<br>集群只是做了slot分片，降低了一定概率，锁还是只写到一个master上，和哨兵一样存在数据一致性的问题。</li>
-<li>红锁（RedLock）<br>红锁的思路是：<strong>搞几个独立的master节点，比如5个，然后挨个加锁，只要超过一半以上（这里是3个）就代表加锁成功，这样一台master成功，还有其他的master节点，不耽误</strong>。虽然解决了上面集群模式的问题，但是性能影响很大，且集群维护也需要部署成本。</li>
-</ul>
-<h1 id="Redis实现分布式锁的优缺点"><a href="#Redis实现分布式锁的优缺点" class="headerlink" title="Redis实现分布式锁的优缺点"></a>Redis实现分布式锁的优缺点</h1><h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><ul>
-<li>只引入了redis，大多数公司都在用redis，社区活跃，问题容错性高。</li>
-<li>redis相对来说还是很简单的中间件，性能比较高，符合分布式锁的高性能。</li>
-<li>多个客户端支持，redisson客户端用法封装（公平锁、可重入锁、读写锁）。<h2 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h2></li>
-<li>存在集群模型下的各种问题，不能百分百安全，</li>
-<li>即使是红锁，也是需要牺牲性能（每次写过半节点，多次redis IO通讯），需要进行权衡。</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2021/07/11/mysql实现分布式锁/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2021/07/11/mysql实现分布式锁/" itemprop="url">mysql实现分布式锁</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-07-11T07:21:19+08:00">
-                2021-07-11
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/分布式锁/" itemprop="url" rel="index">
-                    <span itemprop="name">分布式锁</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2021/07/11/mysql实现分布式锁/" class="leancloud_visitors" data-flag-title="mysql实现分布式锁">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  718
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  3
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h1><ul>
-<li>利用唯一索引来实现，只要抢占锁就插入了一记录，互斥性体现在其他客户端插入重复数据会报唯一key的异常。</li>
-<li>具体的步骤：<ul>
-<li>客户端1先来加锁，insert一条记录</li>
-<li>客户端2来加锁，插入一条数据返回重复key的异常，这时候就进行重试加锁。</li>
-<li>持有锁的线程执行完逻辑释放锁，即删除数据库中的记录即可。其他客户端可以进行抢锁了。</li>
-</ul>
-</li>
-</ul>
-<p>但是也有一些问题：</p>
-<ul>
-<li>分布式锁的表怎么设计，一个业务一张表？</li>
-<li>抢占锁要怎么去做重试</li>
-<li>释放锁如果安全的释放锁。</li>
-</ul>
-<h1 id="表设计和唯一key"><a href="#表设计和唯一key" class="headerlink" title="表设计和唯一key"></a>表设计和唯一key</h1><ul>
-<li>为了每个业务不去都加这个锁的表，则设计一个能兼容多个业务的锁表，抽象锁的业务id为resource_id；且标识是哪个业务，有project_name、method_name，同时在数据库层可以将唯一索引抽象为lock_id，生成规则可能是project_name下划线method_name下划线resource_id；另外为了实现可重入，要记录一个字段entry_count作为重入次数，同时保留加锁的host_ip和thread_id。</li>
-</ul>
-<p>比如表DDL：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">DROP TABLE IF EXISTS `common_lock`;</span><br><span class="line">CREATE TABLE `common_lock` (</span><br><span class="line">  `id` int NOT NULL,</span><br><span class="line">  `lock_key` varchar(100) NOT NULL,</span><br><span class="line">  `thread_id` int NOT NULL,</span><br><span class="line">  `entry_count` int NOT NULL,</span><br><span class="line">  `host_ip` varchar(30) NOT NULL,</span><br><span class="line">  PRIMARY KEY (`id`),</span><br><span class="line">  UNIQUE KEY `lock_key` (`lock_key`) USING BTREE</span><br><span class="line">) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;</span><br></pre></td></tr></table></figure></p>
-<h2 id="释放锁"><a href="#释放锁" class="headerlink" title="释放锁"></a>释放锁</h2><p>上面提到释放锁就是delete这条记录，但是因为有了重入次数，所以释放锁可能是重入次数-1的过程。<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701072146437.png" alt="image-20220701072146437"></p>
-<h2 id="防止死锁"><a href="#防止死锁" class="headerlink" title="防止死锁"></a>防止死锁</h2><p>如果加锁之后服务端发生宕机未释放锁，则可能造成死锁。当然这里可以记录下超时时间，然后定时任务去扫描超时未释放的数据，然后将其删除。<br>但这样还是出现一个问题，就是定时任务不能判断出是否业务逻辑超时，如果业务超时时间内未完成，定时任务删除了锁记录，也可能出现问题，mysql这里不太好解决这个问题。（redis解决可以有watchDog机制和续期的线程）。</p>
-<h1 id="MySQL实现分布式锁的优缺点："><a href="#MySQL实现分布式锁的优缺点：" class="headerlink" title="MySQL实现分布式锁的优缺点："></a>MySQL实现分布式锁的优缺点：</h1><h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><ul>
-<li>实现方式简单，加锁是insert记录，重入是重入次数+1，删除锁是update重入次数或者删除记录。</li>
-<li>不依赖其他中间件，数据库的高可用保障性强。</li>
-</ul>
-<h2 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h2><ul>
-<li>性能很低，支持并发不高。最简单的不考虑重入场景，也需要和数据库进行两次io操作。</li>
-<li>线程不安全，为了防止死锁引入定时任务扫描，没办法解决续约的场景。</li>
-<li>还是依赖了MySQL，没有百分之百高可用的中间件。</li>
-<li>没办法支持读写锁或者公平锁。</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2021/07/11/分布式锁基础/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2021/07/11/分布式锁基础/" itemprop="url">分布式锁基础</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-07-11T07:20:26+08:00">
-                2021-07-11
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/分布式锁/" itemprop="url" rel="index">
-                    <span itemprop="name">分布式锁</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2021/07/11/分布式锁基础/" class="leancloud_visitors" data-flag-title="分布式锁基础">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  463
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  2
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h1 id="为什么需要分布式锁"><a href="#为什么需要分布式锁" class="headerlink" title="为什么需要分布式锁"></a>为什么需要分布式锁</h1><ul>
-<li>锁能保证多线程环境下对同一份资源竞争的数据安全性</li>
-<li>分布式锁是 用于保证集群内多台机器的多线程并发线程安全的一种手段。</li>
-</ul>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/blog/2021/07/11/分布式锁基础/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2021/07/08/zk集群及ZAB/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2021/07/08/zk集群及ZAB/" itemprop="url">zk集群及ZAB</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-07-08T07:17:49+08:00">
-                2021-07-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/zookeeper/" itemprop="url" rel="index">
-                    <span itemprop="name">zookeeper</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2021/07/08/zk集群及ZAB/" class="leancloud_visitors" data-flag-title="zk集群及ZAB">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1,188
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  4
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="集群架构"><a href="#集群架构" class="headerlink" title="集群架构"></a>集群架构</h2><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701071828582.png" alt="image-20220701071828582"></p>
-<ul>
-<li>client节点：从业务角度来看，这是分布式应用中的一个节点，通过长连接和zkServer端建立连接，定时发送心跳。从集群角度来看，是集群的客户端，可以连接集群中的一个节点，进行node添加、删除、更新数据、注册Watcher机制等。</li>
-<li>leader节点：zk的主节点，负责zk集群的写操作，保证集群内部事务处理的顺序性。同时也负责Follower和Observer节点的数据同步。</li>
-<li>follower节点：ZK集群的从节点，可以接受Client的读请求返回数据，并不处理写请求，而是转发到Leader节点去写数据。follower节点也要参与集群内leader节点的选举。</li>
-<li>observer节点：特殊节点，只处理读请求，但不参与集群选举。作用是提高zk的吞吐量，因为一直增加follower节点会带来副作用，leader写数据要半数follower节点都响应ack之后才能commit，follower节点太多会影响写吞吐量。因为Observer节点不参加选举，且能响应读请求，所以可以增加读吞吐量。</li>
-</ul>
-<h3 id="ZK的消息广播流程"><a href="#ZK的消息广播流程" class="headerlink" title="ZK的消息广播流程"></a>ZK的消息广播流程</h3><p>对于写请求，如果Client连接的是Follower节点或者Observer节点，那么会转发给Leader节点进行数据写入和消息广播的流程。Leader节点处理写请求的核心流程：</p>
-<ol>
-<li>Leader节点收到写请求之后，为写请求赋予一个全局唯一的zxid（64位自增id），通过zxid的大小可以实现写操作的顺序一致性。</li>
-<li>Leader会通过先进先出队列（每个Follower节点创建一个队列，保证发送的顺序），将带有zxid消息的作为一个proposal(提案)分发给所有follower节点。</li>
-<li>当Follower节点收到proposal提案消息之后，将proposal消息写到本地事务日志，写成功后返回给Leader节点 ACK消息。</li>
-<li>当Leader节点收到过半的Follower节点的ACK消息之后，向所有的follower节点去发送Commit消息，并执行本地提交。</li>
-<li>Follower节点收到Commit命令之后，去执行本地提交，集群写操作完成。<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701071839001.png" alt="image-20220701071839001"></li>
-</ol>
-<h3 id="Leader节点的重新选举（崩溃恢复）"><a href="#Leader节点的重新选举（崩溃恢复）" class="headerlink" title="Leader节点的重新选举（崩溃恢复）"></a>Leader节点的重新选举（崩溃恢复）</h3><p>写数据的流程中，如果Leader宕机，整个ZK集群可能出现两个状态：</p>
-<ol>
-<li>Leader节点收到半数Follower节点的ack消息，向各个Follower节点广播Commit命令，在各个Follower节点收到Commit命令之前宕机，剩下的服务器没办法执行本地写commit操作，也就是这次写操作数据还没有commit。</li>
-<li>Leader节点在生成proposal之后宕机了，其他Follower没有收到proposal或者未超过半数收到proposal消息，这次写入数据是失败的。</li>
-</ol>
-<p>重新选举Leader，ZK集群有两个原则：</p>
-<ul>
-<li>对于原Leader提交的proposal（到了执行commit阶段），新的Leader能广播并提交，这样可以选择拥有最大zxid的节点作为新的Leader。</li>
-<li>对于原Leader未广播或者少数节点被广播的proposal消息，新的Leader能通知原Leader和已经同步的Follower删除此proposal消息，保证集群数据一致性。</li>
-</ul>
-<p>zk的集群选举采用了ZAB协议，一个示例来解释选举新Leader的过程：<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701071927624.png" alt="image-20220701071927624"></p>
-<h3 id="启动时的leader选举"><a href="#启动时的leader选举" class="headerlink" title="启动时的leader选举"></a>启动时的leader选举</h3><p>每个节点刚启动时处于Looking状态，然后进行选举流程。</p>
-<ul>
-<li>每个server发出一个投票，初始状态都对自己投票，投票信息包括epoch、zxid、myid（zk进程号），比如server1代表的票是(myid，zxid）是(1,0）、server2是(2,0)，然后发送给集群中参与选举的其他机器。</li>
-<li>接收各个服务器的投票，集群中每个服务器收到投票之后，去比较和自己的投票信息：<ul>
-<li>优先比较epoch，是同一纪元的选票才有效。</li>
-<li>再去比较zxid，在启动时都为0。集群选举的时候优先比较</li>
-<li>如果zxid相同，最后比较myid。</li>
-</ul>
-</li>
-<li>比较完成之后，按照比较规则修改自己的投票，并且广播投票信息给其他服务器。</li>
-<li>超过半数节点统计出相同的票，那么对应节点就是新的leader节点</li>
-<li>各个服务器响应leader选举成功消息，改变自己服务器状态为follower节点。</li>
-</ul>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701071914052.png" alt="image-20220701071914052"></p>
-<h3 id="ZAB协议"><a href="#ZAB协议" class="headerlink" title="ZAB协议"></a>ZAB协议</h3><p>zab协议是在2pc的基础上zk保证数据一致性的协议。（Zookeeper Atomic Broadcast），包含两个最基本的模式：</p>
-<ul>
-<li>消息广播（保证写入数据的一致性）</li>
-<li>崩溃恢复（Leader挂了之后的集群恢复）</li>
-</ul>
-<p>Zk就在这两个模式之间进行切换。当Leader可用时，就进行消息广播模式；当Leader不可用时进入崩溃恢复模式。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2021/07/03/ZK客户端curator的基本使用/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2021/07/03/ZK客户端curator的基本使用/" itemprop="url">ZK客户端curator的基本使用</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-07-03T07:15:40+08:00">
-                2021-07-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/zookeeper/" itemprop="url" rel="index">
-                    <span itemprop="name">zookeeper</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2021/07/03/ZK客户端curator的基本使用/" class="leancloud_visitors" data-flag-title="ZK客户端curator的基本使用">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1,373
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  7
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="Curator的使用"><a href="#Curator的使用" class="headerlink" title="Curator的使用"></a>Curator的使用</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * curator zk客户端api操作demo</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CuratorApiDemo</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span>  <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        <span class="comment">// zk地址 如果是集群 多个节点地址逗号隔开</span></span><br><span class="line">        String address = <span class="string">"127.0.0.1:2181"</span>;</span><br><span class="line">        <span class="comment">// 重试策略 连接不上服务端的时候 会重试 重试间隔递增</span></span><br><span class="line">        RetryPolicy retryPolicy = <span class="keyword">new</span> ExponentialBackoffRetry(<span class="number">1000</span>, <span class="number">3</span>);</span><br><span class="line">        CuratorFramework client = CuratorFrameworkFactory.newClient(address, retryPolicy);</span><br><span class="line">        <span class="comment">// 启动zk客户端</span></span><br><span class="line">        client.start();</span><br><span class="line"></span><br><span class="line"><span class="comment">//        createZNode(client);</span></span><br><span class="line"><span class="comment">//        testBackGroundCallback(client);</span></span><br><span class="line"><span class="comment">//        simpleWatcher(client);</span></span><br><span class="line">        watcherWithCache(client);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">new</span> CountDownLatch(<span class="number">1</span>).await();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * curator 提供了三种cache包装了watcher机制 内部封装了收到watcher通知之后再次进行watcher事件注册的逻辑 对编程很友好</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> client</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">watcherWithCache</span><span class="params">(CuratorFramework client)</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 创建NodeCache，监听的是"/user"这个节点</span></span><br><span class="line">            NodeCache nodeCache = <span class="keyword">new</span> NodeCache(client, <span class="string">"/user"</span>);</span><br><span class="line">            <span class="comment">// start()方法有个boolean类型的参数，默认是false。如果设置为true，</span></span><br><span class="line">                <span class="comment">// 那么NodeCache在第一次启动的时候就会立刻从ZooKeeper上读取对应节点的</span></span><br><span class="line">                <span class="comment">// 数据内容，并保存在Cache中。</span></span><br><span class="line">            nodeCache.start(<span class="keyword">true</span>);</span><br><span class="line">            <span class="keyword">if</span> (nodeCache.getCurrentData() != <span class="keyword">null</span>) &#123;</span><br><span class="line">              System.out.println(<span class="string">"NodeCache节点初始化数据为："</span></span><br><span class="line">                            + <span class="keyword">new</span> String(nodeCache.getCurrentData().getData()));</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">              System.out.println(<span class="string">"NodeCache节点数据为空"</span>);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 添加监听器</span></span><br><span class="line">            nodeCache.getListenable().addListener(() -&gt; &#123;</span><br><span class="line">              String data = <span class="keyword">new</span> String(nodeCache.getCurrentData().getData());</span><br><span class="line">              System.out.println(<span class="string">"NodeCache节点路径："</span> + nodeCache.getCurrentData().getPath()</span><br><span class="line">                                      + <span class="string">"，节点数据为："</span> + data);</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 创建PathChildrenCache实例，监听的是"user"这个节点</span></span><br><span class="line">            PathChildrenCache childrenCache = <span class="keyword">new</span> PathChildrenCache(client, <span class="string">"/user"</span>, <span class="keyword">true</span>);</span><br><span class="line">            <span class="comment">// StartMode指定的初始化的模式</span></span><br><span class="line">            <span class="comment">// NORMAL:普通异步初始化</span></span><br><span class="line">            <span class="comment">// BUILD_INITIAL_CACHE:同步初始化</span></span><br><span class="line">            <span class="comment">// POST_INITIALIZED_EVENT:异步初始化，初始化之后会触发事件</span></span><br><span class="line">            childrenCache.start(PathChildrenCache.StartMode.BUILD_INITIAL_CACHE);</span><br><span class="line">            <span class="comment">// childrenCache.start(PathChildrenCache.StartMode.POST_INITIALIZED_EVENT);</span></span><br><span class="line">            <span class="comment">// childrenCache.start(PathChildrenCache.StartMode.NORMAL);</span></span><br><span class="line">            List&lt;ChildData&gt; children = childrenCache.getCurrentData();</span><br><span class="line">            System.out.println(<span class="string">"获取子节点列表："</span>);</span><br><span class="line">            <span class="comment">// 如果是BUILD_INITIAL_CACHE可以获取这个数据，如果不是就不行</span></span><br><span class="line">            children.forEach(childData -&gt; &#123;</span><br><span class="line">              System.out.println(<span class="keyword">new</span> String(childData.getData()));</span><br><span class="line">            &#125;);</span><br><span class="line">            childrenCache.getListenable().addListener(((client1, event) -&gt; &#123;</span><br><span class="line">              System.out.println(LocalDateTime.now() + <span class="string">" "</span> + event.getType());</span><br><span class="line">              <span class="keyword">if</span> (event.getType().equals(PathChildrenCacheEvent.Type.INITIALIZED)) &#123;</span><br><span class="line">                System.out.println(<span class="string">"PathChildrenCache:子节点初始化成功..."</span>);</span><br><span class="line">              &#125; <span class="keyword">else</span> <span class="keyword">if</span> (event.getType().equals(PathChildrenCacheEvent.Type.CHILD_ADDED)) &#123;</span><br><span class="line">                String path = event.getData().getPath();</span><br><span class="line">                System.out.println(<span class="string">"PathChildrenCache添加子节点:"</span> + event.getData().getPath());</span><br><span class="line">                <span class="keyword">if</span> (event.getData()!= <span class="keyword">null</span> &amp;&amp; event.getData() != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    System.out.println(<span class="string">"PathChildrenCache子节点数据:"</span> + <span class="keyword">new</span> String(event.getData().getData()));</span><br><span class="line">                &#125;</span><br><span class="line">              &#125; <span class="keyword">else</span> <span class="keyword">if</span> (event.getType().equals(PathChildrenCacheEvent.Type.CHILD_REMOVED)) &#123;</span><br><span class="line">                System.out.println(<span class="string">"PathChildrenCache删除子节点:"</span> + event.getData().getPath());</span><br><span class="line">              &#125; <span class="keyword">else</span> <span class="keyword">if</span> (event.getType().equals(PathChildrenCacheEvent.Type.CHILD_UPDATED)) &#123;</span><br><span class="line">                System.out.println(<span class="string">"PathChildrenCache修改子节点路径:"</span> + event.getData().getPath());</span><br><span class="line">                System.out.println(<span class="string">"PathChildrenCache修改子节点数据:"</span> + <span class="keyword">new</span> String(event.getData().getData()));</span><br><span class="line">              &#125;</span><br><span class="line">            &#125;));</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 创建TreeCache实例监听"user"节点</span></span><br><span class="line">            TreeCache cache = TreeCache.newBuilder(client, <span class="string">"/user"</span>).setCacheData(<span class="keyword">false</span>).build();</span><br><span class="line">            cache.getListenable().addListener((c, event) -&gt; &#123;</span><br><span class="line">              <span class="keyword">if</span> (event.getData() != <span class="keyword">null</span>) &#123;</span><br><span class="line">                System.out.println(<span class="string">"TreeCache,type="</span> + event.getType() + <span class="string">" path="</span> + event.getData().getPath());</span><br><span class="line">              &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                System.out.println(<span class="string">"TreeCache,type="</span> + event.getType());</span><br><span class="line">              &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">            cache.start();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 简单的watcher监听机制</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> client</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">simpleWatcher</span><span class="params">(CuratorFramework client)</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        client.create().withMode(CreateMode.PERSISTENT).forPath(<span class="string">"/test-children-watch"</span>);</span><br><span class="line"></span><br><span class="line">        client.getChildren().usingWatcher(<span class="keyword">new</span> CuratorWatcher() &#123;</span><br><span class="line">            <span class="comment">// 为getChildren目录节点的子节点去创建一个watcher 注意 watcher只会被触发一次</span></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">process</span><span class="params">(WatchedEvent watchedEvent)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">                <span class="comment">// type NodeChildrenChanged</span></span><br><span class="line">                System.out.println(<span class="string">"收到监听回调事件, type: "</span> + watchedEvent.getType());</span><br><span class="line">                System.out.println(<span class="string">"回调事件的path: "</span> + watchedEvent.getPath());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;).forPath(<span class="string">"/test-children-watch"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 去添加children 来触发watcher回调</span></span><br><span class="line">        client.create().withMode(CreateMode.EPHEMERAL).forPath(<span class="string">"/test-children-watch/child0"</span>);</span><br><span class="line">        <span class="comment">// watcher是一次性的 不再去注册 不会再收到通知</span></span><br><span class="line">        client.create().withMode(CreateMode.EPHEMERAL).forPath(<span class="string">"/test-children-watch/child1"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">testBackGroundCallback</span><span class="params">(CuratorFramework client)</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        <span class="comment">// backGround是异步处理机制 搭配CuratorListener监听器使用</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 添加一个CuratorListener 来处理backGround后台处理之后的回调</span></span><br><span class="line">        client.getCuratorListenable().addListener(<span class="keyword">new</span> CuratorListener() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">eventReceived</span><span class="params">(CuratorFramework curatorFramework, CuratorEvent curatorEvent)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">                <span class="comment">// 针对不通过的事件去处理</span></span><br><span class="line">                String path = curatorEvent.getPath();</span><br><span class="line">                System.out.println(<span class="string">"当前线程名称："</span> + Thread.currentThread().getName());</span><br><span class="line">                <span class="keyword">switch</span> (curatorEvent.getType()) &#123;</span><br><span class="line">                    <span class="keyword">case</span> CREATE:</span><br><span class="line">                        System.out.println(<span class="string">"节点创建，path: "</span>+ path);</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    <span class="keyword">case</span> EXISTS:</span><br><span class="line">                        System.out.println(<span class="string">"检查节点是否存在。path："</span> + path);</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    <span class="keyword">case</span> DELETE:</span><br><span class="line">                        System.out.println(<span class="string">"delete节点。path: "</span> + path);</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    <span class="keyword">case</span> GET_DATA:</span><br><span class="line">                        System.out.println(<span class="string">"执行getdata path:"</span> + path + <span class="string">" 数据："</span> + <span class="keyword">new</span> String(curatorEvent.getData()));</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    <span class="keyword">case</span> SET_DATA:</span><br><span class="line">                        System.out.println(<span class="string">"执行setData path: "</span> + path);</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    <span class="keyword">case</span> CHILDREN:</span><br><span class="line">                        System.out.println(<span class="string">"执行children path : "</span>+ path);</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    <span class="keyword">default</span>:</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// inBackGround操作 都是在上边的回调处理</span></span><br><span class="line">        client.create().withMode(CreateMode.PERSISTENT).inBackground().forPath(<span class="string">"/curator-background-api"</span>, <span class="string">"test"</span>.getBytes(StandardCharsets.UTF_8));</span><br><span class="line">        client.checkExists().inBackground().forPath(<span class="string">"/curator-background-api"</span>);</span><br><span class="line">        client.getData().inBackground().forPath(<span class="string">"/curator-background-api"</span>);</span><br><span class="line">        client.setData().inBackground().forPath(<span class="string">"/curator-background-api"</span>, <span class="string">"test2"</span>.getBytes(StandardCharsets.UTF_8));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 创建节点</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> client</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">createZNode</span><span class="params">(CuratorFramework client)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            String path = client.create().withMode(CreateMode.PERSISTENT).forPath(<span class="string">"/curator-demo"</span>, <span class="string">"test"</span>.getBytes(StandardCharsets.UTF_8));</span><br><span class="line">            System.out.println(<span class="string">"创建的持久化节点path是："</span> + path);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 检查一个节点是否存在 返回节点的stat信息</span></span><br><span class="line">            Stat stat = client.checkExists().forPath(<span class="string">"/curator-demo"</span>);</span><br><span class="line">            Stat stat1 = client.checkExists().forPath(<span class="string">"/curator-demo1"</span>);</span><br><span class="line">            System.out.println(<span class="string">"节点信息"</span> + stat);</span><br><span class="line">            System.out.println(<span class="string">"不存在的节点 checkExists方法返回值"</span> + stat1);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 查询节点存储的内容</span></span><br><span class="line">            <span class="keyword">byte</span>[] bytes = client.getData().forPath(<span class="string">"/curator-demo"</span>);</span><br><span class="line">            System.out.println(<span class="string">"节点内容："</span> + <span class="keyword">new</span> String(bytes));</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 设置节点存储的内容</span></span><br><span class="line">            client.setData().forPath(<span class="string">"/curator-demo"</span>, <span class="string">"testChanged"</span>.getBytes(StandardCharsets.UTF_8));</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 在子目录下创建多个临时顺序节点</span></span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i =<span class="number">0</span>; i &lt; <span class="number">5</span> ; i++) &#123;</span><br><span class="line">                 client.create().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(<span class="string">"/curator-demo/child-"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 获取所有子节点</span></span><br><span class="line">            List&lt;String&gt; strings = client.getChildren().forPath(<span class="string">"/curator-demo"</span>);</span><br><span class="line">            strings.stream().forEach(System.out::println);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 删除指定的节点 级联删除</span></span><br><span class="line">            client.delete().deletingChildrenIfNeeded().forPath(<span class="string">"/curator-demo"</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/blog/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/9/">9</a><a class="extend next" rel="next" href="/blog/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/blog/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/10/">10</a><a class="extend next" rel="next" href="/blog/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2506,7 +2864,7 @@
               
                 <a href="/blog/archives/">
               
-                  <span class="site-state-item-count">82</span>
+                  <span class="site-state-item-count">100</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2517,7 +2875,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/blog/categories/index.html">
-                  <span class="site-state-item-count">25</span>
+                  <span class="site-state-item-count">26</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -2528,7 +2886,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/blog/tags/index.html">
-                  <span class="site-state-item-count">87</span>
+                  <span class="site-state-item-count">107</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -2602,7 +2960,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">118.8k</span>
+    <span title="Site words total count">149.2k</span>
   
 </div>
 
@@ -2624,7 +2982,7 @@
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共118.8k字</span>
+  <span class="post-count">博客全站共149.2k字</span>
 </div>
 
 <br />

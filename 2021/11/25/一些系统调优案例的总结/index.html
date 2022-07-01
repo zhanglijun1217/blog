@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/blog/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/blog/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/blog/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="jvm调优," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="1. SQL造成大对象JVM频繁full gc哪些场景会频繁full gc？  内存泄漏（对象没有及时被回收，某些代码问题导致） 死循环一直创建对象 一直创建大对象  主要看下大对象的场景：  可能来源于数据库，查询的结果集太大。 第三方接口传输的对象 消息队列的消息太大  一个排查步骤 是否有吻合时间点的发布？机器的CPU、网络IO、带宽是否正常？如果有先回滚和隔离机器。 观察内存监控，是否有逐">
+<meta name="keywords" content="jvm调优">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一些系统调优案例的总结">
+<meta property="og:url" content="https://zhanglijun1217.github.io/2021/11/25/一些系统调优案例的总结/index.html">
+<meta property="og:site_name" content="夸克的博客">
+<meta property="og:description" content="1. SQL造成大对象JVM频繁full gc哪些场景会频繁full gc？  内存泄漏（对象没有及时被回收，某些代码问题导致） 死循环一直创建对象 一直创建大对象  主要看下大对象的场景：  可能来源于数据库，查询的结果集太大。 第三方接口传输的对象 消息队列的消息太大  一个排查步骤 是否有吻合时间点的发布？机器的CPU、网络IO、带宽是否正常？如果有先回滚和隔离机器。 观察内存监控，是否有逐">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103254617.png">
+<meta property="og:image" content="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103317304.png">
+<meta property="og:image" content="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103343047.png">
+<meta property="og:image" content="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103353119.png">
+<meta property="og:updated_time" content="2022-07-01T02:34:20.207Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="一些系统调优案例的总结">
+<meta name="twitter:description" content="1. SQL造成大对象JVM频繁full gc哪些场景会频繁full gc？  内存泄漏（对象没有及时被回收，某些代码问题导致） 死循环一直创建对象 一直创建大对象  主要看下大对象的场景：  可能来源于数据库，查询的结果集太大。 第三方接口传输的对象 消息队列的消息太大  一个排查步骤 是否有吻合时间点的发布？机器的CPU、网络IO、带宽是否正常？如果有先回滚和隔离机器。 观察内存监控，是否有逐">
+<meta name="twitter:image" content="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103254617.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://zhanglijun1217.github.io/2021/11/25/一些系统调优案例的总结/"/>
+
+
+
+
+
+  <title>一些系统调优案例的总结 | 夸克的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <a href="https://github.com/zhanglijun1217"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png" alt="Fork me on GitHub"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/blog/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">夸克的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/blog/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/blog/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/blog/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/blog/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/blog/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2021/11/25/一些系统调优案例的总结/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">一些系统调优案例的总结</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-11-25T10:31:26+08:00">
+                2021-11-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/系统调优/" itemprop="url" rel="index">
+                    <span itemprop="name">系统调优</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2021/11/25/一些系统调优案例的总结/" class="leancloud_visitors" data-flag-title="一些系统调优案例的总结">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,316
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  9
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="1-SQL造成大对象JVM频繁full-gc"><a href="#1-SQL造成大对象JVM频繁full-gc" class="headerlink" title="1. SQL造成大对象JVM频繁full gc"></a>1. SQL造成大对象JVM频繁full gc</h2><p>哪些场景会频繁full gc？</p>
+<ul>
+<li>内存泄漏（对象没有及时被回收，某些代码问题导致）</li>
+<li>死循环一直创建对象</li>
+<li>一直创建大对象</li>
+</ul>
+<p>主要看下大对象的场景：</p>
+<ul>
+<li>可能来源于数据库，查询的结果集太大。</li>
+<li>第三方接口传输的对象</li>
+<li>消息队列的消息太大</li>
+</ul>
+<h3 id="一个排查步骤"><a href="#一个排查步骤" class="headerlink" title="一个排查步骤"></a>一个排查步骤</h3><ul>
+<li>是否有吻合时间点的发布？机器的CPU、网络IO、带宽是否正常？如果有先回滚和隔离机器。</li>
+<li>观察内存监控，是否有逐渐上升的内存占用，且触发GC之后没办法释放内存（内存泄漏）</li>
+<li>如果无内存泄漏(内存在每次fullgc之后能降下来)<ul>
+<li>jmap -histo工具查看存活对象</li>
+<li>jmap -dump:format=b,file=file [pid]命令dump内存快照。利用mat工具分析<ul>
+<li>dump内存占用很小，考虑堆外内存的占用。</li>
+<li>dump分析占用最多的对象和相关调用栈，查看可疑代码。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>比如：sql查出来的大对象一般伴随着网络IO变大，时间点吻合可以重点欢迎是不是sql的原因。</li>
+</ul>
+<h3 id="案例原因"><a href="#案例原因" class="headerlink" title="案例原因"></a>案例原因</h3><ul>
+<li>一个in list查找，参数没有判空，导致条件没有带上，查询命中很多记录。</li>
+<li>sql一般会复用mybatis模板，某个sql模板如果参数没校验，可能产生大量记录的查询。</li>
+</ul>
+<h2 id="2-内存泄漏案例"><a href="#2-内存泄漏案例" class="headerlink" title="2. 内存泄漏案例"></a>2. 内存泄漏案例</h2><ul>
+<li>内存溢出：程序没有足够的内存分配对象，会发生内存溢出。</li>
+<li>内存泄漏：对象没有及时释放，导致内存逐渐增加，就是内存泄漏。内存泄漏一般不会造成程序无法运行，但是会不断的累计造成内存不足，明显现象：触发了GC之后内存占用率不下降，且缓慢上升。<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103254617.png" alt="image-20220701103254617"></li>
+</ul>
+<h3 id="案例及原因"><a href="#案例及原因" class="headerlink" title="案例及原因"></a>案例及原因</h3><ul>
+<li>本地内存存放商品数据，如果只存放热点商品，内存占用不会太大。但是如果全量商品加载到内存中，那么内存会不够。</li>
+<li>每个缓存记录加了7天的失效时间，保证淘汰掉不是热点访问的商品数据。</li>
+<li>经过一次重构之后，过期时间功能失效，没有过期时间淘汰，本地缓存越来越大。</li>
+<li>在一定时间之后，报警内存不足。dump内存之后发现缓存了大量的商品数据，造成内存泄漏，且因为本地缓存的引用一直没办法被GC清除。</li>
+</ul>
+<h2 id="3-磁盘IO导致线程阻塞"><a href="#3-磁盘IO导致线程阻塞" class="headerlink" title="3. 磁盘IO导致线程阻塞"></a>3. 磁盘IO导致线程阻塞</h2><ul>
+<li>日常的CPU高的问题可以通过标准步骤：<ul>
+<li>top -H - p pid来查看cpu使用率高的线程id</li>
+<li>线程id转换16进制</li>
+<li>jstack -l pid | grep ‘线程id16进制’</li>
+</ul>
+</li>
+<li>但是有时候cpu突刺可能是在一个很短的时间内发生，此时可以采用shell脚本自动执行jstack，比如5s执行一次stack，每次执行完成之后放到不同的日志文件中。只保留2000个日志文件。</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>!/bin/bash</span><br><span class="line">num=0</span><br><span class="line">log="/tmp/jstack_thread_log/thread_info"</span><br><span class="line"></span><br><span class="line">cd /tmp</span><br><span class="line">if [ ! -d "jstack_thread_log" ]; then</span><br><span class="line">   mkdir jstack_thread_log</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">while ((num &lt;= 10000));</span><br><span class="line"></span><br><span class="line">  do</span><br><span class="line"></span><br><span class="line">    ID=`ps -ef | grep java | grep gaea | grep -v "grep" | awk '&#123;print $2&#125;'`</span><br><span class="line">  </span><br><span class="line">    if [ -n "$ID" ]; then</span><br><span class="line">  jstack $ID &gt;&gt; $&#123;log&#125;  </span><br><span class="line">    fi</span><br><span class="line"></span><br><span class="line">    num=$(( $num + 1 ))</span><br><span class="line"></span><br><span class="line">    mod=$(( $num%100 ))</span><br><span class="line"></span><br><span class="line">    if [ $mod -eq 0 ]; then</span><br><span class="line">  back=$log$num</span><br><span class="line">  mv $log $back</span><br><span class="line">    fi</span><br><span class="line">    </span><br><span class="line">    sleep 5</span><br><span class="line"></span><br><span class="line">done</span><br></pre></td></tr></table></figure>
+<p>下一次响应变慢的时候，找到对应时间点的jstack日志文件，里面有很多线程阻塞在logback输出日志的过程，后来精简了log + 配置日志异步输出，则问题得以解决。</p>
+<h2 id="4-死锁案例"><a href="#4-死锁案例" class="headerlink" title="4. 死锁案例"></a>4. 死锁案例</h2><h3 id="1-update顺序导致的死锁"><a href="#1-update顺序导致的死锁" class="headerlink" title="1. update顺序导致的死锁"></a>1. update顺序导致的死锁</h3><h4 id="一个关单定时任务和人工后台关单的死锁案例"><a href="#一个关单定时任务和人工后台关单的死锁案例" class="headerlink" title="一个关单定时任务和人工后台关单的死锁案例"></a>一个关单定时任务和人工后台关单的死锁案例</h4><p>背景：<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103317304.png" alt="image-20220701103317304"></p>
+<ol>
+<li>定时关单的sql及加锁分析。<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">update</span> <span class="keyword">order</span> <span class="keyword">set</span> <span class="keyword">status</span> = <span class="string">'canceled'</span> <span class="keyword">where</span> created_time &gt; <span class="string">'2020-01-01 08:00:00'</span> <span class="keyword">and</span> created_time &lt; <span class="string">'2020-01-01 08:00:00'</span> <span class="keyword">and</span> <span class="keyword">status</span> = <span class="string">'UNPAID'</span>;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>因为created_time是二级索引，会先给二级索引加锁，再给对应的聚簇索引加锁。（加锁步骤如下所示）<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103343047.png" alt="image-20220701103343047"></p>
+<ol start="2">
+<li>后台关单的sql及加锁分析</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">update</span> t_order <span class="keyword">set</span> <span class="keyword">status</span> = <span class="string">'CANCELLED'</span> <span class="keyword">where</span> <span class="keyword">id</span> <span class="keyword">in</span> (<span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>) <span class="keyword">and</span> <span class="keyword">status</span> = <span class="string">'UNPAID'</span></span><br></pre></td></tr></table></figure>
+<p>直接在聚簇索引的记录上加锁：<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103353119.png" alt="image-20220701103353119"></p>
+<p>可以看到定时任务的sql对主键索引加锁顺序是5，4，3，2。而后台的sql对主键加锁顺序是2，3，5。</p>
+<p>比如第一个sql对3加锁之后，尝试对2加锁时发现后台取消的sql事务已经对2加锁，而此时第二个sql又尝试对3加锁，两个sql互相等待对方的锁，也就发生了死锁。</p>
+<p>解决办法：</p>
+<ul>
+<li>sql从语句上0保证加锁顺序一致。也就是都按照id排序加锁防止死锁。</li>
+<li>或者让批量操作，变为单个执行，减少锁占用的粒度和时间。</li>
+<li>取消订单都加一个分布式锁排队执行。</li>
+</ul>
+<h2 id="5-后台导出数据引发的OOM"><a href="#5-后台导出数据引发的OOM" class="headerlink" title="5. 后台导出数据引发的OOM"></a>5. 后台导出数据引发的OOM</h2><p>问题描述：公司的后台系统，导出功能之后偶发性的发生OOM。</p>
+<h3 id="排查步骤"><a href="#排查步骤" class="headerlink" title="排查步骤"></a>排查步骤</h3><ol>
+<li>因为是偶发性的，所以认为是后台系统的内存不足，单方面加大了内存。</li>
+<li>但是没有解决问题，只是降低了OOM的频率。加入参数-XX:+HeapDumpOnOutOfMemoryError参数，来触发OOM时自动dump内存。</li>
+<li>dump内存之后进行分析，确认了大量string对象，跟其引用都是导出excel处服务。</li>
+<li>结合Arthas查看，导出执行时间比较长，但是会在短时间内执行导出很多次，且用户session和参数是一致的。</li>
+<li>现象总结就是短时间内多次导出相同的数据，且操作人是一个，产生大量的string对象。未能及时在年轻代清除（比如空间担保机制、比如超过了对象的阈值、比如创建对象速度过快未进行标记就晋升到老年代）。</li>
+<li>最后排查是点击导出按钮没有在点击时置灰，导出交互会引导操作人多次点击，每次点击都会去读数据库的几万数据且导出excel，方法执行比较慢，对象无法回收，导致内存溢出。</li>
+<li>最后解决：前端导出之后置灰，响应了之后才可以继续点击，且减少了查询订单信息的非必字段来瘦身对象，且分批次查询数据库改为了多线程。之后没有出现OOM。</li>
+</ol>
+<h2 id="6-网站流量暴增后，网站反应出现卡顿"><a href="#6-网站流量暴增后，网站反应出现卡顿" class="headerlink" title="6. 网站流量暴增后，网站反应出现卡顿"></a>6. 网站流量暴增后，网站反应出现卡顿</h2><p>问题描述：在测试环境的页面速度很快，但到生产会变慢。推测访问量增大之后，对象创建变多，频繁的GC导致STW。</p>
+<ol>
+<li>定位：使用jstat -gc pid指令观察JVM的GC次数，且观察Eden区增长的速度，来观察到触发MinorGC频率特别高，FullGC的触发频率次数和MinorGC几乎一致，甚至更多，这样导致STW业务线程，造成网页出现卡顿。</li>
+<li>猜想是触发了老年代的空间担保机制，新生代在minorGC之前发现老年代可用连续空间比新生代所有对象小（或者是历次晋升的平均大小），就会触发空间担保机制，进而触发一次fullGC。</li>
+<li>调大内存，老年代内存变大，且新生代的内存也变大，对象触发MinorGC的频次减少。</li>
+<li>但是还是会发生卡顿，且卡顿时间比之前更长，发生卡顿频率降低。</li>
+<li>继续jstat -gc pid观察，发现GC的次数不多，但是每次GC的时间变大，推测是因为内存调整变大，GC时间被拉长了。</li>
+<li>jinfo看到使用的是parallel垃圾回收器的组合，想到特点是多线程进行回收，但是整个回收过程会STW，造成GC期间不能正常使用。</li>
+<li>这里替换为parNew + CMS垃圾回收器，CMS在垃圾回收阶段可以和用户线程并发执行，能有效的减少STW时间。</li>
+<li>替换之后要设置合理的触发CMSGC的阈值，如果太大，比如在垃圾回收过程因为内存不足再次因为Concurrent mode failure触发full gc，会导致CMS退化为Serial Old单线程回收，整个回收过程都会STW。 总之使用了CMS要注意GC日志中是否有Concurrent mode failure关键字。</li>
+</ol>
+<h2 id="7-未设置元空间大小应用启动很慢"><a href="#7-未设置元空间大小应用启动很慢" class="headerlink" title="7. 未设置元空间大小应用启动很慢"></a>7. 未设置元空间大小应用启动很慢</h2><p>MetaSpace会存放静态变量和很多类的信息，在启动时如果不设置元空间大小，则默认21M。</p>
+<ol>
+<li>启动时间很长，且GC日志显示频发触发FullGC metaSpace不足</li>
+<li>查看启动参数，未设置初始化的metaSpace大小。默认是21m</li>
+<li>启动时会加载很多类，大量使用MetaSpace，21m很快被用完触发FullGC，然后MetaSpace动态扩容，然后再full gc再扩容的过程，使得启动变慢。</li>
+<li>-XX：MetaspaceSize 参数意思是触发元空间fullgc的阈值。max的参数代表元空间最大值，设置为-1时也受制于直接内存的大小。</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+      <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+   </div>
+
+    <div>
+      
+        
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+  
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <p><span>本文标题:</span><a href="/blog/2021/11/25/一些系统调优案例的总结/">一些系统调优案例的总结</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 夸克 的个人博客">夸克</a></p>
+  <p><span>发布时间:</span>2021年11月25日 - 10:11</p>
+  <p><span>最后更新:</span>2022年07月01日 - 10:07</p>
+  <p><span>原始链接:</span><a href="/blog/2021/11/25/一些系统调优案例的总结/" title="一些系统调优案例的总结">https://zhanglijun1217.github.io/2021/11/25/一些系统调优案例的总结/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://zhanglijun1217.github.io/2021/11/25/一些系统调优案例的总结/"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+    $(".fa-clipboard").click(function(){
+      clipboard.on('success', function(){
+        swal({   
+          title: "",   
+          text: '复制成功',
+          icon: "success", 
+          showConfirmButton: true
+          });
+	});
+    });  
+</script>
+
+
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/jvm调优/" rel="tag"># jvm调优</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2021/10/01/mysql面试题总结/" rel="next" title="mysql面试题总结">
+                <i class="fa fa-chevron-left"></i> mysql面试题总结
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2022/07/01/B-树能三层高度承载的数据大小/" rel="prev" title="B+树能三层高度承载的数据大小">
+                B+树能三层高度承载的数据大小 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODQ1NS8xNDk4Mw=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/blog/images/avatar.png"
+                alt="夸克" />
+            
+              <p class="site-author-name" itemprop="name">夸克</p>
+              <p class="site-description motion-element" itemprop="description">愿赌服输</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/blog/archives/">
+              
+                  <span class="site-state-item-count">100</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/blog/categories/index.html">
+                  <span class="site-state-item-count">26</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/blog/tags/index.html">
+                  <span class="site-state-item-count">107</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/zhanglijun1217" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="17768115112@163.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://blog.csdn.net/zlj1217" target="_blank" title="csdn">
+                      
+                        <i class="fa fa-fw fa-facebook"></i>csdn</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-SQL造成大对象JVM频繁full-gc"><span class="nav-number">1.</span> <span class="nav-text">1. SQL造成大对象JVM频繁full gc</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#一个排查步骤"><span class="nav-number">1.1.</span> <span class="nav-text">一个排查步骤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#案例原因"><span class="nav-number">1.2.</span> <span class="nav-text">案例原因</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-内存泄漏案例"><span class="nav-number">2.</span> <span class="nav-text">2. 内存泄漏案例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#案例及原因"><span class="nav-number">2.1.</span> <span class="nav-text">案例及原因</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-磁盘IO导致线程阻塞"><span class="nav-number">3.</span> <span class="nav-text">3. 磁盘IO导致线程阻塞</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-死锁案例"><span class="nav-number">4.</span> <span class="nav-text">4. 死锁案例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-update顺序导致的死锁"><span class="nav-number">4.1.</span> <span class="nav-text">1. update顺序导致的死锁</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#一个关单定时任务和人工后台关单的死锁案例"><span class="nav-number">4.1.1.</span> <span class="nav-text">一个关单定时任务和人工后台关单的死锁案例</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-后台导出数据引发的OOM"><span class="nav-number">5.</span> <span class="nav-text">5. 后台导出数据引发的OOM</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#排查步骤"><span class="nav-number">5.1.</span> <span class="nav-text">排查步骤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-网站流量暴增后，网站反应出现卡顿"><span class="nav-number">6.</span> <span class="nav-text">6. 网站流量暴增后，网站反应出现卡顿</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-未设置元空间大小应用启动很慢"><span class="nav-number">7.</span> <span class="nav-text">7. 未设置元空间大小应用启动很慢</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">夸克</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">149.2k</span>
+  
+</div>
+
+<!-- 
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+-->
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共149.2k字</span>
+</div>
+
+<br />
+<span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
+<script>
+    var now = new Date(); 
+    function createtime() { 
+        var grt= new Date("08/10/2018 17:38:00");//在此处修改你的建站时间
+        now.setTime(now.getTime()+250); 
+        days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days); 
+        hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours); 
+        if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum); 
+        mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;} 
+        seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum); 
+        snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;} 
+        document.getElementById("timeDate").innerHTML = "本站已安全运行 "+dnum+" 天 "; 
+        document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒"; 
+    } 
+setInterval("createtime()",250);
+</script>
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/blog/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/blog/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/blog/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/blog/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("qXIjN3WiiNGaBkHrD57eWysr-gzGzoHsz", "tvTqIYOik3u6IJLDdI29pVdW");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+<script src="/blog/live2dw/lib/L2Dwidget.min.js?0c58a1486de42ac6cc1c59c7d98ae887"></script><script>L2Dwidget.init({"model":"wanko","width":300,"height":600,"horizontalOffset":50,"position":"left","opacityDefault":1,"scaling":1.5,"mobileShow":false,"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+</html>

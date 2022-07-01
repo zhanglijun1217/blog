@@ -297,6 +297,1089 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2021/07/12/redis实现分布式锁/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2021/07/12/redis实现分布式锁/" itemprop="url">redis实现分布式锁</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-07-12T07:22:22+08:00">
+                2021-07-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/分布式锁/" itemprop="url" rel="index">
+                    <span itemprop="name">分布式锁</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2021/07/12/redis实现分布式锁/" class="leancloud_visitors" data-flag-title="redis实现分布式锁">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,292
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  5
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="关键点"><a href="#关键点" class="headerlink" title="关键点"></a>关键点</h1><p>有四个关键点：</p>
+<ul>
+<li>原子性</li>
+<li>过期时间</li>
+<li>锁续期</li>
+<li>正确释放锁</li>
+</ul>
+<h2 id="原子性"><a href="#原子性" class="headerlink" title="原子性"></a>原子性</h2><p>按照分布式锁的实现比如用两个命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">redis.set(key,value);</span><br><span class="line">redis.expire(key, time, unit);</span><br></pre></td></tr></table></figure></p>
+<p>但是这个不是原子性的。比如设置了key和value，但是没有设置失效时间，则会出现死锁的问题。</p>
+<h2 id="过期时间"><a href="#过期时间" class="headerlink" title="过期时间"></a>过期时间</h2><p>这个没啥可说的，分布式锁防止死锁的做法。</p>
+<h2 id="锁续期"><a href="#锁续期" class="headerlink" title="锁续期"></a>锁续期</h2><p>当业务执行时间超过超时时间，则可能出现其他客户端获取锁从而并发执行，失去了分布式锁的意义。这时候就是锁续期。</p>
+<p><strong>开辟另外一个线程，专门用于锁续期，加锁的时候就起个线程进行死循环续期，核心流程就是判断锁的时间过了三分之一则就重新续期为上锁时间。</strong> 比如，加锁时间是3s，执行1s没有释放锁之后，会为这个key的锁重新设置超时时间为3s。</p>
+<h2 id="正确释放锁"><a href="#正确释放锁" class="headerlink" title="正确释放锁"></a>正确释放锁</h2><p>释放锁可能有问题：</p>
+<ol>
+<li>可能释放别人的锁。其实还是上边提到的问题，比如锁设置了3s的超时时间，执行了4s，但是这时别的客户端或者线程获取了锁，所以可能删除了其他客户端的锁。</li>
+<li>而且别的客户端可能上来就是搞破坏，可能有代码实现的问题，未加锁就解锁。</li>
+</ol>
+<p>这两个问题总结起来就是要正确的释放锁。</p>
+<ul>
+<li>利用锁续期机制，防止业务没执行完成就释放锁的情况</li>
+<li>释放的时候要判断是否为自己加的锁，避免释放别人的锁。</li>
+</ul>
+<p>关于锁续期的伪代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">// 标识当前锁是否在运行中</span><br><span class="line">private volatile boolean isRunning;</span><br><span class="line"></span><br><span class="line">// 抢锁成功</span><br><span class="line">if (RESULT_OK.equals(client.setNxPx(key, value, ttl))) &#123;</span><br><span class="line">    // 启动续期线程</span><br><span class="line">    renewalTask = new RenewTask(new IRenewalHandler() &#123;</span><br><span class="line">        @Override</span><br><span class="line">        public void callBack() throws LockException &#123;</span><br><span class="line">            // 刷新值</span><br><span class="line">            client.expire(key, ttl &lt;= 0 ? 10 : ttl);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;, ttl);</span><br><span class="line">    renewalTask.start();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 省略释放锁的代码 里面也要维护isRunning</span><br><span class="line"></span><br><span class="line">// 续期线程的逻辑</span><br><span class="line">@Override</span><br><span class="line">public void run() &#123;</span><br><span class="line">    while (isRunning) &#123;</span><br><span class="line">        try &#123;</span><br><span class="line">            // 1、续租，刷新值</span><br><span class="line">            call.callBack();</span><br><span class="line">            LOGGER.info(&quot;续租成功!&quot;);</span><br><span class="line">            // 2、三分之一过期时间续租</span><br><span class="line">            TimeUnit.SECONDS.sleep(this.ttl * 1000 / 3);</span><br><span class="line">        &#125; catch (InterruptedException e) &#123;</span><br><span class="line">            close();</span><br><span class="line">        &#125; catch (LockException e) &#123;</span><br><span class="line">            close();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public void close() &#123;</span><br><span class="line">    isRunning = false;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>另一个是要在删除时判断出是否为此次加锁，因为是分布式的，线程id可能重复，所以不能单单用线程id作为value，这里建议是用当前业务上下文中的userId或者其他随机数。但这里也要注意一下线程安全问题，因为在解锁（删除锁）时如果是先判断再删除，则有原子性问题：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// 代码有原子性问题</span><br><span class="line">if (userId).equals(redis.get(lockKey)) &#123;</span><br><span class="line">    redis.delete(key);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>此原子性问题可能是：比如在get之后，del之前锁超时自动释放，那么可能在执行del的时候还是删除了刚刚加锁的其他客户端。当然如果保证了锁续期，那么这里不会出现此原子性问题，但是还是建议这里判断删除是用lua脚本提供原子性：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// 如果get的值等于传进来的值，就给它del</span><br><span class="line">if redis.call(&quot;get&quot;,KEYS[1])==ARGV[1] then</span><br><span class="line">  return redis.call(&quot;del&quot;,KEYS[1])</span><br><span class="line">else</span><br><span class="line">  return 0</span><br><span class="line">end</span><br></pre></td></tr></table></figure></p>
+<h1 id="Redis的部署方式"><a href="#Redis的部署方式" class="headerlink" title="Redis的部署方式"></a>Redis的部署方式</h1><ul>
+<li>单机<br>单机模式下面就是一台redis为分布式锁的存储，优点是方便易部署，缺点是存在单机故障。</li>
+<li>哨兵（Sentinel）<br>有单点故障，会搞几个slave从节点做备份，redis很好支持了sentinel模式。<br>但是这里涉及master和slave的数据一致性问题。锁写到master，没有同步到slave，slave选举为master之后slave中没有锁，相当于此时其他客户端也能加锁。</li>
+<li>集群<br>集群只是做了slot分片，降低了一定概率，锁还是只写到一个master上，和哨兵一样存在数据一致性的问题。</li>
+<li>红锁（RedLock）<br>红锁的思路是：<strong>搞几个独立的master节点，比如5个，然后挨个加锁，只要超过一半以上（这里是3个）就代表加锁成功，这样一台master成功，还有其他的master节点，不耽误</strong>。虽然解决了上面集群模式的问题，但是性能影响很大，且集群维护也需要部署成本。</li>
+</ul>
+<h1 id="Redis实现分布式锁的优缺点"><a href="#Redis实现分布式锁的优缺点" class="headerlink" title="Redis实现分布式锁的优缺点"></a>Redis实现分布式锁的优缺点</h1><h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><ul>
+<li>只引入了redis，大多数公司都在用redis，社区活跃，问题容错性高。</li>
+<li>redis相对来说还是很简单的中间件，性能比较高，符合分布式锁的高性能。</li>
+<li>多个客户端支持，redisson客户端用法封装（公平锁、可重入锁、读写锁）。<h2 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h2></li>
+<li>存在集群模型下的各种问题，不能百分百安全，</li>
+<li>即使是红锁，也是需要牺牲性能（每次写过半节点，多次redis IO通讯），需要进行权衡。</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2021/07/11/mysql实现分布式锁/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2021/07/11/mysql实现分布式锁/" itemprop="url">mysql实现分布式锁</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-07-11T07:21:19+08:00">
+                2021-07-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/分布式锁/" itemprop="url" rel="index">
+                    <span itemprop="name">分布式锁</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2021/07/11/mysql实现分布式锁/" class="leancloud_visitors" data-flag-title="mysql实现分布式锁">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  718
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  3
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h1><ul>
+<li>利用唯一索引来实现，只要抢占锁就插入了一记录，互斥性体现在其他客户端插入重复数据会报唯一key的异常。</li>
+<li>具体的步骤：<ul>
+<li>客户端1先来加锁，insert一条记录</li>
+<li>客户端2来加锁，插入一条数据返回重复key的异常，这时候就进行重试加锁。</li>
+<li>持有锁的线程执行完逻辑释放锁，即删除数据库中的记录即可。其他客户端可以进行抢锁了。</li>
+</ul>
+</li>
+</ul>
+<p>但是也有一些问题：</p>
+<ul>
+<li>分布式锁的表怎么设计，一个业务一张表？</li>
+<li>抢占锁要怎么去做重试</li>
+<li>释放锁如果安全的释放锁。</li>
+</ul>
+<h1 id="表设计和唯一key"><a href="#表设计和唯一key" class="headerlink" title="表设计和唯一key"></a>表设计和唯一key</h1><ul>
+<li>为了每个业务不去都加这个锁的表，则设计一个能兼容多个业务的锁表，抽象锁的业务id为resource_id；且标识是哪个业务，有project_name、method_name，同时在数据库层可以将唯一索引抽象为lock_id，生成规则可能是project_name下划线method_name下划线resource_id；另外为了实现可重入，要记录一个字段entry_count作为重入次数，同时保留加锁的host_ip和thread_id。</li>
+</ul>
+<p>比如表DDL：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">DROP TABLE IF EXISTS `common_lock`;</span><br><span class="line">CREATE TABLE `common_lock` (</span><br><span class="line">  `id` int NOT NULL,</span><br><span class="line">  `lock_key` varchar(100) NOT NULL,</span><br><span class="line">  `thread_id` int NOT NULL,</span><br><span class="line">  `entry_count` int NOT NULL,</span><br><span class="line">  `host_ip` varchar(30) NOT NULL,</span><br><span class="line">  PRIMARY KEY (`id`),</span><br><span class="line">  UNIQUE KEY `lock_key` (`lock_key`) USING BTREE</span><br><span class="line">) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;</span><br></pre></td></tr></table></figure></p>
+<h2 id="释放锁"><a href="#释放锁" class="headerlink" title="释放锁"></a>释放锁</h2><p>上面提到释放锁就是delete这条记录，但是因为有了重入次数，所以释放锁可能是重入次数-1的过程。<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701072146437.png" alt="image-20220701072146437"></p>
+<h2 id="防止死锁"><a href="#防止死锁" class="headerlink" title="防止死锁"></a>防止死锁</h2><p>如果加锁之后服务端发生宕机未释放锁，则可能造成死锁。当然这里可以记录下超时时间，然后定时任务去扫描超时未释放的数据，然后将其删除。<br>但这样还是出现一个问题，就是定时任务不能判断出是否业务逻辑超时，如果业务超时时间内未完成，定时任务删除了锁记录，也可能出现问题，mysql这里不太好解决这个问题。（redis解决可以有watchDog机制和续期的线程）。</p>
+<h1 id="MySQL实现分布式锁的优缺点："><a href="#MySQL实现分布式锁的优缺点：" class="headerlink" title="MySQL实现分布式锁的优缺点："></a>MySQL实现分布式锁的优缺点：</h1><h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><ul>
+<li>实现方式简单，加锁是insert记录，重入是重入次数+1，删除锁是update重入次数或者删除记录。</li>
+<li>不依赖其他中间件，数据库的高可用保障性强。</li>
+</ul>
+<h2 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h2><ul>
+<li>性能很低，支持并发不高。最简单的不考虑重入场景，也需要和数据库进行两次io操作。</li>
+<li>线程不安全，为了防止死锁引入定时任务扫描，没办法解决续约的场景。</li>
+<li>还是依赖了MySQL，没有百分之百高可用的中间件。</li>
+<li>没办法支持读写锁或者公平锁。</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2021/07/11/分布式锁基础/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2021/07/11/分布式锁基础/" itemprop="url">分布式锁基础</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-07-11T07:20:26+08:00">
+                2021-07-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/分布式锁/" itemprop="url" rel="index">
+                    <span itemprop="name">分布式锁</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2021/07/11/分布式锁基础/" class="leancloud_visitors" data-flag-title="分布式锁基础">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  463
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  2
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h1 id="为什么需要分布式锁"><a href="#为什么需要分布式锁" class="headerlink" title="为什么需要分布式锁"></a>为什么需要分布式锁</h1><ul>
+<li>锁能保证多线程环境下对同一份资源竞争的数据安全性</li>
+<li>分布式锁是 用于保证集群内多台机器的多线程并发线程安全的一种手段。</li>
+</ul>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/blog/2021/07/11/分布式锁基础/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2021/07/08/zk集群及ZAB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2021/07/08/zk集群及ZAB/" itemprop="url">zk集群及ZAB</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-07-08T07:17:49+08:00">
+                2021-07-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/zookeeper/" itemprop="url" rel="index">
+                    <span itemprop="name">zookeeper</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2021/07/08/zk集群及ZAB/" class="leancloud_visitors" data-flag-title="zk集群及ZAB">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,188
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  4
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="集群架构"><a href="#集群架构" class="headerlink" title="集群架构"></a>集群架构</h2><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701071828582.png" alt="image-20220701071828582"></p>
+<ul>
+<li>client节点：从业务角度来看，这是分布式应用中的一个节点，通过长连接和zkServer端建立连接，定时发送心跳。从集群角度来看，是集群的客户端，可以连接集群中的一个节点，进行node添加、删除、更新数据、注册Watcher机制等。</li>
+<li>leader节点：zk的主节点，负责zk集群的写操作，保证集群内部事务处理的顺序性。同时也负责Follower和Observer节点的数据同步。</li>
+<li>follower节点：ZK集群的从节点，可以接受Client的读请求返回数据，并不处理写请求，而是转发到Leader节点去写数据。follower节点也要参与集群内leader节点的选举。</li>
+<li>observer节点：特殊节点，只处理读请求，但不参与集群选举。作用是提高zk的吞吐量，因为一直增加follower节点会带来副作用，leader写数据要半数follower节点都响应ack之后才能commit，follower节点太多会影响写吞吐量。因为Observer节点不参加选举，且能响应读请求，所以可以增加读吞吐量。</li>
+</ul>
+<h3 id="ZK的消息广播流程"><a href="#ZK的消息广播流程" class="headerlink" title="ZK的消息广播流程"></a>ZK的消息广播流程</h3><p>对于写请求，如果Client连接的是Follower节点或者Observer节点，那么会转发给Leader节点进行数据写入和消息广播的流程。Leader节点处理写请求的核心流程：</p>
+<ol>
+<li>Leader节点收到写请求之后，为写请求赋予一个全局唯一的zxid（64位自增id），通过zxid的大小可以实现写操作的顺序一致性。</li>
+<li>Leader会通过先进先出队列（每个Follower节点创建一个队列，保证发送的顺序），将带有zxid消息的作为一个proposal(提案)分发给所有follower节点。</li>
+<li>当Follower节点收到proposal提案消息之后，将proposal消息写到本地事务日志，写成功后返回给Leader节点 ACK消息。</li>
+<li>当Leader节点收到过半的Follower节点的ACK消息之后，向所有的follower节点去发送Commit消息，并执行本地提交。</li>
+<li>Follower节点收到Commit命令之后，去执行本地提交，集群写操作完成。<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701071839001.png" alt="image-20220701071839001"></li>
+</ol>
+<h3 id="Leader节点的重新选举（崩溃恢复）"><a href="#Leader节点的重新选举（崩溃恢复）" class="headerlink" title="Leader节点的重新选举（崩溃恢复）"></a>Leader节点的重新选举（崩溃恢复）</h3><p>写数据的流程中，如果Leader宕机，整个ZK集群可能出现两个状态：</p>
+<ol>
+<li>Leader节点收到半数Follower节点的ack消息，向各个Follower节点广播Commit命令，在各个Follower节点收到Commit命令之前宕机，剩下的服务器没办法执行本地写commit操作，也就是这次写操作数据还没有commit。</li>
+<li>Leader节点在生成proposal之后宕机了，其他Follower没有收到proposal或者未超过半数收到proposal消息，这次写入数据是失败的。</li>
+</ol>
+<p>重新选举Leader，ZK集群有两个原则：</p>
+<ul>
+<li>对于原Leader提交的proposal（到了执行commit阶段），新的Leader能广播并提交，这样可以选择拥有最大zxid的节点作为新的Leader。</li>
+<li>对于原Leader未广播或者少数节点被广播的proposal消息，新的Leader能通知原Leader和已经同步的Follower删除此proposal消息，保证集群数据一致性。</li>
+</ul>
+<p>zk的集群选举采用了ZAB协议，一个示例来解释选举新Leader的过程：<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701071927624.png" alt="image-20220701071927624"></p>
+<h3 id="启动时的leader选举"><a href="#启动时的leader选举" class="headerlink" title="启动时的leader选举"></a>启动时的leader选举</h3><p>每个节点刚启动时处于Looking状态，然后进行选举流程。</p>
+<ul>
+<li>每个server发出一个投票，初始状态都对自己投票，投票信息包括epoch、zxid、myid（zk进程号），比如server1代表的票是(myid，zxid）是(1,0）、server2是(2,0)，然后发送给集群中参与选举的其他机器。</li>
+<li>接收各个服务器的投票，集群中每个服务器收到投票之后，去比较和自己的投票信息：<ul>
+<li>优先比较epoch，是同一纪元的选票才有效。</li>
+<li>再去比较zxid，在启动时都为0。集群选举的时候优先比较</li>
+<li>如果zxid相同，最后比较myid。</li>
+</ul>
+</li>
+<li>比较完成之后，按照比较规则修改自己的投票，并且广播投票信息给其他服务器。</li>
+<li>超过半数节点统计出相同的票，那么对应节点就是新的leader节点</li>
+<li>各个服务器响应leader选举成功消息，改变自己服务器状态为follower节点。</li>
+</ul>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701071914052.png" alt="image-20220701071914052"></p>
+<h3 id="ZAB协议"><a href="#ZAB协议" class="headerlink" title="ZAB协议"></a>ZAB协议</h3><p>zab协议是在2pc的基础上zk保证数据一致性的协议。（Zookeeper Atomic Broadcast），包含两个最基本的模式：</p>
+<ul>
+<li>消息广播（保证写入数据的一致性）</li>
+<li>崩溃恢复（Leader挂了之后的集群恢复）</li>
+</ul>
+<p>Zk就在这两个模式之间进行切换。当Leader可用时，就进行消息广播模式；当Leader不可用时进入崩溃恢复模式。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2021/07/03/ZK客户端curator的基本使用/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2021/07/03/ZK客户端curator的基本使用/" itemprop="url">ZK客户端curator的基本使用</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-07-03T07:15:40+08:00">
+                2021-07-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/zookeeper/" itemprop="url" rel="index">
+                    <span itemprop="name">zookeeper</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2021/07/03/ZK客户端curator的基本使用/" class="leancloud_visitors" data-flag-title="ZK客户端curator的基本使用">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,373
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  7
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="Curator的使用"><a href="#Curator的使用" class="headerlink" title="Curator的使用"></a>Curator的使用</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * curator zk客户端api操作demo</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CuratorApiDemo</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span>  <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        <span class="comment">// zk地址 如果是集群 多个节点地址逗号隔开</span></span><br><span class="line">        String address = <span class="string">"127.0.0.1:2181"</span>;</span><br><span class="line">        <span class="comment">// 重试策略 连接不上服务端的时候 会重试 重试间隔递增</span></span><br><span class="line">        RetryPolicy retryPolicy = <span class="keyword">new</span> ExponentialBackoffRetry(<span class="number">1000</span>, <span class="number">3</span>);</span><br><span class="line">        CuratorFramework client = CuratorFrameworkFactory.newClient(address, retryPolicy);</span><br><span class="line">        <span class="comment">// 启动zk客户端</span></span><br><span class="line">        client.start();</span><br><span class="line"></span><br><span class="line"><span class="comment">//        createZNode(client);</span></span><br><span class="line"><span class="comment">//        testBackGroundCallback(client);</span></span><br><span class="line"><span class="comment">//        simpleWatcher(client);</span></span><br><span class="line">        watcherWithCache(client);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">new</span> CountDownLatch(<span class="number">1</span>).await();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * curator 提供了三种cache包装了watcher机制 内部封装了收到watcher通知之后再次进行watcher事件注册的逻辑 对编程很友好</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> client</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">watcherWithCache</span><span class="params">(CuratorFramework client)</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 创建NodeCache，监听的是"/user"这个节点</span></span><br><span class="line">            NodeCache nodeCache = <span class="keyword">new</span> NodeCache(client, <span class="string">"/user"</span>);</span><br><span class="line">            <span class="comment">// start()方法有个boolean类型的参数，默认是false。如果设置为true，</span></span><br><span class="line">                <span class="comment">// 那么NodeCache在第一次启动的时候就会立刻从ZooKeeper上读取对应节点的</span></span><br><span class="line">                <span class="comment">// 数据内容，并保存在Cache中。</span></span><br><span class="line">            nodeCache.start(<span class="keyword">true</span>);</span><br><span class="line">            <span class="keyword">if</span> (nodeCache.getCurrentData() != <span class="keyword">null</span>) &#123;</span><br><span class="line">              System.out.println(<span class="string">"NodeCache节点初始化数据为："</span></span><br><span class="line">                            + <span class="keyword">new</span> String(nodeCache.getCurrentData().getData()));</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">              System.out.println(<span class="string">"NodeCache节点数据为空"</span>);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 添加监听器</span></span><br><span class="line">            nodeCache.getListenable().addListener(() -&gt; &#123;</span><br><span class="line">              String data = <span class="keyword">new</span> String(nodeCache.getCurrentData().getData());</span><br><span class="line">              System.out.println(<span class="string">"NodeCache节点路径："</span> + nodeCache.getCurrentData().getPath()</span><br><span class="line">                                      + <span class="string">"，节点数据为："</span> + data);</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 创建PathChildrenCache实例，监听的是"user"这个节点</span></span><br><span class="line">            PathChildrenCache childrenCache = <span class="keyword">new</span> PathChildrenCache(client, <span class="string">"/user"</span>, <span class="keyword">true</span>);</span><br><span class="line">            <span class="comment">// StartMode指定的初始化的模式</span></span><br><span class="line">            <span class="comment">// NORMAL:普通异步初始化</span></span><br><span class="line">            <span class="comment">// BUILD_INITIAL_CACHE:同步初始化</span></span><br><span class="line">            <span class="comment">// POST_INITIALIZED_EVENT:异步初始化，初始化之后会触发事件</span></span><br><span class="line">            childrenCache.start(PathChildrenCache.StartMode.BUILD_INITIAL_CACHE);</span><br><span class="line">            <span class="comment">// childrenCache.start(PathChildrenCache.StartMode.POST_INITIALIZED_EVENT);</span></span><br><span class="line">            <span class="comment">// childrenCache.start(PathChildrenCache.StartMode.NORMAL);</span></span><br><span class="line">            List&lt;ChildData&gt; children = childrenCache.getCurrentData();</span><br><span class="line">            System.out.println(<span class="string">"获取子节点列表："</span>);</span><br><span class="line">            <span class="comment">// 如果是BUILD_INITIAL_CACHE可以获取这个数据，如果不是就不行</span></span><br><span class="line">            children.forEach(childData -&gt; &#123;</span><br><span class="line">              System.out.println(<span class="keyword">new</span> String(childData.getData()));</span><br><span class="line">            &#125;);</span><br><span class="line">            childrenCache.getListenable().addListener(((client1, event) -&gt; &#123;</span><br><span class="line">              System.out.println(LocalDateTime.now() + <span class="string">" "</span> + event.getType());</span><br><span class="line">              <span class="keyword">if</span> (event.getType().equals(PathChildrenCacheEvent.Type.INITIALIZED)) &#123;</span><br><span class="line">                System.out.println(<span class="string">"PathChildrenCache:子节点初始化成功..."</span>);</span><br><span class="line">              &#125; <span class="keyword">else</span> <span class="keyword">if</span> (event.getType().equals(PathChildrenCacheEvent.Type.CHILD_ADDED)) &#123;</span><br><span class="line">                String path = event.getData().getPath();</span><br><span class="line">                System.out.println(<span class="string">"PathChildrenCache添加子节点:"</span> + event.getData().getPath());</span><br><span class="line">                <span class="keyword">if</span> (event.getData()!= <span class="keyword">null</span> &amp;&amp; event.getData() != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    System.out.println(<span class="string">"PathChildrenCache子节点数据:"</span> + <span class="keyword">new</span> String(event.getData().getData()));</span><br><span class="line">                &#125;</span><br><span class="line">              &#125; <span class="keyword">else</span> <span class="keyword">if</span> (event.getType().equals(PathChildrenCacheEvent.Type.CHILD_REMOVED)) &#123;</span><br><span class="line">                System.out.println(<span class="string">"PathChildrenCache删除子节点:"</span> + event.getData().getPath());</span><br><span class="line">              &#125; <span class="keyword">else</span> <span class="keyword">if</span> (event.getType().equals(PathChildrenCacheEvent.Type.CHILD_UPDATED)) &#123;</span><br><span class="line">                System.out.println(<span class="string">"PathChildrenCache修改子节点路径:"</span> + event.getData().getPath());</span><br><span class="line">                System.out.println(<span class="string">"PathChildrenCache修改子节点数据:"</span> + <span class="keyword">new</span> String(event.getData().getData()));</span><br><span class="line">              &#125;</span><br><span class="line">            &#125;));</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 创建TreeCache实例监听"user"节点</span></span><br><span class="line">            TreeCache cache = TreeCache.newBuilder(client, <span class="string">"/user"</span>).setCacheData(<span class="keyword">false</span>).build();</span><br><span class="line">            cache.getListenable().addListener((c, event) -&gt; &#123;</span><br><span class="line">              <span class="keyword">if</span> (event.getData() != <span class="keyword">null</span>) &#123;</span><br><span class="line">                System.out.println(<span class="string">"TreeCache,type="</span> + event.getType() + <span class="string">" path="</span> + event.getData().getPath());</span><br><span class="line">              &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                System.out.println(<span class="string">"TreeCache,type="</span> + event.getType());</span><br><span class="line">              &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">            cache.start();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 简单的watcher监听机制</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> client</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">simpleWatcher</span><span class="params">(CuratorFramework client)</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        client.create().withMode(CreateMode.PERSISTENT).forPath(<span class="string">"/test-children-watch"</span>);</span><br><span class="line"></span><br><span class="line">        client.getChildren().usingWatcher(<span class="keyword">new</span> CuratorWatcher() &#123;</span><br><span class="line">            <span class="comment">// 为getChildren目录节点的子节点去创建一个watcher 注意 watcher只会被触发一次</span></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">process</span><span class="params">(WatchedEvent watchedEvent)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">                <span class="comment">// type NodeChildrenChanged</span></span><br><span class="line">                System.out.println(<span class="string">"收到监听回调事件, type: "</span> + watchedEvent.getType());</span><br><span class="line">                System.out.println(<span class="string">"回调事件的path: "</span> + watchedEvent.getPath());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;).forPath(<span class="string">"/test-children-watch"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 去添加children 来触发watcher回调</span></span><br><span class="line">        client.create().withMode(CreateMode.EPHEMERAL).forPath(<span class="string">"/test-children-watch/child0"</span>);</span><br><span class="line">        <span class="comment">// watcher是一次性的 不再去注册 不会再收到通知</span></span><br><span class="line">        client.create().withMode(CreateMode.EPHEMERAL).forPath(<span class="string">"/test-children-watch/child1"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">testBackGroundCallback</span><span class="params">(CuratorFramework client)</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        <span class="comment">// backGround是异步处理机制 搭配CuratorListener监听器使用</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 添加一个CuratorListener 来处理backGround后台处理之后的回调</span></span><br><span class="line">        client.getCuratorListenable().addListener(<span class="keyword">new</span> CuratorListener() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">eventReceived</span><span class="params">(CuratorFramework curatorFramework, CuratorEvent curatorEvent)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">                <span class="comment">// 针对不通过的事件去处理</span></span><br><span class="line">                String path = curatorEvent.getPath();</span><br><span class="line">                System.out.println(<span class="string">"当前线程名称："</span> + Thread.currentThread().getName());</span><br><span class="line">                <span class="keyword">switch</span> (curatorEvent.getType()) &#123;</span><br><span class="line">                    <span class="keyword">case</span> CREATE:</span><br><span class="line">                        System.out.println(<span class="string">"节点创建，path: "</span>+ path);</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    <span class="keyword">case</span> EXISTS:</span><br><span class="line">                        System.out.println(<span class="string">"检查节点是否存在。path："</span> + path);</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    <span class="keyword">case</span> DELETE:</span><br><span class="line">                        System.out.println(<span class="string">"delete节点。path: "</span> + path);</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    <span class="keyword">case</span> GET_DATA:</span><br><span class="line">                        System.out.println(<span class="string">"执行getdata path:"</span> + path + <span class="string">" 数据："</span> + <span class="keyword">new</span> String(curatorEvent.getData()));</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    <span class="keyword">case</span> SET_DATA:</span><br><span class="line">                        System.out.println(<span class="string">"执行setData path: "</span> + path);</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    <span class="keyword">case</span> CHILDREN:</span><br><span class="line">                        System.out.println(<span class="string">"执行children path : "</span>+ path);</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    <span class="keyword">default</span>:</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// inBackGround操作 都是在上边的回调处理</span></span><br><span class="line">        client.create().withMode(CreateMode.PERSISTENT).inBackground().forPath(<span class="string">"/curator-background-api"</span>, <span class="string">"test"</span>.getBytes(StandardCharsets.UTF_8));</span><br><span class="line">        client.checkExists().inBackground().forPath(<span class="string">"/curator-background-api"</span>);</span><br><span class="line">        client.getData().inBackground().forPath(<span class="string">"/curator-background-api"</span>);</span><br><span class="line">        client.setData().inBackground().forPath(<span class="string">"/curator-background-api"</span>, <span class="string">"test2"</span>.getBytes(StandardCharsets.UTF_8));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 创建节点</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> client</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">createZNode</span><span class="params">(CuratorFramework client)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            String path = client.create().withMode(CreateMode.PERSISTENT).forPath(<span class="string">"/curator-demo"</span>, <span class="string">"test"</span>.getBytes(StandardCharsets.UTF_8));</span><br><span class="line">            System.out.println(<span class="string">"创建的持久化节点path是："</span> + path);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 检查一个节点是否存在 返回节点的stat信息</span></span><br><span class="line">            Stat stat = client.checkExists().forPath(<span class="string">"/curator-demo"</span>);</span><br><span class="line">            Stat stat1 = client.checkExists().forPath(<span class="string">"/curator-demo1"</span>);</span><br><span class="line">            System.out.println(<span class="string">"节点信息"</span> + stat);</span><br><span class="line">            System.out.println(<span class="string">"不存在的节点 checkExists方法返回值"</span> + stat1);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 查询节点存储的内容</span></span><br><span class="line">            <span class="keyword">byte</span>[] bytes = client.getData().forPath(<span class="string">"/curator-demo"</span>);</span><br><span class="line">            System.out.println(<span class="string">"节点内容："</span> + <span class="keyword">new</span> String(bytes));</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 设置节点存储的内容</span></span><br><span class="line">            client.setData().forPath(<span class="string">"/curator-demo"</span>, <span class="string">"testChanged"</span>.getBytes(StandardCharsets.UTF_8));</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 在子目录下创建多个临时顺序节点</span></span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i =<span class="number">0</span>; i &lt; <span class="number">5</span> ; i++) &#123;</span><br><span class="line">                 client.create().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(<span class="string">"/curator-demo/child-"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 获取所有子节点</span></span><br><span class="line">            List&lt;String&gt; strings = client.getChildren().forPath(<span class="string">"/curator-demo"</span>);</span><br><span class="line">            strings.stream().forEach(System.out::println);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 删除指定的节点 级联删除</span></span><br><span class="line">            client.delete().deletingChildrenIfNeeded().forPath(<span class="string">"/curator-demo"</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2021/07/01/ZK简介和节点数据特性/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1437,1039 +2520,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2021/04/03/redis底层存储结构/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2021/04/03/redis底层存储结构/" itemprop="url">redis底层存储结构</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-04-03T06:57:09+08:00">
-                2021-04-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/redis/" itemprop="url" rel="index">
-                    <span itemprop="name">redis</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2021/04/03/redis底层存储结构/" class="leancloud_visitors" data-flag-title="redis底层存储结构">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  0
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  1
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701065712069.png" alt="image-20220701065712069"></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2021/04/01/redis的单线程和io多路复用/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2021/04/01/redis的单线程和io多路复用/" itemprop="url">redis的单线程和io多路复用</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-04-01T12:54:17+08:00">
-                2021-04-01
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/redis/" itemprop="url" rel="index">
-                    <span itemprop="name">redis</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2021/04/01/redis的单线程和io多路复用/" class="leancloud_visitors" data-flag-title="redis的单线程和io多路复用">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1,408
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  5
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="redis是全部只有一个线程吗？"><a href="#redis是全部只有一个线程吗？" class="headerlink" title="redis是全部只有一个线程吗？"></a>redis是全部只有一个线程吗？</h2><p>Redis是单线程，主要是指Redis的网络IO和键值读写是一个线程完成的，这也是Redis对外提供键值存储服务的主要流程。但Redis的其他功能，比如持久化、异步删除、集群数据同步等，是由额外的线程执行的（Redis 4.0增加功能）。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/blog/2021/04/01/redis的单线程和io多路复用/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2021/03/22/mybatis连接池的实现/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2021/03/22/mybatis连接池的实现/" itemprop="url">mybatis连接池的实现</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-03-22T01:01:36+08:00">
-                2021-03-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/mybatis/" itemprop="url" rel="index">
-                    <span itemprop="name">mybatis</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2021/03/22/mybatis连接池的实现/" class="leancloud_visitors" data-flag-title="mybatis连接池的实现">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  60
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  1
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近看了Mybatis自带的数据源连接池的实现，在对比其他数据源的复杂实现，mybatis比较轻量简单的实现了数据库连接池化管理。这里写下来记录下。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/06/21/duubo的proxy代理/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2020/06/21/duubo的proxy代理/" itemprop="url">duubo的proxy代理</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-06-21T16:41:30+08:00">
-                2020-06-21
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/dubbo/" itemprop="url" rel="index">
-                    <span itemprop="name">dubbo</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2020/06/21/duubo的proxy代理/" class="leancloud_visitors" data-flag-title="duubo的proxy代理">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1,482
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  7
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="Proxy层"><a href="#Proxy层" class="headerlink" title="Proxy层"></a>Proxy层</h2><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701064957928.png" alt="image-20220701064957928"></p>
-<p>proxy层是dubbo中的动态代理层，主要是为了屏蔽dubbo内部Cluster、Protocol概念设计，能让业务层像调用本地方法一样去发起RPC调用。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/blog/2020/06/21/duubo的proxy代理/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/06/01/duubo注解整合spring原理/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2020/06/01/duubo注解整合spring原理/" itemprop="url">duubo注解整合spring原理</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-06-01T06:31:32+08:00">
-                2020-06-01
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/dubbo/" itemprop="url" rel="index">
-                    <span itemprop="name">dubbo</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2020/06/01/duubo注解整合spring原理/" class="leancloud_visitors" data-flag-title="duubo注解整合spring原理">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  2,613
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  12
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="dubbo整合Spring使用的注解"><a href="#dubbo整合Spring使用的注解" class="headerlink" title="dubbo整合Spring使用的注解"></a>dubbo整合Spring使用的注解</h2><p>对于一个Provider的启动类：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Application</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        AnnotationConfigApplicationContext context = <span class="keyword">new</span> AnnotationConfigApplicationContext(ProviderConfiguration.class);</span><br><span class="line">        context.start();</span><br><span class="line">        System.in.read();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Configuration</span></span><br><span class="line">    <span class="meta">@EnableDubbo</span>(scanBasePackages = <span class="string">"org.apache.dubbo.demo.provider"</span>)</span><br><span class="line">    <span class="meta">@PropertySource</span>(<span class="string">"classpath:/spring/dubbo-provider.properties"</span>)</span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ProviderConfiguration</span> </span>&#123;</span><br><span class="line">        <span class="meta">@Bean</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> RegistryConfig <span class="title">registryConfig</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            RegistryConfig registryConfig = <span class="keyword">new</span> RegistryConfig();</span><br><span class="line">            registryConfig.setAddress(<span class="string">"zookeeper://127.0.0.1:2181"</span>);</span><br><span class="line">            <span class="keyword">return</span> registryConfig;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>可以看到在配置类中加入了@EnableDubbo注解，还利用Spring的@PropertySource(path)导入了provider的配置，后者其实就是把配置文件的properties属性导入到Spring的Environment中，方便使用。</p>
-<p>@EnableDubbo肯定也是采用了@Enable + @Import模式导入了BeanDefinition来实现Dubbo和Spring的整合。</p>
-<p>暴露一个Dubbo接口使用@Service注解，引用一个Dubbo服务使用<br>Dubbo@Reference注解。</p>
-<h3 id="Dubbo和Spring整合要做的事情"><a href="#Dubbo和Spring整合要做的事情" class="headerlink" title="Dubbo和Spring整合要做的事情"></a>Dubbo和Spring整合要做的事情</h3><p>总结一下Dubbo和Spring整合要做的一些事情：</p>
-<ul>
-<li>把配置properties文件实例化为一个个bean来管理，方便注入到ServiceBean（dubbo暴露的服务bean）和ReferenceBean（@Reference注解引用的bean）。这里可以看下ProviderConfig、ApplicationConfig等配置类，内部的变量属性就是配置文件中的key。</li>
-<li>扫描应用中使用@Service注解的服务，生成其对应的ServiceBean，表示其为一个dubbo服务。然后在一定的时机（比如收到上下文刷新的事件之后）触发此接口的export导出逻辑。export是dubbo内部的逻辑，在Spring整合Dubbo这块不纠结。</li>
-<li>扫描@Reference注解的属性或者方法，注入引用的Dubbo服务代理对象。这里要完成对dubbo对象的属性注入，且完成其需要的代理逻辑，然后调用dubbo内部的refer()方法。</li>
-</ul>
-<h3 id="整体流程和原理"><a href="#整体流程和原理" class="headerlink" title="整体流程和原理"></a>整体流程和原理</h3><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701063232019.png" alt="image-20220701063232019"></p>
-<ul>
-<li>@Service的处理在Spring扩展点：BeanDefinitionRegistryPostProcessor.postProcessBeanDefinitionRegistry。</li>
-<li>@Reference的处理在Spring扩展点：InstantiationAwareBeanPostProcessorAdapter.postProcessPropertyValues。</li>
-<li>@Service注解会先注册Spring bean（和dubbo无关），比如DemoServiceImpl，这个就是最普通的bean。还会生成Dubbo标识暴露服务的ServiceBean。</li>
-<li>在Spring启动完成之后，会通过事件或者回调函数来完成export即dubbo接口导出的工作。</li>
-<li>@Reference的解析会在Spring容器中存放ReferenceBean，如果是本地的Dubbo服务，会直接将ServiceBean作为ReferenceBean，且代理逻辑会直接调用类的方法；而如果是远程的Dubbo服务，会调用get()方法内部走代理逻辑，其中也会走refer()方法。</li>
-</ul>
-<h2 id="EnableDubbo注解"><a href="#EnableDubbo注解" class="headerlink" title="@EnableDubbo注解"></a>@EnableDubbo注解</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EnableDubboConfig</span></span><br><span class="line"><span class="meta">@DubboComponentScan</span></span><br><span class="line"><span class="comment">// @EnableDubbo注解来标注在spring boot应用上 来开启dubbo接口暴露、引用（dubbo的@Service、@Reference注解的扫描）。还有dubbo config配置初始化为bean的过程</span></span><br><span class="line"><span class="comment">// 主要功能在@EnableDubboConfig、@EnableComponentScan</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> EnableDubbo &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>主要是由内部两个注解完成。</p>
-<h3 id="EnableDubboConfig"><a href="#EnableDubboConfig" class="headerlink" title="@EnableDubboConfig"></a>@EnableDubboConfig</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Target</span>(&#123;ElementType.TYPE&#125;)</span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="meta">@Inherited</span></span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="meta">@Import</span>(DubboConfigConfigurationRegistrar.class)</span><br><span class="line"><span class="comment">// 解析Dubbo 配置 （properties文件）的支持 导入了DubboConfigConfigurationRegistrar</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> EnableDubboConfig &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * It indicates whether binding to multiple Spring Beans.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> the default value is &lt;code&gt;false&lt;/code&gt;</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@revised</span> 2.5.9</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">multiple</span><span class="params">()</span> <span class="keyword">default</span> <span class="keyword">true</span></span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>可以看到了Import了DubboConfigConfigurationRegistrar这个bean定义的注册器，这个注册器其中主要注册了两个DubboConfigConfiguration内部类的Bean定义，这两个Bean上的又注解了@EnableConfigurationBeanBindings。</p>
-<p>@EnableConfigurationBeanBindings注解import了ConfigurationBeanBindingPostProcessor，这个bean定义注册器中：</p>
-<ul>
-<li>开启import各个具体的配置bean 解析内部的每一个BeanBinding 生成对应的configBean。</li>
-<li>注册一个后置处理器（ConfigurationBeanBindingPostProcessor），去利用Spring的DataBinder去将properties中的配置值映射到对应的configBean中。 比如处理ApplicationConfig对象中的所有属性字段，值从properties文件中获取。</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DubboConfigConfigurationRegistrar</span> <span class="keyword">implements</span> <span class="title">ImportBeanDefinitionRegistrar</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerBeanDefinitions</span><span class="params">(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取EnableDubboConfig注解信息</span></span><br><span class="line">        AnnotationAttributes attributes = AnnotationAttributes.fromMap(</span><br><span class="line">                importingClassMetadata.getAnnotationAttributes(EnableDubboConfig.class.getName()));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// multiple的配置值 multiple就是 dubbo.applications（复数）这种多个配置</span></span><br><span class="line">        <span class="keyword">boolean</span> multiple = attributes.getBoolean(<span class="string">"multiple"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Single Config Bindings</span></span><br><span class="line">        <span class="comment">// 注册Single配置Bean定义 内部主要是@EnableConfigurationBeanBindings注解再次import了具体配置bean定义的注册（ConfigurationBeanBindingsRegister）—</span></span><br><span class="line">        <span class="comment">// ，并且注册了对应的后置处理器去解析具体配置值</span></span><br><span class="line">        registerBeans(registry, DubboConfigConfiguration.Single.class);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (multiple) &#123; <span class="comment">// Since 2.6.6 https://github.com/apache/dubbo/issues/3193</span></span><br><span class="line">            registerBeans(registry, DubboConfigConfiguration.Multiple.class);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Since 2.7.6</span></span><br><span class="line">        registerCommonBeans(registry);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConfigurationBeanBindingsRegister</span> <span class="keyword">implements</span> <span class="title">ImportBeanDefinitionRegistrar</span>, <span class="title">EnvironmentAware</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> ConfigurableEnvironment environment;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerBeanDefinitions</span><span class="params">(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        AnnotationAttributes attributes = AnnotationAttributes.fromMap(</span><br><span class="line">                importingClassMetadata.getAnnotationAttributes(EnableConfigurationBeanBindings.class.getName()));</span><br><span class="line"></span><br><span class="line">        AnnotationAttributes[] annotationAttributes = attributes.getAnnotationArray(<span class="string">"value"</span>);</span><br><span class="line"></span><br><span class="line">        ConfigurationBeanBindingRegistrar registrar = <span class="keyword">new</span> ConfigurationBeanBindingRegistrar();</span><br><span class="line"></span><br><span class="line">        registrar.setEnvironment(environment);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (AnnotationAttributes element : annotationAttributes) &#123;</span><br><span class="line">        <span class="comment">// 对定义好的每个binding（其实就是properties文件中的属性）去注册对应的Bean定义 且注册一个bean后置处理器（ConfigurationBeanBindingPostProcessor）去绑定配置中的值（值来源于properties文件解析之后放入的environment中）</span></span><br><span class="line">            registrar.registerConfigurationBeanDefinitions(element, registry);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<h3 id="DubboComponentScan"><a href="#DubboComponentScan" class="headerlink" title="@DubboComponentScan"></a>@DubboComponentScan</h3><p>可以看到这个注解就是处理@Service和@Reference注解的扫描生成对应的Bean。<br>注解import了DubboComponentScanRegistrar这个注册器（ImportBeanDefinitionRegistrar的实现）<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// DubboComponentScanRegistrar dubbo扫描@Service和@Reference注解 解析</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DubboComponentScanRegistrar</span> <span class="keyword">implements</span> <span class="title">ImportBeanDefinitionRegistrar</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerBeanDefinitions</span><span class="params">(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取要扫描的包路径</span></span><br><span class="line">        Set&lt;String&gt; packagesToScan = getPackagesToScan(importingClassMetadata);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 注册路径下处理@Service注解的Bean后置处理器</span></span><br><span class="line">        registerServiceAnnotationBeanPostProcessor(packagesToScan, registry);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// @since 2.7.6 Register the common beans</span></span><br><span class="line">        registerCommonBeans(registry);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
-<p>可以看到注册了ServiceAnnotationBeanPostProcessor和ReferenceServiceAnnotationBeanPostProcessor两个bean的后置处理器。</p>
-<h4 id="ServiceAnnotationBeanPostProcessor"><a href="#ServiceAnnotationBeanPostProcessor" class="headerlink" title="ServiceAnnotationBeanPostProcessor"></a>ServiceAnnotationBeanPostProcessor</h4><p>这个后置处理器是实现的Spring的扩展点：BeanDefinitionRegistryPostProcessor 。 会调用其postProcessBeanDefinitionRegistry方法。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//此方法中处理 dubbo @Service注解</span></span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">postProcessBeanDefinitionRegistry</span><span class="params">(BeanDefinitionRegistry registry)</span> <span class="keyword">throws</span> BeansException </span>&#123;</span><br><span class="line"></span><br><span class="line">       <span class="comment">// @since 2.7.5</span></span><br><span class="line">       <span class="comment">// 注册DubboBootstrapApplicationListener 监听事件之后启动Dubbo</span></span><br><span class="line">       registerBeans(registry, DubboBootstrapApplicationListener.class);</span><br><span class="line"></span><br><span class="line">       <span class="comment">// 注解上解析出需要扫描的路径</span></span><br><span class="line">       Set&lt;String&gt; resolvedPackagesToScan = resolvePackagesToScan(packagesToScan);</span><br><span class="line"></span><br><span class="line">       <span class="keyword">if</span> (!CollectionUtils.isEmpty(resolvedPackagesToScan)) &#123;</span><br><span class="line">           <span class="comment">// 去注册ServiceBean</span></span><br><span class="line">           registerServiceBeans(resolvedPackagesToScan, registry);</span><br><span class="line">       &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">           <span class="keyword">if</span> (logger.isWarnEnabled()) &#123;</span><br><span class="line">               logger.warn(<span class="string">"packagesToScan is empty , ServiceBean registry will be ignored!"</span>);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure></p>
-<p>注册ServiceBean的方法registerServiceBeans如下：</p>
-<ul>
-<li><ol>
-<li>扫描DubboClass路径，将实现类本身的Bean注册到容器中。</li>
-</ol>
-</li>
-<li><ol start="2">
-<li>为@Service注解标注的Dubbo服务实现类去往容器中注册一个ServiceBean。</li>
-</ol>
-</li>
-<li><ol start="3">
-<li>Bean生成之后，监听上下文刷新事件来触发ServiceBean去真正的导出服务。<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Registers Beans whose classes was annotated &#123;<span class="doctag">@link</span> Service&#125;</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> packagesToScan The base packages to scan</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> registry       &#123;<span class="doctag">@link</span> BeanDefinitionRegistry&#125;</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">registerServiceBeans</span><span class="params">(Set&lt;String&gt; packagesToScan, BeanDefinitionRegistry registry)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 创建一个dubbo类路径扫描器 去扫描</span></span><br><span class="line">        DubboClassPathBeanDefinitionScanner scanner =</span><br><span class="line">                <span class="keyword">new</span> DubboClassPathBeanDefinitionScanner(registry, environment, resourceLoader);</span><br><span class="line"></span><br><span class="line">        BeanNameGenerator beanNameGenerator = resolveBeanNameGenerator(registry);</span><br><span class="line"></span><br><span class="line">        scanner.setBeanNameGenerator(beanNameGenerator);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// refactor @since 2.7.7</span></span><br><span class="line">        serviceAnnotationTypes.forEach(annotationType -&gt; &#123;</span><br><span class="line">            <span class="comment">// 要扫描的@Service注解 兼容版本</span></span><br><span class="line">            scanner.addIncludeFilter(<span class="keyword">new</span> AnnotationTypeFilter(annotationType));</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (String packageToScan : packagesToScan) &#123;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// Registers @Service Bean first</span></span><br><span class="line">            <span class="comment">// scan去扫描路径下的 @Service注解Bean</span></span><br><span class="line">           <span class="comment">// 1. 先注册类本身的bean到Spring容器中 scanner内部扫描到会注册bean定义</span></span><br><span class="line">            scanner.scan(packageToScan);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// Finds all BeanDefinitionHolders of @Service whether @ComponentScan scans or not.</span></span><br><span class="line">            Set&lt;BeanDefinitionHolder&gt; beanDefinitionHolders =</span><br><span class="line">                    findServiceBeanDefinitionHolders(scanner, packageToScan, registry, beanNameGenerator);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (!CollectionUtils.isEmpty(beanDefinitionHolders)) &#123;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">for</span> (BeanDefinitionHolder beanDefinitionHolder : beanDefinitionHolders) &#123;</span><br><span class="line">                    <span class="comment">// 2. 再去去注册每个Dubbo服务接口的ServiceBean 内部会构建ServiceBean定义并注册在Spring容器中</span></span><br><span class="line">                    registerServiceBean(beanDefinitionHolder, registry, scanner);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (logger.isInfoEnabled()) &#123;</span><br><span class="line">                    logger.info(beanDefinitionHolders.size() + <span class="string">" annotated Dubbo's @Service Components &#123; "</span> +</span><br><span class="line">                            beanDefinitionHolders +</span><br><span class="line">                            <span class="string">" &#125; were scanned under package["</span> + packageToScan + <span class="string">"]"</span>);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (logger.isWarnEnabled()) &#123;</span><br><span class="line">                    logger.warn(<span class="string">"No Spring Bean annotating Dubbo's @Service was found under package["</span></span><br><span class="line">                            + packageToScan + <span class="string">"]"</span>);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-</li>
-</ul>
-<h4 id="ReferenceServiceAnnotationBeanPostProcessor"><a href="#ReferenceServiceAnnotationBeanPostProcessor" class="headerlink" title="ReferenceServiceAnnotationBeanPostProcessor"></a>ReferenceServiceAnnotationBeanPostProcessor</h4><p>ReferenceServiceAnnotationBeanPostProcessor是继承的Spring的扩展点后置处理器InstantiationAwareBeanPostProcessorAdapter，实现了其postProcessPropertyValues方法来为@Reference注解标注的字段来注入对应的ReferenceBean。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> PropertyValues <span class="title">postProcessPropertyValues</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">           PropertyValues pvs, PropertyDescriptor[] pds, Object bean, String beanName)</span> <span class="keyword">throws</span> BeanCreationException </span>&#123;</span><br><span class="line"></span><br><span class="line">       InjectionMetadata metadata = findInjectionMetadata(beanName, bean.getClass(), pvs);</span><br><span class="line">       <span class="keyword">try</span> &#123;</span><br><span class="line">           <span class="comment">// 也是借助metadata.inject来实现的注入字段</span></span><br><span class="line">           metadata.inject(bean, beanName, pvs);</span><br><span class="line">       &#125; <span class="keyword">catch</span> (BeanCreationException ex) &#123;</span><br><span class="line">           <span class="keyword">throw</span> ex;</span><br><span class="line">       &#125; <span class="keyword">catch</span> (Throwable ex) &#123;</span><br><span class="line">           <span class="keyword">throw</span> <span class="keyword">new</span> BeanCreationException(beanName, <span class="string">"Injection of @"</span> + getAnnotationType().getSimpleName()</span><br><span class="line">                   + <span class="string">" dependencies is failed"</span>, ex);</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">return</span> pvs;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
-<p>这里inject会走到AnnotatedMethodElement.inject方法，内部会调用子类实现的doGetInjectedBean方法。Dubbo在ReferenceAnnotationBeanPostProcessor中实现了这个方法doGetInjectedBean。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">     <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">inject</span><span class="params">(Object bean, String beanName, PropertyValues pvs)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line"></span><br><span class="line">         Class&lt;?&gt; injectedType = pd.getPropertyType();</span><br><span class="line"></span><br><span class="line">         Object injectedObject = getInjectedObject(attributes, bean, beanName, injectedType, <span class="keyword">this</span>);</span><br><span class="line"></span><br><span class="line">         ReflectionUtils.makeAccessible(method);</span><br><span class="line"></span><br><span class="line">         method.invoke(bean, injectedObject);</span><br><span class="line"></span><br><span class="line">     &#125;</span><br><span class="line">     </span><br><span class="line">     <span class="comment">// getInjectedObject方法</span></span><br><span class="line">     <span class="function"><span class="keyword">protected</span> Object <span class="title">getInjectedObject</span><span class="params">(AnnotationAttributes attributes, Object bean, String beanName, Class&lt;?&gt; injectedType,</span></span></span><br><span class="line"><span class="function"><span class="params">                                    InjectionMetadata.InjectedElement injectedElement)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line"></span><br><span class="line">     String cacheKey = buildInjectedObjectCacheKey(attributes, bean, beanName, injectedType, injectedElement);</span><br><span class="line"></span><br><span class="line">     Object injectedObject = injectedObjectsCache.get(cacheKey);</span><br><span class="line"></span><br><span class="line">     <span class="keyword">if</span> (injectedObject == <span class="keyword">null</span>) &#123;</span><br><span class="line">     <span class="comment">// doGetInjectedBean 方法 dubbo实现了ReferenceBean注入的关键</span></span><br><span class="line">         injectedObject = doGetInjectedBean(attributes, bean, beanName, injectedType, injectedElement);</span><br><span class="line">         <span class="comment">// Customized inject-object if necessary</span></span><br><span class="line">         injectedObjectsCache.putIfAbsent(cacheKey, injectedObject);</span><br><span class="line">     &#125;</span><br><span class="line"></span><br><span class="line">     <span class="keyword">return</span> injectedObject;</span><br><span class="line"></span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure></p>
-<p>doGetInjectedBean方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 实现的doGetInjectedBean方法来解析<span class="doctag">@DubboReference</span>字段 来注入dubbo服务（最终是ReferenceBean的代理对象）</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> attributes</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> bean</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> beanName</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> injectedType</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> injectedElement</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">    * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">protected</span> Object <span class="title">doGetInjectedBean</span><span class="params">(AnnotationAttributes attributes, Object bean, String beanName, Class&lt;?&gt; injectedType,</span></span></span><br><span class="line"><span class="function"><span class="params">                                      InjectionMetadata.InjectedElement injectedElement)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">       <span class="comment">/**</span></span><br><span class="line"><span class="comment">        * The name of bean that annotated Dubbo's &#123;<span class="doctag">@link</span> Service <span class="doctag">@Service</span>&#125; in local Spring &#123;<span class="doctag">@link</span> ApplicationContext&#125;</span></span><br><span class="line"><span class="comment">        * 先在本地的Spring上下文中查找ServiceBean是否存在</span></span><br><span class="line"><span class="comment">        * ServiceBean: com.xxx.DemoService:group:version</span></span><br><span class="line"><span class="comment">        */</span></span><br><span class="line">       String referencedBeanName = buildReferencedBeanName(attributes, injectedType);</span><br><span class="line"></span><br><span class="line">       <span class="comment">/**</span></span><br><span class="line"><span class="comment">        * The name of bean that is declared by &#123;<span class="doctag">@link</span> Reference <span class="doctag">@Reference</span>&#125; annotation injection</span></span><br><span class="line"><span class="comment">        * 根据<span class="doctag">@Reference</span>注解的属性和注入的类属性 来生成referenceBean的名称</span></span><br><span class="line"><span class="comment">        */</span></span><br><span class="line">       String referenceBeanName = getReferenceBeanName(attributes, injectedType);</span><br><span class="line"></span><br><span class="line">       <span class="comment">// 从缓存中取ReferenceBean 如果不存在 会去创建（内部的配置也会注入）</span></span><br><span class="line">       ReferenceBean referenceBean = buildReferenceBeanIfAbsent(referenceBeanName, attributes, injectedType);</span><br><span class="line"></span><br><span class="line">       <span class="comment">// 是否是本地的bean 上面的ServiceBeanName来在容器中寻找</span></span><br><span class="line">       <span class="keyword">boolean</span> localServiceBean = isLocalServiceBean(referencedBeanName, referenceBean, attributes);</span><br><span class="line"></span><br><span class="line">       <span class="comment">// 容器中注册referenceBean </span></span><br><span class="line">       registerReferenceBean(referencedBeanName, referenceBean, attributes, localServiceBean, injectedType);</span><br><span class="line"></span><br><span class="line">       cacheInjectedReferenceBean(referenceBean, injectedElement);</span><br><span class="line"></span><br><span class="line">       <span class="comment">// 最终返回注入给@Reference变量是 ReferenceBean的代理对象 是个FactoryBean 代理逻辑在其get()方法中（远程bean）</span></span><br><span class="line">       <span class="keyword">return</span> getOrCreateProxy(referencedBeanName, referenceBean, localServiceBean, injectedType);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure></p>
-<p>因为客户端去引用Dubbo远程服务bean时要屏蔽一些细节，让引用的dubbo bean具有调用远程接口的能力，所以这里为ReferenceBean去生成代理，走的是getOrCreateProxy方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> Object <span class="title">getOrCreateProxy</span><span class="params">(String referencedBeanName, ReferenceBean referenceBean, <span class="keyword">boolean</span> localServiceBean,</span></span></span><br><span class="line"><span class="function"><span class="params">                                    Class&lt;?&gt; serviceInterfaceType)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (localServiceBean) &#123; <span class="comment">// If the local @Service Bean exists, build a proxy of Service</span></span><br><span class="line">            <span class="comment">// 本地的dubbo服务 创建jdk动态代理 内部直接调用ServiceBean的ref的方法</span></span><br><span class="line">            <span class="keyword">return</span> newProxyInstance(getClassLoader(), <span class="keyword">new</span> Class[]&#123;serviceInterfaceType&#125;,</span><br><span class="line">                    newReferencedBeanInvocationHandler(referencedBeanName));</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 如果需要export 帮助依赖的ServiceBean 去 export</span></span><br><span class="line">            exportServiceBeanIfNecessary(referencedBeanName); <span class="comment">// If the referenced ServiceBean exits, export it immediately</span></span><br><span class="line">            <span class="comment">// get方法创建代理对象</span></span><br><span class="line">            <span class="keyword">return</span> referenceBean.get();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
-<p>这里是直接调用referenceBean.get()方法去生成的代理对象。</p>
-<p>在Spring容器中存放的是ReferenceBean对象，但本身这个Bean也是实现FactoryBean接口的，所以会调用其getObject()方法来取出真正的代理之后的bean。其实getObejct方法也是调用自身的get()方法来走代理逻辑的：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">getObject()方法：</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">getObject</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 调用get生成代理对象</span></span><br><span class="line">        <span class="keyword">return</span> get();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/blog/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/blog/">1</a><span class="page-number current">2</span><a class="page-number" href="/blog/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/9/">9</a><a class="extend next" rel="next" href="/blog/page/3/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/blog/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/blog/">1</a><span class="page-number current">2</span><a class="page-number" href="/blog/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/10/">10</a><a class="extend next" rel="next" href="/blog/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2519,7 +2574,7 @@
               
                 <a href="/blog/archives/">
               
-                  <span class="site-state-item-count">82</span>
+                  <span class="site-state-item-count">100</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2530,7 +2585,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/blog/categories/index.html">
-                  <span class="site-state-item-count">25</span>
+                  <span class="site-state-item-count">26</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -2541,7 +2596,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/blog/tags/index.html">
-                  <span class="site-state-item-count">87</span>
+                  <span class="site-state-item-count">107</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -2615,7 +2670,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">118.8k</span>
+    <span title="Site words total count">149.2k</span>
   
 </div>
 
@@ -2637,7 +2692,7 @@
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共118.8k字</span>
+  <span class="post-count">博客全站共149.2k字</span>
 </div>
 
 <br />
