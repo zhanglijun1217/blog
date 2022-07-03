@@ -297,6 +297,253 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/06/01/duubo注解整合spring原理/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2020/06/01/duubo注解整合spring原理/" itemprop="url">duubo注解整合spring原理</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-06-01T06:31:32+08:00">
+                2020-06-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/dubbo/" itemprop="url" rel="index">
+                    <span itemprop="name">dubbo</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2020/06/01/duubo注解整合spring原理/" class="leancloud_visitors" data-flag-title="duubo注解整合spring原理">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,613
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  12
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="dubbo整合Spring使用的注解"><a href="#dubbo整合Spring使用的注解" class="headerlink" title="dubbo整合Spring使用的注解"></a>dubbo整合Spring使用的注解</h2><p>对于一个Provider的启动类：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Application</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        AnnotationConfigApplicationContext context = <span class="keyword">new</span> AnnotationConfigApplicationContext(ProviderConfiguration.class);</span><br><span class="line">        context.start();</span><br><span class="line">        System.in.read();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Configuration</span></span><br><span class="line">    <span class="meta">@EnableDubbo</span>(scanBasePackages = <span class="string">"org.apache.dubbo.demo.provider"</span>)</span><br><span class="line">    <span class="meta">@PropertySource</span>(<span class="string">"classpath:/spring/dubbo-provider.properties"</span>)</span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ProviderConfiguration</span> </span>&#123;</span><br><span class="line">        <span class="meta">@Bean</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> RegistryConfig <span class="title">registryConfig</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            RegistryConfig registryConfig = <span class="keyword">new</span> RegistryConfig();</span><br><span class="line">            registryConfig.setAddress(<span class="string">"zookeeper://127.0.0.1:2181"</span>);</span><br><span class="line">            <span class="keyword">return</span> registryConfig;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>可以看到在配置类中加入了@EnableDubbo注解，还利用Spring的@PropertySource(path)导入了provider的配置，后者其实就是把配置文件的properties属性导入到Spring的Environment中，方便使用。</p>
+<p>@EnableDubbo肯定也是采用了@Enable + @Import模式导入了BeanDefinition来实现Dubbo和Spring的整合。</p>
+<p>暴露一个Dubbo接口使用@Service注解，引用一个Dubbo服务使用<br>Dubbo@Reference注解。</p>
+<h3 id="Dubbo和Spring整合要做的事情"><a href="#Dubbo和Spring整合要做的事情" class="headerlink" title="Dubbo和Spring整合要做的事情"></a>Dubbo和Spring整合要做的事情</h3><p>总结一下Dubbo和Spring整合要做的一些事情：</p>
+<ul>
+<li>把配置properties文件实例化为一个个bean来管理，方便注入到ServiceBean（dubbo暴露的服务bean）和ReferenceBean（@Reference注解引用的bean）。这里可以看下ProviderConfig、ApplicationConfig等配置类，内部的变量属性就是配置文件中的key。</li>
+<li>扫描应用中使用@Service注解的服务，生成其对应的ServiceBean，表示其为一个dubbo服务。然后在一定的时机（比如收到上下文刷新的事件之后）触发此接口的export导出逻辑。export是dubbo内部的逻辑，在Spring整合Dubbo这块不纠结。</li>
+<li>扫描@Reference注解的属性或者方法，注入引用的Dubbo服务代理对象。这里要完成对dubbo对象的属性注入，且完成其需要的代理逻辑，然后调用dubbo内部的refer()方法。</li>
+</ul>
+<h3 id="整体流程和原理"><a href="#整体流程和原理" class="headerlink" title="整体流程和原理"></a>整体流程和原理</h3><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701063232019.png" alt="image-20220701063232019"></p>
+<ul>
+<li>@Service的处理在Spring扩展点：BeanDefinitionRegistryPostProcessor.postProcessBeanDefinitionRegistry。</li>
+<li>@Reference的处理在Spring扩展点：InstantiationAwareBeanPostProcessorAdapter.postProcessPropertyValues。</li>
+<li>@Service注解会先注册Spring bean（和dubbo无关），比如DemoServiceImpl，这个就是最普通的bean。还会生成Dubbo标识暴露服务的ServiceBean。</li>
+<li>在Spring启动完成之后，会通过事件或者回调函数来完成export即dubbo接口导出的工作。</li>
+<li>@Reference的解析会在Spring容器中存放ReferenceBean，如果是本地的Dubbo服务，会直接将ServiceBean作为ReferenceBean，且代理逻辑会直接调用类的方法；而如果是远程的Dubbo服务，会调用get()方法内部走代理逻辑，其中也会走refer()方法。</li>
+</ul>
+<h2 id="EnableDubbo注解"><a href="#EnableDubbo注解" class="headerlink" title="@EnableDubbo注解"></a>@EnableDubbo注解</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EnableDubboConfig</span></span><br><span class="line"><span class="meta">@DubboComponentScan</span></span><br><span class="line"><span class="comment">// @EnableDubbo注解来标注在spring boot应用上 来开启dubbo接口暴露、引用（dubbo的@Service、@Reference注解的扫描）。还有dubbo config配置初始化为bean的过程</span></span><br><span class="line"><span class="comment">// 主要功能在@EnableDubboConfig、@EnableComponentScan</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> EnableDubbo &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>主要是由内部两个注解完成。</p>
+<h3 id="EnableDubboConfig"><a href="#EnableDubboConfig" class="headerlink" title="@EnableDubboConfig"></a>@EnableDubboConfig</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Target</span>(&#123;ElementType.TYPE&#125;)</span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="meta">@Inherited</span></span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="meta">@Import</span>(DubboConfigConfigurationRegistrar.class)</span><br><span class="line"><span class="comment">// 解析Dubbo 配置 （properties文件）的支持 导入了DubboConfigConfigurationRegistrar</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> EnableDubboConfig &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * It indicates whether binding to multiple Spring Beans.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> the default value is &lt;code&gt;false&lt;/code&gt;</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@revised</span> 2.5.9</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">multiple</span><span class="params">()</span> <span class="keyword">default</span> <span class="keyword">true</span></span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到了Import了DubboConfigConfigurationRegistrar这个bean定义的注册器，这个注册器其中主要注册了两个DubboConfigConfiguration内部类的Bean定义，这两个Bean上的又注解了@EnableConfigurationBeanBindings。</p>
+<p>@EnableConfigurationBeanBindings注解import了ConfigurationBeanBindingPostProcessor，这个bean定义注册器中：</p>
+<ul>
+<li>开启import各个具体的配置bean 解析内部的每一个BeanBinding 生成对应的configBean。</li>
+<li>注册一个后置处理器（ConfigurationBeanBindingPostProcessor），去利用Spring的DataBinder去将properties中的配置值映射到对应的configBean中。 比如处理ApplicationConfig对象中的所有属性字段，值从properties文件中获取。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DubboConfigConfigurationRegistrar</span> <span class="keyword">implements</span> <span class="title">ImportBeanDefinitionRegistrar</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerBeanDefinitions</span><span class="params">(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取EnableDubboConfig注解信息</span></span><br><span class="line">        AnnotationAttributes attributes = AnnotationAttributes.fromMap(</span><br><span class="line">                importingClassMetadata.getAnnotationAttributes(EnableDubboConfig.class.getName()));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// multiple的配置值 multiple就是 dubbo.applications（复数）这种多个配置</span></span><br><span class="line">        <span class="keyword">boolean</span> multiple = attributes.getBoolean(<span class="string">"multiple"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Single Config Bindings</span></span><br><span class="line">        <span class="comment">// 注册Single配置Bean定义 内部主要是@EnableConfigurationBeanBindings注解再次import了具体配置bean定义的注册（ConfigurationBeanBindingsRegister）—</span></span><br><span class="line">        <span class="comment">// ，并且注册了对应的后置处理器去解析具体配置值</span></span><br><span class="line">        registerBeans(registry, DubboConfigConfiguration.Single.class);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (multiple) &#123; <span class="comment">// Since 2.6.6 https://github.com/apache/dubbo/issues/3193</span></span><br><span class="line">            registerBeans(registry, DubboConfigConfiguration.Multiple.class);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Since 2.7.6</span></span><br><span class="line">        registerCommonBeans(registry);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConfigurationBeanBindingsRegister</span> <span class="keyword">implements</span> <span class="title">ImportBeanDefinitionRegistrar</span>, <span class="title">EnvironmentAware</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> ConfigurableEnvironment environment;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerBeanDefinitions</span><span class="params">(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        AnnotationAttributes attributes = AnnotationAttributes.fromMap(</span><br><span class="line">                importingClassMetadata.getAnnotationAttributes(EnableConfigurationBeanBindings.class.getName()));</span><br><span class="line"></span><br><span class="line">        AnnotationAttributes[] annotationAttributes = attributes.getAnnotationArray(<span class="string">"value"</span>);</span><br><span class="line"></span><br><span class="line">        ConfigurationBeanBindingRegistrar registrar = <span class="keyword">new</span> ConfigurationBeanBindingRegistrar();</span><br><span class="line"></span><br><span class="line">        registrar.setEnvironment(environment);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (AnnotationAttributes element : annotationAttributes) &#123;</span><br><span class="line">        <span class="comment">// 对定义好的每个binding（其实就是properties文件中的属性）去注册对应的Bean定义 且注册一个bean后置处理器（ConfigurationBeanBindingPostProcessor）去绑定配置中的值（值来源于properties文件解析之后放入的environment中）</span></span><br><span class="line">            registrar.registerConfigurationBeanDefinitions(element, registry);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="DubboComponentScan"><a href="#DubboComponentScan" class="headerlink" title="@DubboComponentScan"></a>@DubboComponentScan</h3><p>可以看到这个注解就是处理@Service和@Reference注解的扫描生成对应的Bean。<br>注解import了DubboComponentScanRegistrar这个注册器（ImportBeanDefinitionRegistrar的实现）<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// DubboComponentScanRegistrar dubbo扫描@Service和@Reference注解 解析</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DubboComponentScanRegistrar</span> <span class="keyword">implements</span> <span class="title">ImportBeanDefinitionRegistrar</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerBeanDefinitions</span><span class="params">(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取要扫描的包路径</span></span><br><span class="line">        Set&lt;String&gt; packagesToScan = getPackagesToScan(importingClassMetadata);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 注册路径下处理@Service注解的Bean后置处理器</span></span><br><span class="line">        registerServiceAnnotationBeanPostProcessor(packagesToScan, registry);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// @since 2.7.6 Register the common beans</span></span><br><span class="line">        registerCommonBeans(registry);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>可以看到注册了ServiceAnnotationBeanPostProcessor和ReferenceServiceAnnotationBeanPostProcessor两个bean的后置处理器。</p>
+<h4 id="ServiceAnnotationBeanPostProcessor"><a href="#ServiceAnnotationBeanPostProcessor" class="headerlink" title="ServiceAnnotationBeanPostProcessor"></a>ServiceAnnotationBeanPostProcessor</h4><p>这个后置处理器是实现的Spring的扩展点：BeanDefinitionRegistryPostProcessor 。 会调用其postProcessBeanDefinitionRegistry方法。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//此方法中处理 dubbo @Service注解</span></span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">postProcessBeanDefinitionRegistry</span><span class="params">(BeanDefinitionRegistry registry)</span> <span class="keyword">throws</span> BeansException </span>&#123;</span><br><span class="line"></span><br><span class="line">       <span class="comment">// @since 2.7.5</span></span><br><span class="line">       <span class="comment">// 注册DubboBootstrapApplicationListener 监听事件之后启动Dubbo</span></span><br><span class="line">       registerBeans(registry, DubboBootstrapApplicationListener.class);</span><br><span class="line"></span><br><span class="line">       <span class="comment">// 注解上解析出需要扫描的路径</span></span><br><span class="line">       Set&lt;String&gt; resolvedPackagesToScan = resolvePackagesToScan(packagesToScan);</span><br><span class="line"></span><br><span class="line">       <span class="keyword">if</span> (!CollectionUtils.isEmpty(resolvedPackagesToScan)) &#123;</span><br><span class="line">           <span class="comment">// 去注册ServiceBean</span></span><br><span class="line">           registerServiceBeans(resolvedPackagesToScan, registry);</span><br><span class="line">       &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">           <span class="keyword">if</span> (logger.isWarnEnabled()) &#123;</span><br><span class="line">               logger.warn(<span class="string">"packagesToScan is empty , ServiceBean registry will be ignored!"</span>);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure></p>
+<p>注册ServiceBean的方法registerServiceBeans如下：</p>
+<ul>
+<li><ol>
+<li>扫描DubboClass路径，将实现类本身的Bean注册到容器中。</li>
+</ol>
+</li>
+<li><ol start="2">
+<li>为@Service注解标注的Dubbo服务实现类去往容器中注册一个ServiceBean。</li>
+</ol>
+</li>
+<li><ol start="3">
+<li>Bean生成之后，监听上下文刷新事件来触发ServiceBean去真正的导出服务。<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Registers Beans whose classes was annotated &#123;<span class="doctag">@link</span> Service&#125;</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> packagesToScan The base packages to scan</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> registry       &#123;<span class="doctag">@link</span> BeanDefinitionRegistry&#125;</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">registerServiceBeans</span><span class="params">(Set&lt;String&gt; packagesToScan, BeanDefinitionRegistry registry)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 创建一个dubbo类路径扫描器 去扫描</span></span><br><span class="line">        DubboClassPathBeanDefinitionScanner scanner =</span><br><span class="line">                <span class="keyword">new</span> DubboClassPathBeanDefinitionScanner(registry, environment, resourceLoader);</span><br><span class="line"></span><br><span class="line">        BeanNameGenerator beanNameGenerator = resolveBeanNameGenerator(registry);</span><br><span class="line"></span><br><span class="line">        scanner.setBeanNameGenerator(beanNameGenerator);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// refactor @since 2.7.7</span></span><br><span class="line">        serviceAnnotationTypes.forEach(annotationType -&gt; &#123;</span><br><span class="line">            <span class="comment">// 要扫描的@Service注解 兼容版本</span></span><br><span class="line">            scanner.addIncludeFilter(<span class="keyword">new</span> AnnotationTypeFilter(annotationType));</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (String packageToScan : packagesToScan) &#123;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// Registers @Service Bean first</span></span><br><span class="line">            <span class="comment">// scan去扫描路径下的 @Service注解Bean</span></span><br><span class="line">           <span class="comment">// 1. 先注册类本身的bean到Spring容器中 scanner内部扫描到会注册bean定义</span></span><br><span class="line">            scanner.scan(packageToScan);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// Finds all BeanDefinitionHolders of @Service whether @ComponentScan scans or not.</span></span><br><span class="line">            Set&lt;BeanDefinitionHolder&gt; beanDefinitionHolders =</span><br><span class="line">                    findServiceBeanDefinitionHolders(scanner, packageToScan, registry, beanNameGenerator);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (!CollectionUtils.isEmpty(beanDefinitionHolders)) &#123;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">for</span> (BeanDefinitionHolder beanDefinitionHolder : beanDefinitionHolders) &#123;</span><br><span class="line">                    <span class="comment">// 2. 再去去注册每个Dubbo服务接口的ServiceBean 内部会构建ServiceBean定义并注册在Spring容器中</span></span><br><span class="line">                    registerServiceBean(beanDefinitionHolder, registry, scanner);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (logger.isInfoEnabled()) &#123;</span><br><span class="line">                    logger.info(beanDefinitionHolders.size() + <span class="string">" annotated Dubbo's @Service Components &#123; "</span> +</span><br><span class="line">                            beanDefinitionHolders +</span><br><span class="line">                            <span class="string">" &#125; were scanned under package["</span> + packageToScan + <span class="string">"]"</span>);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (logger.isWarnEnabled()) &#123;</span><br><span class="line">                    logger.warn(<span class="string">"No Spring Bean annotating Dubbo's @Service was found under package["</span></span><br><span class="line">                            + packageToScan + <span class="string">"]"</span>);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+</ul>
+<h4 id="ReferenceServiceAnnotationBeanPostProcessor"><a href="#ReferenceServiceAnnotationBeanPostProcessor" class="headerlink" title="ReferenceServiceAnnotationBeanPostProcessor"></a>ReferenceServiceAnnotationBeanPostProcessor</h4><p>ReferenceServiceAnnotationBeanPostProcessor是继承的Spring的扩展点后置处理器InstantiationAwareBeanPostProcessorAdapter，实现了其postProcessPropertyValues方法来为@Reference注解标注的字段来注入对应的ReferenceBean。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> PropertyValues <span class="title">postProcessPropertyValues</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">           PropertyValues pvs, PropertyDescriptor[] pds, Object bean, String beanName)</span> <span class="keyword">throws</span> BeanCreationException </span>&#123;</span><br><span class="line"></span><br><span class="line">       InjectionMetadata metadata = findInjectionMetadata(beanName, bean.getClass(), pvs);</span><br><span class="line">       <span class="keyword">try</span> &#123;</span><br><span class="line">           <span class="comment">// 也是借助metadata.inject来实现的注入字段</span></span><br><span class="line">           metadata.inject(bean, beanName, pvs);</span><br><span class="line">       &#125; <span class="keyword">catch</span> (BeanCreationException ex) &#123;</span><br><span class="line">           <span class="keyword">throw</span> ex;</span><br><span class="line">       &#125; <span class="keyword">catch</span> (Throwable ex) &#123;</span><br><span class="line">           <span class="keyword">throw</span> <span class="keyword">new</span> BeanCreationException(beanName, <span class="string">"Injection of @"</span> + getAnnotationType().getSimpleName()</span><br><span class="line">                   + <span class="string">" dependencies is failed"</span>, ex);</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">return</span> pvs;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<p>这里inject会走到AnnotatedMethodElement.inject方法，内部会调用子类实现的doGetInjectedBean方法。Dubbo在ReferenceAnnotationBeanPostProcessor中实现了这个方法doGetInjectedBean。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">     <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">inject</span><span class="params">(Object bean, String beanName, PropertyValues pvs)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line"></span><br><span class="line">         Class&lt;?&gt; injectedType = pd.getPropertyType();</span><br><span class="line"></span><br><span class="line">         Object injectedObject = getInjectedObject(attributes, bean, beanName, injectedType, <span class="keyword">this</span>);</span><br><span class="line"></span><br><span class="line">         ReflectionUtils.makeAccessible(method);</span><br><span class="line"></span><br><span class="line">         method.invoke(bean, injectedObject);</span><br><span class="line"></span><br><span class="line">     &#125;</span><br><span class="line">     </span><br><span class="line">     <span class="comment">// getInjectedObject方法</span></span><br><span class="line">     <span class="function"><span class="keyword">protected</span> Object <span class="title">getInjectedObject</span><span class="params">(AnnotationAttributes attributes, Object bean, String beanName, Class&lt;?&gt; injectedType,</span></span></span><br><span class="line"><span class="function"><span class="params">                                    InjectionMetadata.InjectedElement injectedElement)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line"></span><br><span class="line">     String cacheKey = buildInjectedObjectCacheKey(attributes, bean, beanName, injectedType, injectedElement);</span><br><span class="line"></span><br><span class="line">     Object injectedObject = injectedObjectsCache.get(cacheKey);</span><br><span class="line"></span><br><span class="line">     <span class="keyword">if</span> (injectedObject == <span class="keyword">null</span>) &#123;</span><br><span class="line">     <span class="comment">// doGetInjectedBean 方法 dubbo实现了ReferenceBean注入的关键</span></span><br><span class="line">         injectedObject = doGetInjectedBean(attributes, bean, beanName, injectedType, injectedElement);</span><br><span class="line">         <span class="comment">// Customized inject-object if necessary</span></span><br><span class="line">         injectedObjectsCache.putIfAbsent(cacheKey, injectedObject);</span><br><span class="line">     &#125;</span><br><span class="line"></span><br><span class="line">     <span class="keyword">return</span> injectedObject;</span><br><span class="line"></span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure></p>
+<p>doGetInjectedBean方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 实现的doGetInjectedBean方法来解析<span class="doctag">@DubboReference</span>字段 来注入dubbo服务（最终是ReferenceBean的代理对象）</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> attributes</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> bean</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> beanName</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> injectedType</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> injectedElement</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">    * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">protected</span> Object <span class="title">doGetInjectedBean</span><span class="params">(AnnotationAttributes attributes, Object bean, String beanName, Class&lt;?&gt; injectedType,</span></span></span><br><span class="line"><span class="function"><span class="params">                                      InjectionMetadata.InjectedElement injectedElement)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">       <span class="comment">/**</span></span><br><span class="line"><span class="comment">        * The name of bean that annotated Dubbo's &#123;<span class="doctag">@link</span> Service <span class="doctag">@Service</span>&#125; in local Spring &#123;<span class="doctag">@link</span> ApplicationContext&#125;</span></span><br><span class="line"><span class="comment">        * 先在本地的Spring上下文中查找ServiceBean是否存在</span></span><br><span class="line"><span class="comment">        * ServiceBean: com.xxx.DemoService:group:version</span></span><br><span class="line"><span class="comment">        */</span></span><br><span class="line">       String referencedBeanName = buildReferencedBeanName(attributes, injectedType);</span><br><span class="line"></span><br><span class="line">       <span class="comment">/**</span></span><br><span class="line"><span class="comment">        * The name of bean that is declared by &#123;<span class="doctag">@link</span> Reference <span class="doctag">@Reference</span>&#125; annotation injection</span></span><br><span class="line"><span class="comment">        * 根据<span class="doctag">@Reference</span>注解的属性和注入的类属性 来生成referenceBean的名称</span></span><br><span class="line"><span class="comment">        */</span></span><br><span class="line">       String referenceBeanName = getReferenceBeanName(attributes, injectedType);</span><br><span class="line"></span><br><span class="line">       <span class="comment">// 从缓存中取ReferenceBean 如果不存在 会去创建（内部的配置也会注入）</span></span><br><span class="line">       ReferenceBean referenceBean = buildReferenceBeanIfAbsent(referenceBeanName, attributes, injectedType);</span><br><span class="line"></span><br><span class="line">       <span class="comment">// 是否是本地的bean 上面的ServiceBeanName来在容器中寻找</span></span><br><span class="line">       <span class="keyword">boolean</span> localServiceBean = isLocalServiceBean(referencedBeanName, referenceBean, attributes);</span><br><span class="line"></span><br><span class="line">       <span class="comment">// 容器中注册referenceBean </span></span><br><span class="line">       registerReferenceBean(referencedBeanName, referenceBean, attributes, localServiceBean, injectedType);</span><br><span class="line"></span><br><span class="line">       cacheInjectedReferenceBean(referenceBean, injectedElement);</span><br><span class="line"></span><br><span class="line">       <span class="comment">// 最终返回注入给@Reference变量是 ReferenceBean的代理对象 是个FactoryBean 代理逻辑在其get()方法中（远程bean）</span></span><br><span class="line">       <span class="keyword">return</span> getOrCreateProxy(referencedBeanName, referenceBean, localServiceBean, injectedType);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure></p>
+<p>因为客户端去引用Dubbo远程服务bean时要屏蔽一些细节，让引用的dubbo bean具有调用远程接口的能力，所以这里为ReferenceBean去生成代理，走的是getOrCreateProxy方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> Object <span class="title">getOrCreateProxy</span><span class="params">(String referencedBeanName, ReferenceBean referenceBean, <span class="keyword">boolean</span> localServiceBean,</span></span></span><br><span class="line"><span class="function"><span class="params">                                    Class&lt;?&gt; serviceInterfaceType)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (localServiceBean) &#123; <span class="comment">// If the local @Service Bean exists, build a proxy of Service</span></span><br><span class="line">            <span class="comment">// 本地的dubbo服务 创建jdk动态代理 内部直接调用ServiceBean的ref的方法</span></span><br><span class="line">            <span class="keyword">return</span> newProxyInstance(getClassLoader(), <span class="keyword">new</span> Class[]&#123;serviceInterfaceType&#125;,</span><br><span class="line">                    newReferencedBeanInvocationHandler(referencedBeanName));</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 如果需要export 帮助依赖的ServiceBean 去 export</span></span><br><span class="line">            exportServiceBeanIfNecessary(referencedBeanName); <span class="comment">// If the referenced ServiceBean exits, export it immediately</span></span><br><span class="line">            <span class="comment">// get方法创建代理对象</span></span><br><span class="line">            <span class="keyword">return</span> referenceBean.get();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>这里是直接调用referenceBean.get()方法去生成的代理对象。</p>
+<p>在Spring容器中存放的是ReferenceBean对象，但本身这个Bean也是实现FactoryBean接口的，所以会调用其getObject()方法来取出真正的代理之后的bean。其实getObejct方法也是调用自身的get()方法来走代理逻辑的：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">getObject()方法：</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">getObject</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 调用get生成代理对象</span></span><br><span class="line">        <span class="keyword">return</span> get();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/05/24/orika线程死循环记录/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1589,6 +1836,215 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/05/20/dubbofilter的路径问题/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2020/05/20/dubbofilter的路径问题/" itemprop="url">dubbofilter的路径问题</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-05-20T00:17:24+08:00">
+                2020-05-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/dubbo/" itemprop="url" rel="index">
+                    <span itemprop="name">dubbo</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2020/05/20/dubbofilter的路径问题/" class="leancloud_visitors" data-flag-title="dubbofilter的路径问题">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  429
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  2
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="自定义dubbofilter"><a href="#自定义dubbofilter" class="headerlink" title="自定义dubbofilter"></a>自定义dubbofilter</h2><p>在使用dubbo框架的时候可以使用filter去实现一些拦截功能和调整拦截顺序，在每次调用的过程中，Filter的拦截都会被执行。当然除了Dubbo默认的filter，用户也可以自定义dubbo filter来实现对应的功能。这里记录一个遇到的spi文件路径问题。</p>
+<h2 id="问题现象"><a href="#问题现象" class="headerlink" title="问题现象"></a>问题现象</h2><p>在测试自定义一个dubbo filter之后，发现并没有生效。</p>
+<p>对应的filter代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Activate</span>(group = Constants.PROVIDER, order = Integer.MIN_VALUE)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloFilter</span> <span class="keyword">implements</span> <span class="title">Filter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> invoker</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> invocation</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> RpcException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Result <span class="title">invoke</span><span class="params">(Invoker&lt;?&gt; invoker, Invocation invocation)</span> <span class="keyword">throws</span> RpcException </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"filter调用了"</span>);</span><br><span class="line">        <span class="keyword">return</span> invoker.invoke(invocation);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对应的spi文件内容：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dubboLoggerFilter=com.xxx.demo.xxx.filter.HelloFilter</span><br></pre></td></tr></table></figure>
+<p>经过排查之后发现代码写的没啥问题，但dubbo并没有加载这个自定义filter的spi。隐约感觉是路径问题。</p>
+<h2 id="问题解决"><a href="#问题解决" class="headerlink" title="问题解决"></a>问题解决</h2><p>因为是对应一个已生效的filter去设置的，所以当时看到已有项目中的文件是这样的：</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20200520204641035.png" alt="image-20200520204641035"></p>
+<p>所以在建立spi文件的文件目录时直接new了一个目录名字叫做META-INF.dubbo。但其实看官方blog中的介绍是要在maven资源文件下建立如下的结果的spi文件：</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20200520204834979.png" alt="image-20200520204834979"></p>
+<p>这里恍然大悟才发现自己的目录路径建立错误了。</p>
+<p>这里其实是idea展示的一个坑，比如我在现在改对的基础上去建立META-INF.dubbo目录，其实是和正确目录展示是一样的：</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20200520205113150.png" alt="image-20200520205113150"></p>
+<p>但是在你提交git文件的时候，其实是能明显看到对应的差别的：</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20200520205152514.png" alt="image-20200520205152514"></p>
+<p>这里记录下踩到的这个坑。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/05/20/JVM对象创建与内存分配/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1815,470 +2271,6 @@
 <li>对应的Class对象都没被使用，没有反射调用该类的方法。</li>
 </ul>
 <p>满足这三个条件才会进行元空间中无用类的回收。且对于频繁动态代理、反射、动态JSP的系统，因为运行中动态生成类或者替换类加载器，要关注元空间的类卸载情况，避免元空间溢出。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/05/20/dubbofilter的路径问题/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2020/05/20/dubbofilter的路径问题/" itemprop="url">dubbofilter的路径问题</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-05-20T00:17:24+08:00">
-                2020-05-20
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/dubbo/" itemprop="url" rel="index">
-                    <span itemprop="name">dubbo</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2020/05/20/dubbofilter的路径问题/" class="leancloud_visitors" data-flag-title="dubbofilter的路径问题">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  429
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  2
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="自定义dubbofilter"><a href="#自定义dubbofilter" class="headerlink" title="自定义dubbofilter"></a>自定义dubbofilter</h2><p>在使用dubbo框架的时候可以使用filter去实现一些拦截功能和调整拦截顺序，在每次调用的过程中，Filter的拦截都会被执行。当然除了Dubbo默认的filter，用户也可以自定义dubbo filter来实现对应的功能。这里记录一个遇到的spi文件路径问题。</p>
-<h2 id="问题现象"><a href="#问题现象" class="headerlink" title="问题现象"></a>问题现象</h2><p>在测试自定义一个dubbo filter之后，发现并没有生效。</p>
-<p>对应的filter代码：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Activate</span>(group = Constants.PROVIDER, order = Integer.MIN_VALUE)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloFilter</span> <span class="keyword">implements</span> <span class="title">Filter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> invoker</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> invocation</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> RpcException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Result <span class="title">invoke</span><span class="params">(Invoker&lt;?&gt; invoker, Invocation invocation)</span> <span class="keyword">throws</span> RpcException </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"filter调用了"</span>);</span><br><span class="line">        <span class="keyword">return</span> invoker.invoke(invocation);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>对应的spi文件内容：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dubboLoggerFilter=com.xxx.demo.xxx.filter.HelloFilter</span><br></pre></td></tr></table></figure>
-<p>经过排查之后发现代码写的没啥问题，但dubbo并没有加载这个自定义filter的spi。隐约感觉是路径问题。</p>
-<h2 id="问题解决"><a href="#问题解决" class="headerlink" title="问题解决"></a>问题解决</h2><p>因为是对应一个已生效的filter去设置的，所以当时看到已有项目中的文件是这样的：</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20200520204641035.png" alt="image-20200520204641035"></p>
-<p>所以在建立spi文件的文件目录时直接new了一个目录名字叫做META-INF.dubbo。但其实看官方blog中的介绍是要在maven资源文件下建立如下的结果的spi文件：</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20200520204834979.png" alt="image-20200520204834979"></p>
-<p>这里恍然大悟才发现自己的目录路径建立错误了。</p>
-<p>这里其实是idea展示的一个坑，比如我在现在改对的基础上去建立META-INF.dubbo目录，其实是和正确目录展示是一样的：</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20200520205113150.png" alt="image-20200520205113150"></p>
-<p>但是在你提交git文件的时候，其实是能明显看到对应的差别的：</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20200520205152514.png" alt="image-20200520205152514"></p>
-<p>这里记录下踩到的这个坑。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/04/20/JVM内存模型/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2020/04/20/JVM内存模型/" itemprop="url">JVM内存模型</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-04-20T10:34:42+08:00">
-                2020-04-20
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Java基础/" itemprop="url" rel="index">
-                    <span itemprop="name">Java基础</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Java基础/JVM/" itemprop="url" rel="index">
-                    <span itemprop="name">JVM</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2020/04/20/JVM内存模型/" class="leancloud_visitors" data-flag-title="JVM内存模型">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1,173
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  4
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="JVM的整体结构和内存模型"><a href="#JVM的整体结构和内存模型" class="headerlink" title="JVM的整体结构和内存模型"></a>JVM的整体结构和内存模型</h2><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103855422.png" alt="image-20220701103855422"></p>
-<h3 id="关于方法区和元空间"><a href="#关于方法区和元空间" class="headerlink" title="关于方法区和元空间"></a>关于方法区和元空间</h3><ul>
-<li>jdk1.8之前存放方法元信息、Class信息、常量池等的为方法区，在堆内存储。而在1.8之后废弃了永久代，替换为元空间，常量池和静态变量并入堆内存储，MetaSpace来存储类、方法元信息，同时使用了本地内存来存储。</li>
-<li>相当于1.8版本之后，方法区一部分归到堆内存中，一部分移动到堆外内存，受机器本地内存大小限制。不过设置了Metaspace参数也会在内存不足时OOM。</li>
-</ul>
-<h2 id="JVM内存参数设置（简要说明）"><a href="#JVM内存参数设置（简要说明）" class="headerlink" title="JVM内存参数设置（简要说明）"></a>JVM内存参数设置（简要说明）</h2><p>运行时数据区的一些基本参数</p>
-<ul>
-<li>-Xms：堆的最小值参数</li>
-<li>-Xmx：堆的最大值参数</li>
-<li>-Xmn：新生代的内存大小</li>
-<li>-XX: MaxDirectMemorySize：直接内存的最大值。即NIO使用的堆外内存的最大值。 这里注意heap dump不会记录堆外内存的移除，但也可以造成OOM，现象是dump文件很小，即堆内存其实使用很少。</li>
-<li>-XX：MetaspaceSize：设置元空间触发fullgc的初始阈值（元空间没有固定初始值大小）。默认不设置为21M。到达该值就会触发full gc进行类型卸载，同时收集器会对该值进行调整，如果释放了大量空间，则调小；如果释放了很少的空间，则在不超过-XX: MaxMetaspaceSize的情况下适当提高此值。 在jdk1.8之前的永久代参数-XX: PermsSize参数标识为初始化的容量，1.8之后调整为元空间后不一样</li>
-<li>-XX: MaxMetaspaceSize：元空间最大值，默认是-1，不限制的话，受限于直接内存大小。</li>
-<li>-Xss：线程栈的大小（默认为1M）</li>
-</ul>
-<h2 id="常量池"><a href="#常量池" class="headerlink" title="常量池"></a>常量池</h2><h3 id="Class常量池和运行时常量池"><a href="#Class常量池和运行时常量池" class="headerlink" title="Class常量池和运行时常量池"></a>Class常量池和运行时常量池</h3><p>Class文件中包含常量池，也包含字段、方法、接口、类版本等描述信息。常量池用于存放编译期间的字面量和符号引用。</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103908248.png" alt="image-20220701103908248"></p>
-<p>当常量池字面量和符号引用被加载到内存中，符号才会有内存的地址，常量池就是运行时常量池。<br>而动态链接的过程就是把运行时常量池的符号引用变为直接内存地址引用。</p>
-<p>常量池在1.8之后从永久代（元空间）拿出，移动到了堆内存。</p>
-<h3 id="字符串常量池"><a href="#字符串常量池" class="headerlink" title="字符串常量池"></a>字符串常量池</h3><p>创建字符串对象时，做了一些优化：</p>
-<ul>
-<li>如果字符串常量在常量池中存在，返回此常量的地址引用；</li>
-<li>如果不存在，则实例化改字符串放入常量池中，是字面量的引用直接返回，是new String()这种则会在堆内新创建一个对象。</li>
-</ul>
-<h4 id="字符串操作"><a href="#字符串操作" class="headerlink" title="字符串操作"></a>字符串操作</h4><ul>
-<li>字面量直接赋值<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String a = <span class="string">"aaa"</span>;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>这样会用equals()方法判断字符串常量池是否存在，如果存在返回引用，不存在创建一个放入字符串常量池之后返回引用。</p>
-<ul>
-<li>new String()复制<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String a = <span class="keyword">new</span> String(<span class="string">"aaa"</span>);</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>这里也会判断字符串常量池和堆中是否有这个对象，没有则都创建，然后返回堆中的对象引用。也就是可能会创建两个对象。</p>
-<ul>
-<li>intern方法<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String s1 = <span class="string">"aaa"</span>;</span><br><span class="line">String s2 = s1.intern();</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>一个native方法，调用intern()时如果字符串常量池中存在常量，则返回池中的引用地址，否则将池中的地址直接指向堆中字符串对象（例子是s1）的地址。</p>
-<h4 id="常见面试题"><a href="#常见面试题" class="headerlink" title="常见面试题"></a>常见面试题</h4><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103933318.png" alt="image-20220701103933318"><br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103954181.png" alt="image-20220701103954181"><br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104015926.png" alt="image-20220701104015926"></p>
-<h4 id="关于String是不可变的"><a href="#关于String是不可变的" class="headerlink" title="关于String是不可变的"></a>关于String是不可变的</h4><p>除非下面的a、b、c三个变量被final修饰，即变为常量，那么执行String s1 = a + b + c时会编译为常量进行优化，也就是和String s = “a” + “b” + “c” 字面量直接相加一样，都是字符串常量池中常量对象的引用。<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104030743.png" alt="image-20220701104030743"></p>
-<p>为什么是不可变的？</p>
-<ul>
-<li>安全。最常用的String内部char[]数组是final的，规避了直接改变对象内容，封装了内部数据。（享元模式）</li>
-<li>线程安全，final在要求构造函数中初始化char[]数组</li>
-<li>hashcode初始化时确定，String很适合作为hash表的key。</li>
-</ul>
-<h5 id="彩蛋：比较对象时为什么要重写hashcode-方法"><a href="#彩蛋：比较对象时为什么要重写hashcode-方法" class="headerlink" title="彩蛋：比较对象时为什么要重写hashcode()方法"></a>彩蛋：比较对象时为什么要重写hashcode()方法</h5><p>equals()方法相等，则对象一定相等，为什么还要hashcode方法呢？</p>
-<ul>
-<li>因为hashcode效率高，一般约束都是equals()方法相等，则hashcode()一定相等；而hashcode()不相等，一定不是一个对象。</li>
-<li>HashSet这种数据结构是去重的，比较时候为了效率如果hashcode不相等，那么即使equals方法相等也会认为不是一个对象。</li>
-</ul>
 
           
         
@@ -2601,7 +2593,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/04/12/类加载系列之理解类加载/">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/04/20/JVM内存模型/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="夸克">
@@ -2620,7 +2612,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/blog/2020/04/12/类加载系列之理解类加载/" itemprop="url">类加载系列之理解类加载</a></h1>
+                <a class="post-title-link" href="/blog/2020/04/20/JVM内存模型/" itemprop="url">JVM内存模型</a></h1>
         
 
         <div class="post-meta">
@@ -2632,8 +2624,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-04-12T23:27:14+08:00">
-                2020-04-12
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-04-20T10:34:42+08:00">
+                2020-04-20
               </time>
             
 
@@ -2683,7 +2675,7 @@
 
           
           
-             <span id="/blog/2020/04/12/类加载系列之理解类加载/" class="leancloud_visitors" data-flag-title="类加载系列之理解类加载">
+             <span id="/blog/2020/04/20/JVM内存模型/" class="leancloud_visitors" data-flag-title="JVM内存模型">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -2709,7 +2701,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  764
+                  1,173
                 </span>
               
 
@@ -2725,7 +2717,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  3
+                  4
                 </span>
               
             </div>
@@ -2747,26 +2739,61 @@
 
       
         
-          <h2 id="类的阶段"><a href="#类的阶段" class="headerlink" title="类的阶段"></a>类的阶段</h2><p>在Java代码中，类型的加载、连接和初始化都是在程序运行期完成的。类有以下几个阶段：</p>
+          
+            <h2 id="JVM的整体结构和内存模型"><a href="#JVM的整体结构和内存模型" class="headerlink" title="JVM的整体结构和内存模型"></a>JVM的整体结构和内存模型</h2><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103855422.png" alt="image-20220701103855422"></p>
+<h3 id="关于方法区和元空间"><a href="#关于方法区和元空间" class="headerlink" title="关于方法区和元空间"></a>关于方法区和元空间</h3><ul>
+<li>jdk1.8之前存放方法元信息、Class信息、常量池等的为方法区，在堆内存储。而在1.8之后废弃了永久代，替换为元空间，常量池和静态变量并入堆内存储，MetaSpace来存储类、方法元信息，同时使用了本地内存来存储。</li>
+<li>相当于1.8版本之后，方法区一部分归到堆内存中，一部分移动到堆外内存，受机器本地内存大小限制。不过设置了Metaspace参数也会在内存不足时OOM。</li>
+</ul>
+<h2 id="JVM内存参数设置（简要说明）"><a href="#JVM内存参数设置（简要说明）" class="headerlink" title="JVM内存参数设置（简要说明）"></a>JVM内存参数设置（简要说明）</h2><p>运行时数据区的一些基本参数</p>
 <ul>
-<li>类加载：即查找并加载类的二进制数据</li>
-<li>类连接：<ul>
-<li>验证：确保被加载类的正确性</li>
-<li>准备：为类的静态变量分配内存，并将其初始化为默认值</li>
-<li>解析：类的符号引用转换为直接引用</li>
+<li>-Xms：堆的最小值参数</li>
+<li>-Xmx：堆的最大值参数</li>
+<li>-Xmn：新生代的内存大小</li>
+<li>-XX: MaxDirectMemorySize：直接内存的最大值。即NIO使用的堆外内存的最大值。 这里注意heap dump不会记录堆外内存的移除，但也可以造成OOM，现象是dump文件很小，即堆内存其实使用很少。</li>
+<li>-XX：MetaspaceSize：设置元空间触发fullgc的初始阈值（元空间没有固定初始值大小）。默认不设置为21M。到达该值就会触发full gc进行类型卸载，同时收集器会对该值进行调整，如果释放了大量空间，则调小；如果释放了很少的空间，则在不超过-XX: MaxMetaspaceSize的情况下适当提高此值。 在jdk1.8之前的永久代参数-XX: PermsSize参数标识为初始化的容量，1.8之后调整为元空间后不一样</li>
+<li>-XX: MaxMetaspaceSize：元空间最大值，默认是-1，不限制的话，受限于直接内存大小。</li>
+<li>-Xss：线程栈的大小（默认为1M）</li>
 </ul>
+<h2 id="常量池"><a href="#常量池" class="headerlink" title="常量池"></a>常量池</h2><h3 id="Class常量池和运行时常量池"><a href="#Class常量池和运行时常量池" class="headerlink" title="Class常量池和运行时常量池"></a>Class常量池和运行时常量池</h3><p>Class文件中包含常量池，也包含字段、方法、接口、类版本等描述信息。常量池用于存放编译期间的字面量和符号引用。</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103908248.png" alt="image-20220701103908248"></p>
+<p>当常量池字面量和符号引用被加载到内存中，符号才会有内存的地址，常量池就是运行时常量池。<br>而动态链接的过程就是把运行时常量池的符号引用变为直接内存地址引用。</p>
+<p>常量池在1.8之后从永久代（元空间）拿出，移动到了堆内存。</p>
+<h3 id="字符串常量池"><a href="#字符串常量池" class="headerlink" title="字符串常量池"></a>字符串常量池</h3><p>创建字符串对象时，做了一些优化：</p>
+<ul>
+<li>如果字符串常量在常量池中存在，返回此常量的地址引用；</li>
+<li>如果不存在，则实例化改字符串放入常量池中，是字面量的引用直接返回，是new String()这种则会在堆内新创建一个对象。</li>
+</ul>
+<h4 id="字符串操作"><a href="#字符串操作" class="headerlink" title="字符串操作"></a>字符串操作</h4><ul>
+<li>字面量直接赋值<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String a = <span class="string">"aaa"</span>;</span><br></pre></td></tr></table></figure>
 </li>
-<li>类初始化：为类的静态变量赋予正确的初始值，运行static快中的代码。</li>
-<li>类使用</li>
-<li>类卸载</li>
 </ul>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/blog/2020/04/12/类加载系列之理解类加载/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
+<p>这样会用equals()方法判断字符串常量池是否存在，如果存在返回引用，不存在创建一个放入字符串常量池之后返回引用。</p>
+<ul>
+<li>new String()复制<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String a = <span class="keyword">new</span> String(<span class="string">"aaa"</span>);</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>这里也会判断字符串常量池和堆中是否有这个对象，没有则都创建，然后返回堆中的对象引用。也就是可能会创建两个对象。</p>
+<ul>
+<li>intern方法<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String s1 = <span class="string">"aaa"</span>;</span><br><span class="line">String s2 = s1.intern();</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>一个native方法，调用intern()时如果字符串常量池中存在常量，则返回池中的引用地址，否则将池中的地址直接指向堆中字符串对象（例子是s1）的地址。</p>
+<h4 id="常见面试题"><a href="#常见面试题" class="headerlink" title="常见面试题"></a>常见面试题</h4><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103933318.png" alt="image-20220701103933318"><br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103954181.png" alt="image-20220701103954181"><br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104015926.png" alt="image-20220701104015926"></p>
+<h4 id="关于String是不可变的"><a href="#关于String是不可变的" class="headerlink" title="关于String是不可变的"></a>关于String是不可变的</h4><p>除非下面的a、b、c三个变量被final修饰，即变为常量，那么执行String s1 = a + b + c时会编译为常量进行优化，也就是和String s = “a” + “b” + “c” 字面量直接相加一样，都是字符串常量池中常量对象的引用。<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104030743.png" alt="image-20220701104030743"></p>
+<p>为什么是不可变的？</p>
+<ul>
+<li>安全。最常用的String内部char[]数组是final的，规避了直接改变对象内容，封装了内部数据。（享元模式）</li>
+<li>线程安全，final在要求构造函数中初始化char[]数组</li>
+<li>hashcode初始化时确定，String很适合作为hash表的key。</li>
+</ul>
+<h5 id="彩蛋：比较对象时为什么要重写hashcode-方法"><a href="#彩蛋：比较对象时为什么要重写hashcode-方法" class="headerlink" title="彩蛋：比较对象时为什么要重写hashcode()方法"></a>彩蛋：比较对象时为什么要重写hashcode()方法</h5><p>equals()方法相等，则对象一定相等，为什么还要hashcode方法呢？</p>
+<ul>
+<li>因为hashcode效率高，一般约束都是equals()方法相等，则hashcode()一定相等；而hashcode()不相等，一定不是一个对象。</li>
+<li>HashSet这种数据结构是去重的，比较时候为了效率如果hashcode不相等，那么即使equals方法相等也会认为不是一个对象。</li>
+</ul>
+
+          
         
       
     </div>
@@ -2862,7 +2889,7 @@
               
                 <a href="/blog/archives/">
               
-                  <span class="site-state-item-count">103</span>
+                  <span class="site-state-item-count">104</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2873,7 +2900,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/blog/categories/index.html">
-                  <span class="site-state-item-count">26</span>
+                  <span class="site-state-item-count">27</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -2884,7 +2911,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/blog/tags/index.html">
-                  <span class="site-state-item-count">110</span>
+                  <span class="site-state-item-count">111</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
