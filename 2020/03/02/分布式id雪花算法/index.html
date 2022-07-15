@@ -89,7 +89,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220715235457678.png">
 <meta property="og:image" content="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220715235518521.png">
-<meta property="og:updated_time" content="2022-07-15T15:55:39.224Z">
+<meta property="og:updated_time" content="2022-07-15T16:54:09.106Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="分布式id雪花算法">
 <meta name="twitter:description" content="基本原理 代码1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556575859606162636465666768697071727374757677787980818283848586878889909192939495969798991001">
@@ -396,7 +396,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  989
+                  1,234
                 </span>
               
 
@@ -443,6 +443,10 @@
 <li>如果sequence + 1之后和sequence的掩码做 &amp;操作，如果算出为0，则说明12位的sequence发生了溢出，这时要将timeStamp更新为下一个时间戳来获取分布式id。</li>
 <li>最后根据雪花算法，将移动对应的位之后再做或操作生成对应的64位id。</li>
 </ul>
+<h4 id="位运算的运用"><a href="#位运算的运用" class="headerlink" title="位运算的运用"></a>位运算的运用</h4><ul>
+<li>sequence++之后判断是否溢出（大于对应的sequence的值的范围），用的是 sequence++ &amp; sequenceMask == 0 来判断，这里掩码是2^12 - 1。与运算是二进制位都是1的时候才是1，其余为0。这里2^12-1的二进制位是 011111111111 做与操作结果为0 说明是和10000000000 做了与操作，即代表了溢出。</li>
+<li>最后按照雪花算法从高到低的位置左移对应的长度，再做或操作。或操作是当全为0时，结果的二进制位为0， 其余情况为1。高位比如时间戳已经左移了（10 + 12= 22位），后面的22位都是0， 此时和代表机器位置的数字做或操作，即将机器的10位二进制数字直接填充对应的位置即可。同理sequence的二进制位也一样。这样通过或运算就将 三部分的二进制位拼接了起来。</li>
+</ul>
 <h2 id="雪花算法流程"><a href="#雪花算法流程" class="headerlink" title="雪花算法流程"></a>雪花算法流程</h2><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220715235518521.png" alt="image-20220715235518521"></p>
 
       
@@ -474,7 +478,7 @@
   <p><span>本文标题:</span><a href="/blog/2020/03/02/分布式id雪花算法/">分布式id雪花算法</a></p>
   <p><span>文章作者:</span><a href="/" title="访问 夸克 的个人博客">夸克</a></p>
   <p><span>发布时间:</span>2020年03月02日 - 23:03</p>
-  <p><span>最后更新:</span>2022年07月15日 - 23:07</p>
+  <p><span>最后更新:</span>2022年07月16日 - 00:07</p>
   <p><span>原始链接:</span><a href="/blog/2020/03/02/分布式id雪花算法/" title="分布式id雪花算法">https://zhanglijun1217.github.io/2020/03/02/分布式id雪花算法/</a>
     <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://zhanglijun1217.github.io/2020/03/02/分布式id雪花算法/"  aria-label="复制成功！"></i></span>
   </p>
@@ -696,7 +700,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本原理"><span class="nav-number">1.</span> <span class="nav-text">基本原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#代码"><span class="nav-number">2.</span> <span class="nav-text">代码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#代码实现细节"><span class="nav-number">2.1.</span> <span class="nav-text">代码实现细节</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#雪花算法流程"><span class="nav-number">3.</span> <span class="nav-text">雪花算法流程</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本原理"><span class="nav-number">1.</span> <span class="nav-text">基本原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#代码"><span class="nav-number">2.</span> <span class="nav-text">代码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#代码实现细节"><span class="nav-number">2.1.</span> <span class="nav-text">代码实现细节</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#位运算的运用"><span class="nav-number">2.1.1.</span> <span class="nav-text">位运算的运用</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#雪花算法流程"><span class="nav-number">3.</span> <span class="nav-text">雪花算法流程</span></a></li></ol></div>
             
 
           </div>
@@ -731,7 +735,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">158.6k</span>
+    <span title="Site words total count">158.9k</span>
   
 </div>
 
@@ -753,7 +757,7 @@
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共158.6k字</span>
+  <span class="post-count">博客全站共158.9k字</span>
 </div>
 
 <br />
