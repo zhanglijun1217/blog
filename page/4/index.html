@@ -1560,6 +1560,288 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/05/20/JVM对象创建与内存分配/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2020/05/20/JVM对象创建与内存分配/" itemprop="url">JVM对象创建与内存分配</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-05-20T00:17:24+08:00">
+                2020-05-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java基础/" itemprop="url" rel="index">
+                    <span itemprop="name">Java基础</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java基础/JVM/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2020/05/20/JVM对象创建与内存分配/" class="leancloud_visitors" data-flag-title="JVM对象创建与内存分配">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3,450
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  12
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="JVM对象创建的流程"><a href="#JVM对象创建的流程" class="headerlink" title="JVM对象创建的流程"></a>JVM对象创建的流程</h2><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104241903.png" alt="image-20220701104241903"></p>
+<h3 id="1-类加载的检查"><a href="#1-类加载的检查" class="headerlink" title="1. 类加载的检查"></a>1. 类加载的检查</h3><p>new指令可以是new对象、对象克隆、对象序列化等。</p>
+<p>虚拟机会检查常量池中是否能定位到类的符号引用（字面量），以及这个类是否被类加载器加载、校验、准备、解析、初始化等工作。如果没有，则进行类加载的工作。</p>
+<h3 id="2-分配内存"><a href="#2-分配内存" class="headerlink" title="2. 分配内存"></a>2. 分配内存</h3><p>从堆中划分一块区域为对象分配内存。<br>划分有两种方式：</p>
+<ul>
+<li>指针碰撞（默认使用）：内存是规整的，用过的内存放一边，空闲的再另一边，中间有个指针作为分界点，那么分配内存就是移动指针向空闲那边分配内存。</li>
+<li>空闲列表（Free List）：内存不是规整的，空闲和已使用的交错，这时维护一个空闲列表来存空闲内存块，划分一块区域给对象实例。</li>
+</ul>
+<p>这其中的并发问题解决：</p>
+<ul>
+<li>CAS失败重试，对分配的空间做同步处理</li>
+<li>本地线程分配缓存（TLAB)：每个线程划分自己的一块缓冲区，-XX:+UseTLAB来控制大小，这样避免并发问题。</li>
+</ul>
+<h3 id="3-初始化"><a href="#3-初始化" class="headerlink" title="3. 初始化"></a>3. 初始化</h3><p>对分配到的内存初始化零值，这时成员变量字段会初始化为默认值，此时其实已经可以被访问到。</p>
+<h3 id="4-设置对象头"><a href="#4-设置对象头" class="headerlink" title="4. 设置对象头"></a>4. 设置对象头</h3><p>初始化零值之后，JVM对对象设置对象头。</p>
+<p>JVM一个对象有三部分组成：<br>对象头、实例数据、对齐补齐的区域（要求是8字节的倍数）<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104253896.png" alt="image-20220701104253896"></p>
+<p>对象头是存放比如这个对象是哪个类的实例（KClass对象的类型指针）、MarkWord（一些记录信息比如hashcode、GC分代年龄、偏向锁id、锁标志、线程持有锁、偏向锁时间戳等）、数组长度（如果是数组对象）</p>
+<h3 id="5-执行方法"><a href="#5-执行方法" class="headerlink" title="5. 执行方法"></a>5. 执行<init>方法</init></h3><p>对成员变量进行赋值，且执行类的构造方法。对应着助记符invokespecial，比如下面代码对应的助记符：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">       Math math = <span class="keyword">new</span> Math();</span><br><span class="line">   &#125;</span><br><span class="line">   </span><br><span class="line">   </span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(java.lang.String[])</span></span>;</span><br><span class="line">   Code:</span><br><span class="line">      0: new           #2                  // class jvm/内存区域/Math</span><br><span class="line">      <span class="number">3</span>: dup</span><br><span class="line">      4: invokespecial #3                  // Method "&lt;init&gt;":()V 执行init方法</span><br><span class="line">      <span class="number">5</span>: <span class="keyword">return</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="java对象的指针压缩"><a href="#java对象的指针压缩" class="headerlink" title="java对象的指针压缩"></a>java对象的指针压缩</h2><p>在64位操作系统中支持JVM的指针压缩。jvm配置参数：-XX: +UseCompressedOops。其中compressed–压缩、oop(ordinary object pointer)–c++中的对象指针。</p>
+<h3 id="为什么要进行指针压缩"><a href="#为什么要进行指针压缩" class="headerlink" title="为什么要进行指针压缩"></a>为什么要进行指针压缩</h3><ol>
+<li>在64位操作系统使用32位指针，内存使用会多1.5倍左右。比如32位的操作系统支持寻址内存最大是4g，而一个对象假设在64位操作系统中只需要33位来（即8g，夸张的假设），这里可以用压缩算法来存储对象，即指针压缩之后用4个字节就能表达对象，在真正使用时解压使用。</li>
+<li>指针压缩的好处是减少对象大小，能承载更多的对象，减少GC的压力，且复制对象数据也更节省效率。即用4个字节即32位地址就能支持更大的内存。</li>
+<li>当然对堆的大小有要求，小于4g是不需要指针压缩。jvm用去除高32位地址，即使用低虚拟地址空间；大于32g时压缩指针会失效，强制使用64位来进行寻址，所以也不建议堆内存特别大。</li>
+</ol>
+<h2 id="对象内存分配的细节"><a href="#对象内存分配的细节" class="headerlink" title="对象内存分配的细节"></a>对象内存分配的细节</h2><p>对象内存分配的流程：<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104309765.png" alt="image-20220701104309765"></p>
+<h3 id="逃逸分析、标量替换和对象栈上分配"><a href="#逃逸分析、标量替换和对象栈上分配" class="headerlink" title="逃逸分析、标量替换和对象栈上分配"></a>逃逸分析、标量替换和对象栈上分配</h3><p>大多数对象都是在堆上进行分配，对象没有被GCROOTS引用时依靠GC进行回收内存。但也不全是在堆上分配。JVM通过逃逸分析可以确定对象不会在外部访问，即不会发生逃逸即可在栈上分配，这样对象随着栈帧出栈而销毁，不需要进行GC。</p>
+<p>逃逸分析的JVM参数：-XX:+DoEscapeAnalysis开启逃逸分析。</p>
+<p>标量替换：通过逃逸分析确定对象不会被外部访问，会进一步尝试将对象进行标量（基本数据类型）的替换，将整个对象里的成员拆分为标量在栈帧或者寄存器上分配，这样不需要一大块内存来存放内存在栈上。 对应的JVM参数是：-XX:+EliminateAllocations。</p>
+<p>demo:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 逃逸分析和标量替换带来的栈上分配的优化</span></span><br><span class="line"><span class="comment"> * 调用1亿次 大约需要1GB的内存 15m肯定会发生GC</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * 堆大小20m 开启逃逸分析和标量替换 栈上分配对象 所以不会大量GC</span></span><br><span class="line"><span class="comment"> * -Xms20M -Xmx20M -Xmn10M -XX:+PrintGC -XX:+DoEscapeAnalysis -XX:+EliminateAllocations</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * 下面这两种因为没有进行栈上分配 所以会大量GC</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * 关闭逃逸分析</span></span><br><span class="line"><span class="comment"> * -Xms20M -Xmx20M -Xmn10M -XX:+PrintGC -XX:-DoEscapeAnalysis -XX:+EliminateAllocations</span></span><br><span class="line"><span class="comment"> * 关闭标量替换</span></span><br><span class="line"><span class="comment"> * -Xms20M -Xmx20M -Xmn10M -XX:+PrintGC -XX:-DoEscapeAnalysis -XX:-EliminateAllocations</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AllocateInStackDemo</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">long</span> start = System.currentTimeMillis();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; <span class="number">1000000000</span>;i++) &#123;</span><br><span class="line">            alloc();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">long</span> end = System.currentTimeMillis();</span><br><span class="line">        System.out.println(<span class="string">"运行完毕"</span> + (end - start));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">alloc</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        User user = <span class="keyword">new</span> User();</span><br><span class="line">        <span class="comment">// user只有标量变量 可以直接替换</span></span><br><span class="line">        user.setId(<span class="number">1</span>);</span><br><span class="line">        user.setName(<span class="string">"aaa"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="在Eden区分配"><a href="#在Eden区分配" class="headerlink" title="在Eden区分配"></a>在Eden区分配</h3><ul>
+<li>MinorGC/YoungGC：年轻代（新生代）发生的垃圾收集动作，MinorGC非常频繁，回收速度也很快，应用中大多数对象都是在年轻代通过MinorGC被回收的。</li>
+<li>MajorGC/FullGC：会回收年轻代、老年代、方法区（元空间）的垃圾。FullGC的速度比较慢，一般比MinorGC慢上10倍左右。</li>
+</ul>
+<h4 id="一般什么场景下会发生fullgc？"><a href="#一般什么场景下会发生fullgc？" class="headerlink" title="一般什么场景下会发生fullgc？"></a>一般什么场景下会发生fullgc？</h4><ul>
+<li>老年代内存不足</li>
+<li>方法区（元空间）内存不足</li>
+<li>System.gc()调用时</li>
+<li>老年代担保分配场景中，担保失败的场景（promotion failture），年轻代对象总和或者每次MinorGC之后晋升老年代的平均对象大小 &gt; 老年代剩余空间，则会进行一次fullgc来回收老年代的对象，来担保能晋升到老年代。</li>
+<li>CMS垃圾回收器使用在并发标记或者并发清理阶段，产生的浮动垃圾导致没有足够的空间分配新的对象，出现Concurrent mode failure，会触发再一次FullGC清理堆空间，CMS也退化为Serial Old单线程垃圾收集器。</li>
+</ul>
+<p>在堆内存的年轻代的Eden区分配对象才是大多数对象内存分配的途径。当Eden区没有足够空间分配对象，JVM会发起一次MinorGC。</p>
+<p>对象新创建之后会分配在Eden区（没有超过大对象直接老年代分配的阈值），eden不满足大小会触发一次minorGC，剩余存活的对象会复制到Survivor区域（S0或者S1)，下一次eden区满了之后会再次触发minorGC，会回收eden和survivor所有垃圾对象，把剩余存活的对象再一次复制到另一块空的Survivor区域。</p>
+<p>年轻代中Eden和S0、S1区默认8：1：1。这里因为新生代的对象都是很快消亡的（可能就是一次请求），所以Eden区尽量的大，而Survivor区是用来存储GC之后存活的复制对象的，够用即可。JVM参数-XX:+UseAdaptiveSizePolicy（默认开启）来自适应Eden和Survivor的比例。</p>
+<h3 id="大对象直接进入老年代"><a href="#大对象直接进入老年代" class="headerlink" title="大对象直接进入老年代"></a>大对象直接进入老年代</h3><p>JVM参数 -XX:PretenureSizeThreshold设置了直接进入老年代分配内存的对象大小， 控制了大对象（需要大量连续内存空间，比如字符串、数组）避免在年轻代中的Eden和S区中的复制算法降低效率。这个参数在Serial和ParNew两个垃圾收集器下有效。</p>
+<p>比如设置：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-XX:PretenureSizeThreshold=1000000(单位是字节) -XX:+UseSerialGC</span><br></pre></td></tr></table></figure></p>
+<p>大于设置值大小的对象会直接分配至老年代的内存。</p>
+<h3 id="长期存活的对象进入老年代"><a href="#长期存活的对象进入老年代" class="headerlink" title="长期存活的对象进入老年代"></a>长期存活的对象进入老年代</h3><p>每个对象在对象头的MarkWord中记录了对象的GC分代年龄，对象在Eden分配完经历第一次MinorGC之后还存活，且能被Survivor容纳，将会被移动到Survivor区域（S0区），并设置对象的GC分代年龄为1。在Survivor区每经过一次MinorGC年龄都会+1。JVM参数：-XX:MaxTenuringThreshold来控制晋升到老年代的阈值。</p>
+<h3 id="对象动态年龄判断"><a href="#对象动态年龄判断" class="headerlink" title="对象动态年龄判断"></a>对象动态年龄判断</h3><p>在MinorGC之后，会触发一个动态年龄判断机制。即MinorGC之后Survivor区有一批对象（剩余存活的），年龄1+年龄2+年龄3+…+年龄n的多个年龄对象总和超过了Survivor区的50%，此时会把年龄n以上的对象直接放入到老年代，这个规则其实就是希望长期存活的大对象提前进入到老年代，而不是在年轻代多次复制之后达到阈值再进入老年代。</p>
+<h3 id="老年代空间分配担保机制"><a href="#老年代空间分配担保机制" class="headerlink" title="老年代空间分配担保机制"></a>老年代空间分配担保机制</h3><p>年轻代每次MinorGC之前都会计算下老年代的剩余空间。如果这个可用空间小于年轻代所有对象（包括未清理的垃圾对象）就会依赖一个JVM参数：-XX:-HandlePromotionFailure（jdk1.8默认设置了）的参数是否设置了，如果设置了，就会判断老年代当前可用内存大小，是否大于之前每一次MinorGC之后进入老年代的对象的平均大小，如果上一步结果是小于或者参数没有设置，则触发一次fullgc，让老年代和年轻代一起进行一次GC，如果回收完还是没有足够的空间存放新的对象则会发生OOM。</p>
+<p>当然如果没有触发老年代空间分配担保机制，MinorGC之后剩余空间需要挪到老年代的对象还是大于可用空间，也会触发full gc，full gc之后如果还不够就会触发OOM。</p>
+<p>整个过程如下：<br><img src="/Users/zhanglijun/Library/Application%20Support/typora-user-images/image-20220701104323541.png" alt="image-20220701104323541"></p>
+<h2 id="对象内存回收"><a href="#对象内存回收" class="headerlink" title="对象内存回收"></a>对象内存回收</h2><h3 id="引用计数法"><a href="#引用计数法" class="headerlink" title="引用计数法"></a>引用计数法</h3><p>每个对象维护一个引用计数器，每当有一个地方引用其对象，计数器加1。计数器为0时，对象可以被回收。这个方法效率高，但是存在循环引用的场景，很难去解决。所以主流JVM没有采用这个算法来确定无用的对象。</p>
+<h3 id="可达性分析算法"><a href="#可达性分析算法" class="headerlink" title="可达性分析算法"></a>可达性分析算法</h3><p>以GCROOTS为起点，从这些对象节点向下搜索引用的对象，能连通找到的对象都是非垃圾对象，其余未被标记的都是垃圾可回收对象。</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104351339.png" alt="image-20220701104351339"></p>
+<p>能作为GCRoots的根节点：</p>
+<ul>
+<li>线程栈的本地变量（局部变量）引用的对象。</li>
+<li>本地方法（native方法）引用的对象。</li>
+<li>元空间中类的静态变量。</li>
+<li>元空间中常量引用的对象。</li>
+</ul>
+<h3 id="java中的引用"><a href="#java中的引用" class="headerlink" title="java中的引用"></a>java中的引用</h3><p>常见的强引用就是内存中存在一块内存区域存放对象的地址值，则这个对象被内存地址引用。而其他引用出现的背景是当需要描述一些这些引用：内存足够的时候存活，内存不足够的时候可以被GC，许多缓存的场景可以用这些引用。</p>
+<h4 id="强引用"><a href="#强引用" class="headerlink" title="强引用"></a>强引用</h4><p>这个没啥说的就是 object = new Object，只要强引用在，GC不会手机回收被引用的对象。</p>
+<h4 id="软引用"><a href="#软引用" class="headerlink" title="软引用"></a>软引用</h4><p>SoftReference是描述有用但是不是必须的对象。在GC之后还没有足够可用的内存，会回收软引用的对象，如果还没有足够的空间会抛出内存溢出异常。</p>
+<p>使用场景可以想想浏览器前进后退保留的页面内容，如果GC内存不足清除，再重新加载即可，不需要一直保留缓存。</p>
+<h4 id="弱引用"><a href="#弱引用" class="headerlink" title="弱引用"></a>弱引用</h4><p>WeakReference是弱引用，描述非必须对象，弱引用关联的对象只生存到下一次GC之前，无论是否内存足够，都会在GC时回收只有弱引用的对象。应用可以看看ThreadLocal中实现的ThreadLocalMap。</p>
+<h4 id="虚引用"><a href="#虚引用" class="headerlink" title="虚引用"></a>虚引用</h4><p>最弱的一种引用关系，虚引用不影响对象存活，也无法通过引用获取到对象实例。在GC时会收到一个通知，PhantomReference一个应用场景是jdk里DirectByteBuffer被回收之后，Cleaner会把分配的堆外内存释放了；netty里用来探测内存泄漏。当堆内的对象被GC时收到通知可以对堆外内存进行手动调用Unsafe进行回收。</p>
+<h3 id="finalize-方法"><a href="#finalize-方法" class="headerlink" title="finalize()方法"></a>finalize()方法</h3><p>对象宣告死亡需要两次标记的过程：<br>（1）GCRoots可达性分析连通不到之后，即没被标记不可清除对象<br>（2）没有覆盖finalize()方法或者已经执行过finalize()方法</p>
+<p>这种才会真正GC。</p>
+<p>在覆盖finalize()方法中如果把当前this引用关联上别的静态变量或者成员变量，则会逃过之后的GC，相当于给了一次逃亡的机会。这个方法不建议去覆盖。</p>
+<h3 id="元空间的回收"><a href="#元空间的回收" class="headerlink" title="元空间的回收"></a>元空间的回收</h3><p>元空间主要是对常量池和无用类的回收。</p>
+<p>确定废弃常量池中的字面量也是看有没有对象引用常量池中的字面量，可以对常量进行废弃回归。</p>
+<p>而无用类的确定十分苛刻：</p>
+<ul>
+<li>该类对应的实例都被回收，堆中没有该类对应的对象实例。</li>
+<li>加载该类的ClassLoader被回收。</li>
+<li>对应的Class对象都没被使用，没有反射调用该类的方法。</li>
+</ul>
+<p>满足这三个条件才会进行元空间中无用类的回收。且对于频繁动态代理、反射、动态JSP的系统，因为运行中动态生成类或者替换类加载器，要关注元空间的类卸载情况，避免元空间溢出。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/05/20/dubbo的spi实现/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1989,288 +2271,6 @@
 <p>但是在你提交git文件的时候，其实是能明显看到对应的差别的：</p>
 <p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20200520205152514.png" alt="image-20200520205152514"></p>
 <p>这里记录下踩到的这个坑。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/05/20/JVM对象创建与内存分配/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2020/05/20/JVM对象创建与内存分配/" itemprop="url">JVM对象创建与内存分配</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-05-20T00:17:24+08:00">
-                2020-05-20
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Java基础/" itemprop="url" rel="index">
-                    <span itemprop="name">Java基础</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Java基础/JVM/" itemprop="url" rel="index">
-                    <span itemprop="name">JVM</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2020/05/20/JVM对象创建与内存分配/" class="leancloud_visitors" data-flag-title="JVM对象创建与内存分配">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  3,450
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  12
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="JVM对象创建的流程"><a href="#JVM对象创建的流程" class="headerlink" title="JVM对象创建的流程"></a>JVM对象创建的流程</h2><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104241903.png" alt="image-20220701104241903"></p>
-<h3 id="1-类加载的检查"><a href="#1-类加载的检查" class="headerlink" title="1. 类加载的检查"></a>1. 类加载的检查</h3><p>new指令可以是new对象、对象克隆、对象序列化等。</p>
-<p>虚拟机会检查常量池中是否能定位到类的符号引用（字面量），以及这个类是否被类加载器加载、校验、准备、解析、初始化等工作。如果没有，则进行类加载的工作。</p>
-<h3 id="2-分配内存"><a href="#2-分配内存" class="headerlink" title="2. 分配内存"></a>2. 分配内存</h3><p>从堆中划分一块区域为对象分配内存。<br>划分有两种方式：</p>
-<ul>
-<li>指针碰撞（默认使用）：内存是规整的，用过的内存放一边，空闲的再另一边，中间有个指针作为分界点，那么分配内存就是移动指针向空闲那边分配内存。</li>
-<li>空闲列表（Free List）：内存不是规整的，空闲和已使用的交错，这时维护一个空闲列表来存空闲内存块，划分一块区域给对象实例。</li>
-</ul>
-<p>这其中的并发问题解决：</p>
-<ul>
-<li>CAS失败重试，对分配的空间做同步处理</li>
-<li>本地线程分配缓存（TLAB)：每个线程划分自己的一块缓冲区，-XX:+UseTLAB来控制大小，这样避免并发问题。</li>
-</ul>
-<h3 id="3-初始化"><a href="#3-初始化" class="headerlink" title="3. 初始化"></a>3. 初始化</h3><p>对分配到的内存初始化零值，这时成员变量字段会初始化为默认值，此时其实已经可以被访问到。</p>
-<h3 id="4-设置对象头"><a href="#4-设置对象头" class="headerlink" title="4. 设置对象头"></a>4. 设置对象头</h3><p>初始化零值之后，JVM对对象设置对象头。</p>
-<p>JVM一个对象有三部分组成：<br>对象头、实例数据、对齐补齐的区域（要求是8字节的倍数）<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104253896.png" alt="image-20220701104253896"></p>
-<p>对象头是存放比如这个对象是哪个类的实例（KClass对象的类型指针）、MarkWord（一些记录信息比如hashcode、GC分代年龄、偏向锁id、锁标志、线程持有锁、偏向锁时间戳等）、数组长度（如果是数组对象）</p>
-<h3 id="5-执行方法"><a href="#5-执行方法" class="headerlink" title="5. 执行方法"></a>5. 执行<init>方法</init></h3><p>对成员变量进行赋值，且执行类的构造方法。对应着助记符invokespecial，比如下面代码对应的助记符：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">       Math math = <span class="keyword">new</span> Math();</span><br><span class="line">   &#125;</span><br><span class="line">   </span><br><span class="line">   </span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(java.lang.String[])</span></span>;</span><br><span class="line">   Code:</span><br><span class="line">      0: new           #2                  // class jvm/内存区域/Math</span><br><span class="line">      <span class="number">3</span>: dup</span><br><span class="line">      4: invokespecial #3                  // Method "&lt;init&gt;":()V 执行init方法</span><br><span class="line">      <span class="number">5</span>: <span class="keyword">return</span></span><br></pre></td></tr></table></figure></p>
-<h2 id="java对象的指针压缩"><a href="#java对象的指针压缩" class="headerlink" title="java对象的指针压缩"></a>java对象的指针压缩</h2><p>在64位操作系统中支持JVM的指针压缩。jvm配置参数：-XX: +UseCompressedOops。其中compressed–压缩、oop(ordinary object pointer)–c++中的对象指针。</p>
-<h3 id="为什么要进行指针压缩"><a href="#为什么要进行指针压缩" class="headerlink" title="为什么要进行指针压缩"></a>为什么要进行指针压缩</h3><ol>
-<li>在64位操作系统使用32位指针，内存使用会多1.5倍左右。比如32位的操作系统支持寻址内存最大是4g，而一个对象假设在64位操作系统中只需要33位来（即8g，夸张的假设），这里可以用压缩算法来存储对象，即指针压缩之后用4个字节就能表达对象，在真正使用时解压使用。</li>
-<li>指针压缩的好处是减少对象大小，能承载更多的对象，减少GC的压力，且复制对象数据也更节省效率。即用4个字节即32位地址就能支持更大的内存。</li>
-<li>当然对堆的大小有要求，小于4g是不需要指针压缩。jvm用去除高32位地址，即使用低虚拟地址空间；大于32g时压缩指针会失效，强制使用64位来进行寻址，所以也不建议堆内存特别大。</li>
-</ol>
-<h2 id="对象内存分配的细节"><a href="#对象内存分配的细节" class="headerlink" title="对象内存分配的细节"></a>对象内存分配的细节</h2><p>对象内存分配的流程：<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104309765.png" alt="image-20220701104309765"></p>
-<h3 id="逃逸分析、标量替换和对象栈上分配"><a href="#逃逸分析、标量替换和对象栈上分配" class="headerlink" title="逃逸分析、标量替换和对象栈上分配"></a>逃逸分析、标量替换和对象栈上分配</h3><p>大多数对象都是在堆上进行分配，对象没有被GCROOTS引用时依靠GC进行回收内存。但也不全是在堆上分配。JVM通过逃逸分析可以确定对象不会在外部访问，即不会发生逃逸即可在栈上分配，这样对象随着栈帧出栈而销毁，不需要进行GC。</p>
-<p>逃逸分析的JVM参数：-XX:+DoEscapeAnalysis开启逃逸分析。</p>
-<p>标量替换：通过逃逸分析确定对象不会被外部访问，会进一步尝试将对象进行标量（基本数据类型）的替换，将整个对象里的成员拆分为标量在栈帧或者寄存器上分配，这样不需要一大块内存来存放内存在栈上。 对应的JVM参数是：-XX:+EliminateAllocations。</p>
-<p>demo:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 逃逸分析和标量替换带来的栈上分配的优化</span></span><br><span class="line"><span class="comment"> * 调用1亿次 大约需要1GB的内存 15m肯定会发生GC</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * 堆大小20m 开启逃逸分析和标量替换 栈上分配对象 所以不会大量GC</span></span><br><span class="line"><span class="comment"> * -Xms20M -Xmx20M -Xmn10M -XX:+PrintGC -XX:+DoEscapeAnalysis -XX:+EliminateAllocations</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * 下面这两种因为没有进行栈上分配 所以会大量GC</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * 关闭逃逸分析</span></span><br><span class="line"><span class="comment"> * -Xms20M -Xmx20M -Xmn10M -XX:+PrintGC -XX:-DoEscapeAnalysis -XX:+EliminateAllocations</span></span><br><span class="line"><span class="comment"> * 关闭标量替换</span></span><br><span class="line"><span class="comment"> * -Xms20M -Xmx20M -Xmn10M -XX:+PrintGC -XX:-DoEscapeAnalysis -XX:-EliminateAllocations</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AllocateInStackDemo</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">long</span> start = System.currentTimeMillis();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; <span class="number">1000000000</span>;i++) &#123;</span><br><span class="line">            alloc();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">long</span> end = System.currentTimeMillis();</span><br><span class="line">        System.out.println(<span class="string">"运行完毕"</span> + (end - start));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">alloc</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        User user = <span class="keyword">new</span> User();</span><br><span class="line">        <span class="comment">// user只有标量变量 可以直接替换</span></span><br><span class="line">        user.setId(<span class="number">1</span>);</span><br><span class="line">        user.setName(<span class="string">"aaa"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h3 id="在Eden区分配"><a href="#在Eden区分配" class="headerlink" title="在Eden区分配"></a>在Eden区分配</h3><ul>
-<li>MinorGC/YoungGC：年轻代（新生代）发生的垃圾收集动作，MinorGC非常频繁，回收速度也很快，应用中大多数对象都是在年轻代通过MinorGC被回收的。</li>
-<li>MajorGC/FullGC：会回收年轻代、老年代、方法区（元空间）的垃圾。FullGC的速度比较慢，一般比MinorGC慢上10倍左右。</li>
-</ul>
-<h4 id="一般什么场景下会发生fullgc？"><a href="#一般什么场景下会发生fullgc？" class="headerlink" title="一般什么场景下会发生fullgc？"></a>一般什么场景下会发生fullgc？</h4><ul>
-<li>老年代内存不足</li>
-<li>方法区（元空间）内存不足</li>
-<li>System.gc()调用时</li>
-<li>老年代担保分配场景中，担保失败的场景（promotion failture），年轻代对象总和或者每次MinorGC之后晋升老年代的平均对象大小 &gt; 老年代剩余空间，则会进行一次fullgc来回收老年代的对象，来担保能晋升到老年代。</li>
-<li>CMS垃圾回收器使用在并发标记或者并发清理阶段，产生的浮动垃圾导致没有足够的空间分配新的对象，出现Concurrent mode failure，会触发再一次FullGC清理堆空间，CMS也退化为Serial Old单线程垃圾收集器。</li>
-</ul>
-<p>在堆内存的年轻代的Eden区分配对象才是大多数对象内存分配的途径。当Eden区没有足够空间分配对象，JVM会发起一次MinorGC。</p>
-<p>对象新创建之后会分配在Eden区（没有超过大对象直接老年代分配的阈值），eden不满足大小会触发一次minorGC，剩余存活的对象会复制到Survivor区域（S0或者S1)，下一次eden区满了之后会再次触发minorGC，会回收eden和survivor所有垃圾对象，把剩余存活的对象再一次复制到另一块空的Survivor区域。</p>
-<p>年轻代中Eden和S0、S1区默认8：1：1。这里因为新生代的对象都是很快消亡的（可能就是一次请求），所以Eden区尽量的大，而Survivor区是用来存储GC之后存活的复制对象的，够用即可。JVM参数-XX:+UseAdaptiveSizePolicy（默认开启）来自适应Eden和Survivor的比例。</p>
-<h3 id="大对象直接进入老年代"><a href="#大对象直接进入老年代" class="headerlink" title="大对象直接进入老年代"></a>大对象直接进入老年代</h3><p>JVM参数 -XX:PretenureSizeThreshold设置了直接进入老年代分配内存的对象大小， 控制了大对象（需要大量连续内存空间，比如字符串、数组）避免在年轻代中的Eden和S区中的复制算法降低效率。这个参数在Serial和ParNew两个垃圾收集器下有效。</p>
-<p>比如设置：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-XX:PretenureSizeThreshold=1000000(单位是字节) -XX:+UseSerialGC</span><br></pre></td></tr></table></figure></p>
-<p>大于设置值大小的对象会直接分配至老年代的内存。</p>
-<h3 id="长期存活的对象进入老年代"><a href="#长期存活的对象进入老年代" class="headerlink" title="长期存活的对象进入老年代"></a>长期存活的对象进入老年代</h3><p>每个对象在对象头的MarkWord中记录了对象的GC分代年龄，对象在Eden分配完经历第一次MinorGC之后还存活，且能被Survivor容纳，将会被移动到Survivor区域（S0区），并设置对象的GC分代年龄为1。在Survivor区每经过一次MinorGC年龄都会+1。JVM参数：-XX:MaxTenuringThreshold来控制晋升到老年代的阈值。</p>
-<h3 id="对象动态年龄判断"><a href="#对象动态年龄判断" class="headerlink" title="对象动态年龄判断"></a>对象动态年龄判断</h3><p>在MinorGC之后，会触发一个动态年龄判断机制。即MinorGC之后Survivor区有一批对象（剩余存活的），年龄1+年龄2+年龄3+…+年龄n的多个年龄对象总和超过了Survivor区的50%，此时会把年龄n以上的对象直接放入到老年代，这个规则其实就是希望长期存活的大对象提前进入到老年代，而不是在年轻代多次复制之后达到阈值再进入老年代。</p>
-<h3 id="老年代空间分配担保机制"><a href="#老年代空间分配担保机制" class="headerlink" title="老年代空间分配担保机制"></a>老年代空间分配担保机制</h3><p>年轻代每次MinorGC之前都会计算下老年代的剩余空间。如果这个可用空间小于年轻代所有对象（包括未清理的垃圾对象）就会依赖一个JVM参数：-XX:-HandlePromotionFailure（jdk1.8默认设置了）的参数是否设置了，如果设置了，就会判断老年代当前可用内存大小，是否大于之前每一次MinorGC之后进入老年代的对象的平均大小，如果上一步结果是小于或者参数没有设置，则触发一次fullgc，让老年代和年轻代一起进行一次GC，如果回收完还是没有足够的空间存放新的对象则会发生OOM。</p>
-<p>当然如果没有触发老年代空间分配担保机制，MinorGC之后剩余空间需要挪到老年代的对象还是大于可用空间，也会触发full gc，full gc之后如果还不够就会触发OOM。</p>
-<p>整个过程如下：<br><img src="/Users/zhanglijun/Library/Application%20Support/typora-user-images/image-20220701104323541.png" alt="image-20220701104323541"></p>
-<h2 id="对象内存回收"><a href="#对象内存回收" class="headerlink" title="对象内存回收"></a>对象内存回收</h2><h3 id="引用计数法"><a href="#引用计数法" class="headerlink" title="引用计数法"></a>引用计数法</h3><p>每个对象维护一个引用计数器，每当有一个地方引用其对象，计数器加1。计数器为0时，对象可以被回收。这个方法效率高，但是存在循环引用的场景，很难去解决。所以主流JVM没有采用这个算法来确定无用的对象。</p>
-<h3 id="可达性分析算法"><a href="#可达性分析算法" class="headerlink" title="可达性分析算法"></a>可达性分析算法</h3><p>以GCROOTS为起点，从这些对象节点向下搜索引用的对象，能连通找到的对象都是非垃圾对象，其余未被标记的都是垃圾可回收对象。</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104351339.png" alt="image-20220701104351339"></p>
-<p>能作为GCRoots的根节点：</p>
-<ul>
-<li>线程栈的本地变量（局部变量）引用的对象。</li>
-<li>本地方法（native方法）引用的对象。</li>
-<li>元空间中类的静态变量。</li>
-<li>元空间中常量引用的对象。</li>
-</ul>
-<h3 id="java中的引用"><a href="#java中的引用" class="headerlink" title="java中的引用"></a>java中的引用</h3><p>常见的强引用就是内存中存在一块内存区域存放对象的地址值，则这个对象被内存地址引用。而其他引用出现的背景是当需要描述一些这些引用：内存足够的时候存活，内存不足够的时候可以被GC，许多缓存的场景可以用这些引用。</p>
-<h4 id="强引用"><a href="#强引用" class="headerlink" title="强引用"></a>强引用</h4><p>这个没啥说的就是 object = new Object，只要强引用在，GC不会手机回收被引用的对象。</p>
-<h4 id="软引用"><a href="#软引用" class="headerlink" title="软引用"></a>软引用</h4><p>SoftReference是描述有用但是不是必须的对象。在GC之后还没有足够可用的内存，会回收软引用的对象，如果还没有足够的空间会抛出内存溢出异常。</p>
-<p>使用场景可以想想浏览器前进后退保留的页面内容，如果GC内存不足清除，再重新加载即可，不需要一直保留缓存。</p>
-<h4 id="弱引用"><a href="#弱引用" class="headerlink" title="弱引用"></a>弱引用</h4><p>WeakReference是弱引用，描述非必须对象，弱引用关联的对象只生存到下一次GC之前，无论是否内存足够，都会在GC时回收只有弱引用的对象。应用可以看看ThreadLocal中实现的ThreadLocalMap。</p>
-<h4 id="虚引用"><a href="#虚引用" class="headerlink" title="虚引用"></a>虚引用</h4><p>最弱的一种引用关系，虚引用不影响对象存活，也无法通过引用获取到对象实例。在GC时会收到一个通知，PhantomReference一个应用场景是jdk里DirectByteBuffer被回收之后，Cleaner会把分配的堆外内存释放了；netty里用来探测内存泄漏。当堆内的对象被GC时收到通知可以对堆外内存进行手动调用Unsafe进行回收。</p>
-<h3 id="finalize-方法"><a href="#finalize-方法" class="headerlink" title="finalize()方法"></a>finalize()方法</h3><p>对象宣告死亡需要两次标记的过程：<br>（1）GCRoots可达性分析连通不到之后，即没被标记不可清除对象<br>（2）没有覆盖finalize()方法或者已经执行过finalize()方法</p>
-<p>这种才会真正GC。</p>
-<p>在覆盖finalize()方法中如果把当前this引用关联上别的静态变量或者成员变量，则会逃过之后的GC，相当于给了一次逃亡的机会。这个方法不建议去覆盖。</p>
-<h3 id="元空间的回收"><a href="#元空间的回收" class="headerlink" title="元空间的回收"></a>元空间的回收</h3><p>元空间主要是对常量池和无用类的回收。</p>
-<p>确定废弃常量池中的字面量也是看有没有对象引用常量池中的字面量，可以对常量进行废弃回归。</p>
-<p>而无用类的确定十分苛刻：</p>
-<ul>
-<li>该类对应的实例都被回收，堆中没有该类对应的对象实例。</li>
-<li>加载该类的ClassLoader被回收。</li>
-<li>对应的Class对象都没被使用，没有反射调用该类的方法。</li>
-</ul>
-<p>满足这三个条件才会进行元空间中无用类的回收。且对于频繁动态代理、反射、动态JSP的系统，因为运行中动态生成类或者替换类加载器，要关注元空间的类卸载情况，避免元空间溢出。</p>
 
           
         
@@ -2889,7 +2889,7 @@
               
                 <a href="/blog/archives/">
               
-                  <span class="site-state-item-count">104</span>
+                  <span class="site-state-item-count">105</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2900,7 +2900,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/blog/categories/index.html">
-                  <span class="site-state-item-count">27</span>
+                  <span class="site-state-item-count">28</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -2911,7 +2911,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/blog/tags/index.html">
-                  <span class="site-state-item-count">111</span>
+                  <span class="site-state-item-count">112</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -2985,7 +2985,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">151.1k</span>
+    <span title="Site words total count">152.1k</span>
   
 </div>
 
@@ -3007,7 +3007,7 @@
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共151.1k字</span>
+  <span class="post-count">博客全站共152.1k字</span>
 </div>
 
 <br />
