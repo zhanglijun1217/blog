@@ -297,6 +297,687 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/01/21/数据库死锁日志查看/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2020/01/21/数据库死锁日志查看/" itemprop="url">数据库死锁日志查看</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-21T10:25:13+08:00">
+                2020-01-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/mysql/" itemprop="url" rel="index">
+                    <span itemprop="name">mysql</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2020/01/21/数据库死锁日志查看/" class="leancloud_visitors" data-flag-title="数据库死锁日志查看">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  763
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  4
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><a href="https://segmentfault.com/a/1190000018730103" target="_blank" rel="noopener">https://segmentfault.com/a/1190000018730103</a></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="keyword">engine</span> <span class="keyword">innodb</span> <span class="keyword">status</span>;</span><br></pre></td></tr></table></figure>
+<hr>
+<h4 id="记录锁，间隙锁，Next-key-锁和插入意向锁。这四种锁对应的死锁如下："><a href="#记录锁，间隙锁，Next-key-锁和插入意向锁。这四种锁对应的死锁如下：" class="headerlink" title="记录锁，间隙锁，Next-key 锁和插入意向锁。这四种锁对应的死锁如下："></a>记录锁，间隙锁，Next-key 锁和插入意向锁。这四种锁对应的死锁如下：</h4><p>记录锁（LOCK_REC_NOT_GAP）: lock_mode X locks rec but not gap<br>间隙锁（LOCK_GAP）: lock_mode X locks gap before rec<br>Next-key 锁（LOCK_ORNIDARY）: lock_mode X<br>插入意向锁（LOCK_INSERT_INTENTION）: lock_mode X locks gap before rec insert intention</p>
+<h4 id="关于显式锁和隐式锁"><a href="#关于显式锁和隐式锁" class="headerlink" title="关于显式锁和隐式锁"></a>关于显式锁和隐式锁</h4><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701102530237.png" alt="image-20220701102530237"></p>
+<h4 id="死锁日志"><a href="#死锁日志" class="headerlink" title="死锁日志"></a>死锁日志</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">=====================================</span><br><span class="line">2018-08-05 21:20:27 0x7fd40c082700 INNODB MONITOR OUTPUT</span><br><span class="line">=====================================</span><br><span class="line">Per second averages calculated from the last 4 seconds</span><br><span class="line">-----------------</span><br><span class="line">BACKGROUND THREAD</span><br><span class="line">-----------------</span><br><span class="line">srv_master_thread loops: 251 srv_active, 0 srv_shutdown, 22663 srv_idle</span><br><span class="line">srv_master_thread log flush and writes: 22905</span><br><span class="line">----------</span><br><span class="line">SEMAPHORES</span><br><span class="line">----------</span><br><span class="line">OS WAIT ARRAY INFO: reservation count 513</span><br><span class="line">OS WAIT ARRAY INFO: signal count 450</span><br><span class="line">RW-shared spins 0, rounds 569, OS waits 286</span><br><span class="line">RW-excl spins 0, rounds 127, OS waits 1</span><br><span class="line">RW-sx spins 0, rounds 0, OS waits 0</span><br><span class="line">Spin rounds per wait: 569.00 RW-shared, 127.00 RW-excl, 0.00 RW-sx</span><br><span class="line">------------------------</span><br><span class="line">LATEST DETECTED DEADLOCK</span><br><span class="line">------------------------</span><br><span class="line">2018-08-05 21:15:42 0x7fd40c0b3700</span><br><span class="line">*** (1) TRANSACTION:</span><br><span class="line">TRANSACTION 1095010, ACTIVE 21 sec inserting</span><br><span class="line">mysql tables in use 1, locked 1</span><br><span class="line">LOCK WAIT 5 lock struct(s), heap size 1136, 4 row lock(s), undo log entries 2</span><br><span class="line">MySQL thread id 16, OS thread handle 140548578129664, query id 3052 183.6.50.229 root update</span><br><span class="line">insert into t_bitfly values(7,7)</span><br><span class="line">*** (1) WAITING FOR THIS LOCK TO BE GRANTED:</span><br><span class="line">RECORD LOCKS space id 2514 page no 4 n bits 72 index num_key of table `test`.`t_bitfly` trx id 1095010 lock_mode X locks gap before rec insert intention waiting</span><br><span class="line">Record lock, heap no 3 PHYSICAL RECORD: n_fields 2; compact format; info bits 32</span><br><span class="line"> 0: len 4; hex 80000007; asc     ;;</span><br><span class="line"> 1: len 8; hex 8000000000000008; asc         ;;</span><br><span class="line"></span><br><span class="line">*** (2) TRANSACTION:</span><br><span class="line">TRANSACTION 1095015, ACTIVE 6 sec inserting</span><br><span class="line">mysql tables in use 1, locked 1</span><br><span class="line">4 lock struct(s), heap size 1136, 4 row lock(s), undo log entries 2</span><br><span class="line">MySQL thread id 17, OS thread handle 140548711855872, query id 3056 183.6.50.229 root update</span><br><span class="line">insert into t_bitfly values(5,5)</span><br><span class="line">*** (2) HOLDS THE LOCK(S):</span><br><span class="line">RECORD LOCKS space id 2514 page no 4 n bits 72 index num_key of table `test`.`t_bitfly` trx id 1095015 lock_mode X</span><br><span class="line">Record lock, heap no 1 PHYSICAL RECORD: n_fields 1; compact format; info bits 0</span><br><span class="line"> 0: len 8; hex 73757072656d756d; asc supremum;;</span><br><span class="line"></span><br><span class="line">Record lock, heap no 3 PHYSICAL RECORD: n_fields 2; compact format; info bits 32</span><br><span class="line"> 0: len 4; hex 80000007; asc     ;;</span><br><span class="line"> 1: len 8; hex 8000000000000008; asc         ;;</span><br><span class="line"></span><br><span class="line">*** (2) WAITING FOR THIS LOCK TO BE GRANTED:</span><br><span class="line">RECORD LOCKS space id 2514 page no 4 n bits 72 index num_key of table `test`.`t_bitfly` trx id 1095015 lock_mode X locks gap before rec insert intention waiting</span><br><span class="line">Record lock, heap no 3 PHYSICAL RECORD: n_fields 2; compact format; info bits 32</span><br><span class="line"> 0: len 4; hex 80000007; asc     ;;</span><br><span class="line"> 1: len 8; hex 8000000000000008; asc         ;;</span><br><span class="line"></span><br><span class="line">省略。。。</span><br></pre></td></tr></table></figure>
+<p>一些注释：<br>LATEST DETECTED DEADLOCK：标示为最新发生的死锁；<br>(1) TRANSACTION：此处表示事务1开始 ；<br>MySQL thread id 16, OS thread handle 140548578129664, query id 3052 183.6.50.229 root update：此处为记录当前数据库线程id；<br>insert into t_bitfly values(7,7)：表示事务1在执行的sql ，不过比较悲伤的事情是show engine innodb status 是查看不到完整的事务的sql 的，通常显示当前正在等待锁的sql；<br>(1) WAITING FOR THIS LOCK TO BE GRANTED：此处表示当前事务1等待获取行锁；<br>(2) TRANSACTION：此处表示事务2开始 ；<br>insert into t_bitfly values(5,5)：表示事务2在执行的sql<br>(2) HOLDS THE LOCK(S)：此处表示当前事务2持有的行锁；<br>(2) WAITING FOR THIS LOCK TO BE GRANTED：此处表示当前事务2等待获取行锁；</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/12/10/windows下typora图床/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2019/12/10/windows下typora图床/" itemprop="url">windows下typora图床（附带阿里云教程）</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-10T00:43:56+08:00">
+                2019-12-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/日常工具/" itemprop="url" rel="index">
+                    <span itemprop="name">日常工具</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2019/12/10/windows下typora图床/" class="leancloud_visitors" data-flag-title="windows下typora图床（附带阿里云教程）">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,216
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  8
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="typora"><a href="#typora" class="headerlink" title="typora"></a>typora</h1><p>Typora是大家写博客、记笔记、写文档等日常使用场景下都会使用的一个MarkDown语法的软件，对于熟悉markdown语法和喜欢markdown简洁性的朋友来说，typora是不可或缺的工具。但是，对于图片处理，我们需要图床去将我们的本地图片（截图、流程图之类的）上传到第三方的对象存储上（当然自己的服务器也是可以的）。</p>
+<p>本文基于一个typora在windows下的小插件<a href="https://github.com/Thobian/typora-plugins-win-img" target="_blank" rel="noopener">windows下typora图床</a> 来实现实时的粘贴图片到typora即将你的图片上传到阿里云OSS上，并且替换的实现过程，github上已经其实写的比较明白了，但是还是想把自己接入的过程和踩得坑记录一下。</p>
+<p>对于typora的使用、阿里云OSS的使用（我记得一年只要个位数的钱）、markdown语法等网上有很多介绍和例子，下面是几个传送门：</p>
+<ol>
+<li><p><a href="https://help.aliyun.com/document_detail/31947.html" target="_blank" rel="noopener">阿里云对象存储</a> </p>
+</li>
+<li><p><a href="https://www.typora.io/" target="_blank" rel="noopener">typora.io</a></p>
+</li>
+<li><p><a href="https://www.markdownguide.org/basic-syntax/" target="_blank" rel="noopener">markdown语法</a></p>
+</li>
+</ol>
+<h1 id="typora图床"><a href="#typora图床" class="headerlink" title="typora图床"></a>typora图床</h1><h2 id="怎么发现的"><a href="#怎么发现的" class="headerlink" title="怎么发现的"></a>怎么发现的</h2><p>如果你没有图床，那么在你写博客的过程中如果要使用阿里云图片的外链，得是这样的操作。</p>
+<ol>
+<li>将图片上传到阿里云OSS对象存储上</li>
+</ol>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210201936-475640.png" alt="image-20191210201936023"></p>
+<ol start="2">
+<li>复制该图片的外链</li>
+</ol>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210202043-187642.png" alt="image-20191210202043284"></p>
+<ol start="3">
+<li>将外链用markdown语法粘贴到正文中</li>
+</ol>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210202126-882435.png" alt="image-20191210202125030"></p>
+<p>这真的真的相当麻烦。<em>(:з」∠)</em></p>
+<p>所以图床就是用来解决这个问题，但是之前用的图床（之前用过chrome的一个图床插件）都是也只是省去了你登录对象存储在页面上上传的这一步，最后就还是要复制生成的url然后到typora的文章中。</p>
+<p>这里就在网上搜了下typora的图床，看看有没有符合自己偷懒的想法的做法，一键截图之后复制到typora中然后就可以了。</p>
+<p>然后就是Google搜了下，发现第一条就是日常学（划）习（水）的网站——知乎。</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210202740-488773.png" alt="image-20191210202739755"></p>
+<p>于是就点开之后看到了typora的这个插件，进而有了这个文章</p>
+<h2 id="手工教程"><a href="#手工教程" class="headerlink" title="手工教程"></a>手工教程</h2><p>首先贴一下这个插件的地址：<a href="https://github.com/Thobian/typora-plugins-win-img" target="_blank" rel="noopener">github</a></p>
+<p>这个文档中和知乎的回答差不多，我们可以直接来到使用这里开始：</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210203153-947469.png" alt="image-20191210203153008"></p>
+<p>下载插件的代码到本地，这里不熟悉的github的同学可以直接点击图中的download zip即可。</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210203323-619092.png" alt="image-20191210203319035"></p>
+<p>解压之后可以看到有这些文件，和github上的目录对应</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210203431-481659.png" alt="image-20191210203431182"></p>
+<p>然后按照文档上的教程手工替换（复制plugins目录、替换window.html）到对应的typora安装目录下的resource\app目录下。替换完成之后的目录长这个样子。</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210203641-860142.png" alt="image-20191210203640933"></p>
+<p>然后就是对里面的代码进行自己OSS的配置了。</p>
+<p>打开plugins–&gt;image–&gt;upload.js文件（这里可以直接用记事本打开js文件，当然程序员自动sublime或者vscode。），拉到底就可以看到文档中说的init相关的代码。</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210203936-497519.png" alt="image-20191210203936380"></p>
+<p>然后复制文档上的阿里云这段配置，把整个473行替换掉。</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210214247-119600.png" alt="image-20191210204100544"></p>
+<p>接下来就按照注释（“//“后面的东西）来操作即可。</p>
+<p>首先插件作者建议你添加一个子账号来单独操作你的OSS，这里简单理解下就是在你的阿里云上你可以建立多个用户组，而每个用户组中可以建立多个子用户，通过对用户组或者用户来设置权限达到一定操作。插件其实是用代码去调用阿里云提供的API来操作上传图片的，所以你肯定要在本地的typora的配置代码里填上一个关联你OSS的账号并且配置对应的权限才能成功上传图片；同时，出于安全考虑，你的这个账号应该只对你的OSS有写入和读的操作权限，所以建议来个子账号专门搞这个事情。</p>
+<p>作者其实这里写的也很明白了，包括申请子用户的地址：<code>https://ram.console.aliyun.com/users</code></p>
+<p>打开之后点击新建用户，即可看到让你填用户账户信息。<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210204749-103389.png" alt="image-20191210204747378"></p>
+<p>当然这里也可以直接添加用户组，然后在组下面添加用户。</p>
+<p>填写你想要的登录名称（复杂点也没关系，在后面配置一般是关键字搜索选择的）、显示名称和勾选上<strong>编程访问</strong>。这里的编程访问我们也可以清楚看到是通过assess信息来支持开发者调用API访问的用户。</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210205105-966090.png" alt="image-20191210205026239"></p>
+<p>点击确定，这时要收一个验证码：</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210214247-283734.png" alt="image-20191210205203529"></p>
+<p>填写完之后这步很关键，可以看到会在页面上告知你一个accessKeyId和accessKeySercret，但是坑的地方是这个授权key的值只有在创建的这个页面才能看到，之后就看不到了，所以这里一定要进行复制或者保存这两个值。可以看到页面上也提供了对这两个值的复制功能。</p>
+<p><img src="C:\Users\hasee\AppData\Roaming\Typora\typora-user-images\image-20191210205455114.png" alt="image-20191210205455114"></p>
+<p>这时候就要给这个用户去设置权限。刚创建的子用户是没有任何权限的，这里你既然要对OSS进行上传写入的操作，肯定要给这个账户权限，可以看到在用户界面有拟刚才创建的子用户，并且可以配置权限</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210205723-594012.png" alt="image-20191210205719451"></p>
+<p>这里在权限搜索框内输入OSS，就可以看到我们要配置的权限（管理OSS的权限），点击确定即可。</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210205901-495252.png" alt="image-20191210205859885"></p>
+<p>到这里，init代码中需要的前三项就都有了。</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210210321-914840.png" alt="image-20191210210321356"></p>
+<p>还剩个bucketDomain，这里作者其实也说的很明白了，在你的OSS概览页面上，会有对应的bucket域名，这里挑选一个即可，我挑选的是外网访问的这个bucket域名</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210210534-200940.png" alt="image-20191210210533111"></p>
+<p>其实文档到这步也就没有了，我就以为是OK了，然后就很有自信的去保存了修改后的js文件去试了下。果然，不行<em>(:з」∠)</em>。</p>
+<p>一直在提示我<code>服务响应解析失败，错误</code>。之后又对了遍文档发现也没漏啥。最后还是选择去看了upload代码。</p>
+<p>首先这个错误肯定是作者定义的，然后就在upload.js中看到了这个错误。</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210210950-512239.png" alt="image-20191210210949483"></p>
+<p>这里可以看到其实是调用接口异常了，所以返回的这个错误，所以大概率是刚才配置的问题，再往上翻才看到原来除了文件底部的init方法之外，还要去配置下代码中的setting信息，这里稍微吐槽下为啥文档里没有写（没有，就是我前端不熟就没看代码，菜是原罪= =）。</p>
+<p>在setting配置里有这段代码：<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210214248-66258.png" alt="image-20191210211346838"></p>
+<p>可以看到请求的域名和API访问是从这里解析的，所以你不配置这里，默认会用作者写死的jiebianjin去访问接口，当然调不通了（因为阿里云上并没有这个子用户）。这里还是刚才的accessKey信息和bucket信息。这里看到了设置了过期时间和上传的大小限制，进而手工改了下大小限制，默认是512k，我这里放大到了5M。</p>
+<p>之后保存之后，又信心满满的去试了下，卧槽，居然还是报错。然后又对了下文档中的配置。</p>
+<p>无奈打开了调试，typora其实就是个浏览器= =。windows下shift+f12是调试工具。这里没有把当时报错的接口的截图贴上，当时忘记截图了，这里是我在写这篇博客的时候调试截图的。通过一顿分析发现自己在配置BucketDomain的时候，忘记在最后加上一个反斜杠。这里大家在配置的过程中也可以注意下。</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210212015-416701.png" alt=""></p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210212848-345879.png" alt="image-20191210212848266"></p>
+<h2 id="给插件的建议"><a href="#给插件的建议" class="headerlink" title="给插件的建议"></a>给插件的建议</h2><p>首先感谢插件作者 @Thobian 大佬写了这个插件，真的在typora下很方便，应该以后会比较重度使用。这里提几个建议。</p>
+<ul>
+<li>完善各个厂商对象存储的配置教程，其实腾讯云OSS我也用过，和阿里云大同小异。</li>
+<li>点击再上传这个功能可以加个弹窗之类的中间过程（不能省这个我get到，因为可能失败要重传），在写文过程中点击到图片会自动再上传一次，OSS上会有比较多的重复文件，不好管理</li>
+<li>接第二条，我在写文过程中喜欢<code>ctrl+s</code>保存，这个好像也会把我的图片再重新上传一次（不太确定），也会造成大量的相同文件。</li>
+<li>性能上有时会卡顿，如果是阿里云接口的锅当我没说哈<em>(:з」∠)</em>。</li>
+<li>继续开发更好的功能给大家用，会一如既往的支持的~</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/12/09/方法引用拾遗/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2019/12/09/方法引用拾遗/" itemprop="url">方法引用拾遗</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-09T16:53:39+08:00">
+                2019-12-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java语法/" itemprop="url" rel="index">
+                    <span itemprop="name">Java语法</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java语法/Java8/" itemprop="url" rel="index">
+                    <span itemprop="name">Java8</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2019/12/09/方法引用拾遗/" class="leancloud_visitors" data-flag-title="方法引用拾遗">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  955
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  4
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="方法引用"><a href="#方法引用" class="headerlink" title="方法引用"></a>方法引用</h2><p>方法引用是java8引入lambda表达式之后的一个特性，在日常的开发工作中经常使用，可以看做是一种函数指针（function pointer），也可以简单看做lambda表达式的一种语法糖。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/blog/2019/12/09/方法引用拾遗/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/08/04/使用-DependsOn解决一个spring启动问题/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1852,636 +2533,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/05/20/jvm参数分类/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2019/05/20/jvm参数分类/" itemprop="url">JVM参数分类</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-20T00:17:24+08:00">
-                2019-05-20
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Java基础/" itemprop="url" rel="index">
-                    <span itemprop="name">Java基础</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Java基础/JVM/" itemprop="url" rel="index">
-                    <span itemprop="name">JVM</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2019/05/20/jvm参数分类/" class="leancloud_visitors" data-flag-title="JVM参数分类">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  512
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  2
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="JVM参数的分类"><a href="#JVM参数的分类" class="headerlink" title="JVM参数的分类"></a>JVM参数的分类</h2><p>常用的JVM参数可以大致的分为三类，下边简单的将JVM的参数做一个分类，作为一个JVM参数的简单总结。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/blog/2019/05/20/jvm参数分类/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/05/19/redis命令拾遗(字符串操作)/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2019/05/19/redis命令拾遗(字符串操作)/" itemprop="url">redis命令拾遗(字符串操作)</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-19T01:09:46+08:00">
-                2019-05-19
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/redis/" itemprop="url" rel="index">
-                    <span itemprop="name">redis</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2019/05/19/redis命令拾遗(字符串操作)/" class="leancloud_visitors" data-flag-title="redis命令拾遗(字符串操作)">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1,187
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  4
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>前一段时间一直在忙，拉下了一些知识的学习，现在努力追赶修补中。= =</p>
-<p>当然也有一些新的知识的学习，但其实更多的是关于一些知识的拾遗。之前在工作当中发现对redis命令掌握的还不是很完善，所以想花比较少的碎片时间去写一下redis常用命令的拾遗。</p>
-<h2 id="redis命令"><a href="#redis命令" class="headerlink" title="redis命令"></a>redis命令</h2><p>对这些命令的拾遗记录是在网站：<a href="http://redisdoc.com/" target="_blank" rel="noopener">http://redisdoc.com</a>上进行学习的，很简单明了，推荐给大家进行学习拾遗。</p>
-<p>这里只是把日常会被忽略或者遗忘的点进行一下梳理，并不是每个知识点的一个总结。</p>
-<h3 id="字符串操作"><a href="#字符串操作" class="headerlink" title="字符串操作"></a>字符串操作</h3><p>####set命令</p>
-<p>set可以通过一系列参数进行修改：</p>
-<ul>
-<li>ex seconds ：将键的过期时间设置为seconds秒，具体的命令是set key value EX seconds。等同于执行setex key second value。</li>
-<li>px milliseconds：和ex一样，只不过单位是毫秒，具体的命令是 set key value PX milliseconds。等同于执行psetex key milliseconds value。</li>
-<li>nx / xx： set key value nx等价于 setnx key value；set key value xx是当键存在才设置值，没有setxx这个吗命令，这两个设置值失败的时候，set命令会返回nil，而直接使用setnx命令，则返回的是0和1。</li>
-</ul>
-<h4 id="setex命令"><a href="#setex命令" class="headerlink" title="setex命令"></a>setex命令</h4><p>setex命令效果等价于执行下边两个命令：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span> key value</span><br><span class="line">expire key seconds</span><br></pre></td></tr></table></figure>
-<p>但是不同的是，setex是一个原子的操作，它是在同一时间完成设置值和过期时间的操作，经常用在存储缓存时候。</p>
-<p>setex设置成功时候 返回ok。</p>
-<p>同样psetex只是单位是毫秒而已。</p>
-<h4 id="get命令"><a href="#get命令" class="headerlink" title="get命令"></a>get命令</h4><p>get命令不用多说，但是注意get命令只是用在字符串操作，如果key对应的值不是字符串类型，那么返回一个错误。</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/WX20190519-020316.png" alt=""></p>
-<h4 id="getset命令"><a href="#getset命令" class="headerlink" title="getset命令"></a>getset命令</h4><p>此命令的作用是：将key设置为value，并且返回key在被设置之前的值。如果key之前不存在，则返回nil。当键key存在但不是字符串时，会报错。</p>
-<h4 id="strlen命令"><a href="#strlen命令" class="headerlink" title="strlen命令"></a>strlen命令</h4><p>返回字符串key的长度，当key不是字符串时，返回一个错误。如果key不存在，返回0。</p>
-<h4 id="append命令"><a href="#append命令" class="headerlink" title="append命令"></a>append命令</h4><p>append命令：如果已经存在key并且它的值是一个字符串，append命令将value追加到key对应值的末尾。如果key不存在，append命令会像执行set key value一样将值设置为对应的key的值。</p>
-<p>append命令的返回值是值字符串的长度。</p>
-<p>注意append的时间复杂度是平摊o(1)</p>
-<h4 id="setrange-key-offset-value"><a href="#setrange-key-offset-value" class="headerlink" title="setrange key offset value"></a>setrange key offset value</h4><p>指从偏移量offset开始，用value参数覆写value值。这个命令会确保字符串足够长以便于设置value到对应的偏移量。比如字符串只有5个字符长，但设置的offset是10，那么会在原来字符串值到偏移量之间设置零字节(“\x00”)进行填充。</p>
-<p>这个命令的返回值是被修改之后字符串值的长度</p>
-<h4 id="getrange-key-start-end"><a href="#getrange-key-start-end" class="headerlink" title="getrange key start end"></a>getrange key start end</h4><p>这个命令指的是返回键key对应的字符串值的指定部分，字符串的截取范围由start end两个参数决定(包括start和end在内)。start和end支持负数偏移量，-1代表最后一个字符，-2代表倒数第二个字符。但是注意只能按照字符串顺序获取，不能倒序获取<strong>(比如 getrange key -1 -3)</strong></p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/getrange%E5%91%BD%E4%BB%A4.png" alt=""></p>
-<h4 id="incr-key"><a href="#incr-key" class="headerlink" title="incr key"></a>incr key</h4><p>incr虽然是自增的含义命令，但其实是一个属于字符串的操作，redis并未提供一个专用的整数类型，所以键key存储的值在执行incr命令的时候会被翻译解释为十进制64位有符号整数。</p>
-<p>如果incr操作的key值对应不存在，那么先会初始化为0，然后再执行incr命令。</p>
-<p>如果key值不能被解释为数字，那么会返回一个错误。</p>
-<h4 id="incrby-key-increment"><a href="#incrby-key-increment" class="headerlink" title="incrby key increment"></a>incrby key increment</h4><p>和incr一样的含义，只不过有递增量为increment。同样的递减是有对应的decr key和decrby key decrement。</p>
-<h4 id="incrbyfloat-key-increment"><a href="#incrbyfloat-key-increment" class="headerlink" title="incrbyfloat key increment"></a>incrbyfloat key increment</h4><p>这个就是针对浮点数的增加计算。注意incrbyfloat命令计算的结果最多只保留小数点后面17位。</p>
-<h4 id="mset-key-value-key-value-…"><a href="#mset-key-value-key-value-…" class="headerlink" title="mset key value [key value …]"></a>mset key value [key value …]</h4><p>同时为多个键设置值，这个命令是一个原子操作，所有给定键会在同一时间内被设置，并且具有set的特性，会覆盖key对应原来的值。如果仅是在不存在的情况下设置值，可以用msetnx，msetnx也是一个原子操作，如果多个key中有一个key没有设置上，那么所有的key都不会设置对应的值。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/03/31/dubbo基础（五）——dubbo接口的特性设置/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2019/03/31/dubbo基础（五）——dubbo接口的特性设置/" itemprop="url">dubbo基础（五）——dubbo接口的特性设置</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-31T16:53:39+08:00">
-                2019-03-31
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/dubbo/" itemprop="url" rel="index">
-                    <span itemprop="name">dubbo</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2019/03/31/dubbo基础（五）——dubbo接口的特性设置/" class="leancloud_visitors" data-flag-title="dubbo基础（五）——dubbo接口的特性设置">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1,405
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  5
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="dubbo的一些配置"><a href="#dubbo的一些配置" class="headerlink" title="dubbo的一些配置"></a>dubbo的一些配置</h2><p>之前的文章中写了dubbo的初步使用和dubbo和springboot的使用整合，这里来总结下dubbo框架暴露接口常用的配置项。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/blog/2019/03/31/dubbo基础（五）——dubbo接口的特性设置/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2536,7 +2587,7 @@
               
                 <a href="/blog/archives/">
               
-                  <span class="site-state-item-count">105</span>
+                  <span class="site-state-item-count">108</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2558,7 +2609,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/blog/tags/index.html">
-                  <span class="site-state-item-count">112</span>
+                  <span class="site-state-item-count">115</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -2632,7 +2683,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">152.1k</span>
+    <span title="Site words total count">158.6k</span>
   
 </div>
 
@@ -2654,7 +2705,7 @@
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共152.1k字</span>
+  <span class="post-count">博客全站共158.6k字</span>
 </div>
 
 <br />

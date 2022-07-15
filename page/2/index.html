@@ -297,6 +297,244 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2021/07/14/Redisson实现分布式锁/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2021/07/14/Redisson实现分布式锁/" itemprop="url">Redisson实现分布式锁</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-07-14T07:23:04+08:00">
+                2021-07-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/分布式锁/" itemprop="url" rel="index">
+                    <span itemprop="name">分布式锁</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2021/07/14/Redisson实现分布式锁/" class="leancloud_visitors" data-flag-title="Redisson实现分布式锁">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,221
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  6
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="Redisson实现分布式锁的基本原理"><a href="#Redisson实现分布式锁的基本原理" class="headerlink" title="Redisson实现分布式锁的基本原理"></a>Redisson实现分布式锁的基本原理</h1><h2 id="锁实例代码"><a href="#锁实例代码" class="headerlink" title="锁实例代码"></a>锁实例代码</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        Config config = <span class="keyword">new</span> Config();</span><br><span class="line">        <span class="comment">// 单机地址</span></span><br><span class="line">        config.useSingleServer().setAddress(<span class="string">"redis://127.0.0.1:6379"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取redisson的client</span></span><br><span class="line">        RedissonClient redissonClient = Redisson.create(config);</span><br><span class="line">        RLock lock = redissonClient.getLock(<span class="string">"distribute-lock-key"</span>);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i=<span class="number">0</span>; i &lt; <span class="number">100</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line"><span class="comment">//                    lock.tryLock(2000, 1000, TimeUnit.MILLISECONDS);</span></span><br><span class="line">                    <span class="comment">// 写入：redis是hash结构：</span></span><br><span class="line">                            <span class="comment">// key：distribute-lock-key</span></span><br><span class="line">                            <span class="comment">// field:随机数:线程id</span></span><br><span class="line">                            <span class="comment">// value：重入次数</span></span><br><span class="line">                    lock.lock(<span class="number">1000</span>, TimeUnit.MILLISECONDS);</span><br><span class="line">                    count++;</span><br><span class="line">                    System.out.println(<span class="string">"线程"</span> + Thread.currentThread().getName() + <span class="string">"获取到了锁 当前count:"</span> + count);</span><br><span class="line">                    <span class="comment">// 模拟业务线程的执行</span></span><br><span class="line">                    Thread.sleep(<span class="number">200</span>);</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        <span class="comment">// 尝试重入  value是重入次数</span></span><br><span class="line">                        lock.lock(<span class="number">1000</span>, TimeUnit.MILLISECONDS);</span><br><span class="line">                        Thread.sleep(<span class="number">300</span>);</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                        lock.unlock();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                    lock.unlock();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;).start();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">new</span> CountDownLatch(<span class="number">1</span>).await();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<h2 id="lock操作加锁"><a href="#lock操作加锁" class="headerlink" title="lock操作加锁"></a>lock操作加锁</h2><p>关键代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&lt;T&gt; <span class="function">RFuture&lt;T&gt; <span class="title">tryLockInnerAsync</span><span class="params">(<span class="keyword">long</span> leaseTime, TimeUnit unit, <span class="keyword">long</span> threadId, RedisStrictCommand&lt;T&gt; command)</span> </span>&#123;</span><br><span class="line">    internalLockLeaseTime = unit.toMillis(leaseTime);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 运用lua脚本完成加锁逻辑</span></span><br><span class="line">    <span class="keyword">return</span> commandExecutor.evalWriteAsync(getName(), LongCodec.INSTANCE, command,</span><br><span class="line">              <span class="string">"if (redis.call('exists', KEYS[1]) == 0) then "</span> +</span><br><span class="line">                  <span class="string">"redis.call('hset', KEYS[1], ARGV[2], 1); "</span> +</span><br><span class="line">                  <span class="string">"redis.call('pexpire', KEYS[1], ARGV[1]); "</span> +</span><br><span class="line">                  <span class="string">"return nil; "</span> +</span><br><span class="line">              <span class="string">"end; "</span> +</span><br><span class="line">              <span class="string">"if (redis.call('hexists', KEYS[1], ARGV[2]) == 1) then "</span> +</span><br><span class="line">                  <span class="string">"redis.call('hincrby', KEYS[1], ARGV[2], 1); "</span> +</span><br><span class="line">                  <span class="string">"redis.call('pexpire', KEYS[1], ARGV[1]); "</span> +</span><br><span class="line">                  <span class="string">"return nil; "</span> +</span><br><span class="line">              <span class="string">"end; "</span> +</span><br><span class="line">              <span class="string">"return redis.call('pttl', KEYS[1]);"</span>,</span><br><span class="line">              <span class="comment">// 传入lua脚本的参数</span></span><br><span class="line">                Collections.&lt;Object&gt;singletonList(getName()), internalLockLeaseTime, getLockName(threadId));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>逻辑是运用了redis的lua脚本去完成加锁逻辑。可以分开看：</p>
+<h3 id="第一段"><a href="#第一段" class="headerlink" title="第一段"></a>第一段</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"if (redis.call('exists', KEYS[1]) == 0) then "</span> +</span><br><span class="line">                      <span class="string">"redis.call('hset', KEYS[1], ARGV[2], 1); "</span> +</span><br><span class="line">                      <span class="string">"redis.call('pexpire', KEYS[1], ARGV[1]); "</span> +</span><br><span class="line">                      <span class="string">"return nil; "</span> +</span><br><span class="line">                  <span class="string">"end;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>这里KEYS[1]就是锁的key，即redissonClient.getLock(“distribute-lock-key”)中的distribute-lock-key。</li>
+<li>AVG[2]是field的值，Redisson使用的是redis的hash结构。这里是 uuid:threadId。因为存在多台机器，所以会加上一个uuid。</li>
+<li>AVG[1]是设置key的过期时间。</li>
+</ul>
+<p>这段逻辑流程是：</p>
+<ul>
+<li>判断distribute-lock-key 在redis中是否存在，结果为0是不存在、<ul>
+<li>不存在调用hset key uuid:threadId 1 设置key、uuid:threadId是field、value是1。</li>
+<li>设置过期时间</li>
+<li>返回null代表成功。</li>
+</ul>
+</li>
+</ul>
+<h3 id="第二段"><a href="#第二段" class="headerlink" title="第二段"></a>第二段</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"if (redis.call('hexists', KEYS[1], ARGV[2]) == 1) then "</span> +</span><br><span class="line">                     <span class="string">"redis.call('hincrby', KEYS[1], ARGV[2], 1); "</span> +</span><br><span class="line">                     <span class="string">"redis.call('pexpire', KEYS[1], ARGV[1]); "</span> +</span><br><span class="line">                     <span class="string">"return nil; "</span> +</span><br><span class="line">                 <span class="string">"end;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>如果存在key、field hash值<ul>
+<li>此时就是重入场景，把对应的value加一即可。 命令是hincrby </li>
+<li>再次设置下过期时间，这里相当于完成了一次锁续期。pexpire</li>
+<li>返回null表示成功。</li>
+</ul>
+</li>
+</ul>
+<h3 id="第三段"><a href="#第三段" class="headerlink" title="第三段"></a>第三段</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis.call(<span class="string">'pttl'</span>, KEYS[<span class="number">1</span>]);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>这里的场景是redis中存在key这把锁，但持有锁的不是当前线程，即锁被别的线程持有。这时候调用 pttl命令返回key的过期时间。</li>
+</ul>
+<p>这里知道了加锁场景下，如果返回了null说明加锁成功，返回过期时间说明锁被占用。 拿到结果之后，可以根据ttl进行重试加锁。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">lockInterruptibly</span><span class="params">(<span class="keyword">long</span> leaseTime, TimeUnit unit)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        <span class="keyword">long</span> threadId = Thread.currentThread().getId();</span><br><span class="line">        <span class="comment">// 内部调用了lua加锁逻辑</span></span><br><span class="line">        Long ttl = tryAcquire(leaseTime, unit, threadId);</span><br><span class="line">        <span class="comment">// lock acquired</span></span><br><span class="line">        <span class="keyword">if</span> (ttl == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">// 为null 加锁成功返回</span></span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 如果ttl不是null 订阅对应key等待锁删除时的通知 </span></span><br><span class="line">        <span class="comment">// 释放锁的时候会订阅key的客户端可以收到通知</span></span><br><span class="line">        RFuture&lt;RedissonLockEntry&gt; future = subscribe(threadId);</span><br><span class="line">        commandExecutor.syncSubscription(future);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">            <span class="comment">// 再次尝试获取</span></span><br><span class="line">                ttl = tryAcquire(leaseTime, unit, threadId);</span><br><span class="line">                <span class="comment">// lock acquired</span></span><br><span class="line">                <span class="keyword">if</span> (ttl == <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="comment">// 获取到跳出循环</span></span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment">// waiting for message</span></span><br><span class="line">                <span class="keyword">if</span> (ttl &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="comment">// ttl大于0 去利用semaphore的tryAcquire去阻塞获取 内部是Semaphore(0)</span></span><br><span class="line">             getEntry(threadId).getLatch().tryAcquire(ttl, TimeUnit.MILLISECONDS);</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="comment">// 小于0去调用 Semaphore的acquire()获取</span></span><br><span class="line">                   getEntry(threadId).getLatch().acquire();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            unsubscribe(future, threadId);</span><br><span class="line">        &#125;</span><br><span class="line"><span class="comment">//        get(lockAsync(leaseTime, unit));</span></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>Redisson加锁流程总结：<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701072404582.png" alt="image-20220701072404582"></p>
+<h2 id="unlock解锁流程"><a href="#unlock解锁流程" class="headerlink" title="unlock解锁流程"></a>unlock解锁流程</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">rotected RFuture&lt;Boolean&gt; <span class="title">unlockInnerAsync</span><span class="params">(<span class="keyword">long</span> threadId)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> evalWriteAsync(getRawName(), LongCodec.INSTANCE, RedisCommands.EVAL_BOOLEAN,</span><br><span class="line">                          <span class="string">"if (redis.call('hexists', KEYS[1], ARGV[3]) == 0) then "</span> +</span><br><span class="line">                          <span class="string">"return nil;"</span> +</span><br><span class="line">                          <span class="string">"end; "</span> +</span><br><span class="line">                          <span class="string">"local counter = redis.call('hincrby', KEYS[1], ARGV[3], -1); "</span> +</span><br><span class="line">                          <span class="string">"if (counter &gt; 0) then "</span> +</span><br><span class="line">                          <span class="string">"redis.call('pexpire', KEYS[1], ARGV[2]); "</span> +</span><br><span class="line">                          <span class="string">"return 0; "</span> +</span><br><span class="line">                          <span class="string">"else "</span> +</span><br><span class="line">                          <span class="string">"redis.call('del', KEYS[1]); "</span> +</span><br><span class="line">                          <span class="string">"redis.call('publish', KEYS[2], ARGV[1]); "</span> +</span><br><span class="line">                          <span class="string">"return 1; "</span> +</span><br><span class="line">                          <span class="string">"end; "</span> +</span><br><span class="line">                          <span class="string">"return nil;"</span>,</span><br><span class="line">                          Arrays.asList(getRawName(), getChannelName()), LockPubSub.UNLOCK_MESSAGE, internalLockLeaseTime, getLockName(threadId));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这段lua脚本的逻辑：</p>
+<ul>
+<li>如果hexists命令调用之后发现key、field的hash结构不存在，（lock(leaseTime)没有watchDog机制续约锁），那就是锁超时过期释放了，无需释放直接返回。</li>
+<li>如果当前线程持有锁（也就是key、field的hash结构存在）<ul>
+<li>给锁的的value-1。hincrby key uuid:tid -1命令。 返回null</li>
+<li>判断减1之后的值，如果还大于0，说明是锁重入场景的解锁。这里去锁续期一下（默认30s）。返回0</li>
+<li>减1之后为0，去删除key，然后发布删除key通知。（redis的发布订阅模式 pub/sub）</li>
+<li>返回1代表解锁成功。</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701072421914.png" alt="image-20220701072421914"></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2021/07/12/redis实现分布式锁/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2059,7 +2297,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2021/05/01/redis缓存一致性相关问题/">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2021/05/15/dubbo负载均衡算法/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="夸克">
@@ -2078,7 +2316,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/blog/2021/05/01/redis缓存一致性相关问题/" itemprop="url">redis缓存一致性相关问题</a></h1>
+                <a class="post-title-link" href="/blog/2021/05/15/dubbo负载均衡算法/" itemprop="url">dubbo负载均衡算法</a></h1>
         
 
         <div class="post-meta">
@@ -2090,8 +2328,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-05-01T11:28:29+08:00">
-                2021-05-01
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-05-15T23:59:46+08:00">
+                2021-05-15
               </time>
             
 
@@ -2113,8 +2351,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/redis/" itemprop="url" rel="index">
-                    <span itemprop="name">redis</span>
+                  <a href="/blog/categories/dubbo/" itemprop="url" rel="index">
+                    <span itemprop="name">dubbo</span>
                   </a>
                 </span>
 
@@ -2130,7 +2368,7 @@
 
           
           
-             <span id="/blog/2021/05/01/redis缓存一致性相关问题/" class="leancloud_visitors" data-flag-title="redis缓存一致性相关问题">
+             <span id="/blog/2021/05/15/dubbo负载均衡算法/" class="leancloud_visitors" data-flag-title="dubbo负载均衡算法">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -2156,7 +2394,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1,883
+                  4,226
                 </span>
               
 
@@ -2172,204 +2410,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  6
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p><a href="https://mp.weixin.qq.com/s/4W7vmICGx6a_WX701zxgPQ" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/4W7vmICGx6a_WX701zxgPQ</a></p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/blog/2021/05/01/redis缓存一致性相关问题/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2021/04/21/redis底层存储数据结构/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2021/04/21/redis底层存储数据结构/" itemprop="url">redis底层存储数据结构</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-04-21T07:01:15+08:00">
-                2021-04-21
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/redis/" itemprop="url" rel="index">
-                    <span itemprop="name">redis</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2021/04/21/redis底层存储数据结构/" class="leancloud_visitors" data-flag-title="redis底层存储数据结构">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  2,480
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  9
+                  19
                 </span>
               
             </div>
@@ -2392,91 +2433,49 @@
       
         
           
-            <h1 id="RedisKV设计原理"><a href="#RedisKV设计原理" class="headerlink" title="RedisKV设计原理"></a>RedisKV设计原理</h1><h2 id="Redis底层数据结构"><a href="#Redis底层数据结构" class="headerlink" title="Redis底层数据结构"></a>Redis底层数据结构</h2><p>Redis底层有SDS（简单动态字符串）、链表（list)、字典（ht-hashtable）、跳跃表（SkipList）、整数集合（intset）、压缩链表（ziplist）、quicklist等数据结构。Redis使用这些底层数据结构实现key、value的存储。</p>
-<h3 id="Redis数据库的key和value是怎么存储的"><a href="#Redis数据库的key和value是怎么存储的" class="headerlink" title="Redis数据库的key和value是怎么存储的"></a>Redis数据库的key和value是怎么存储的</h3><p>整个Redis中所有的key和value组成了一个全局字典，存储在RedisDb数据结构中。</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701070153549.png" alt="image-20220701070153549"></p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701070203576.png" alt="image-20220701070203576"></p>
+            <h2 id="dubbo负载均衡"><a href="#dubbo负载均衡" class="headerlink" title="dubbo负载均衡"></a>dubbo负载均衡</h2><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220716000024390.png" alt="image-20220716000024390"></p>
+<p>LoadBalance（负载均衡）的职责是将网络请求或者其他形式的负载“均摊”到不同的服务节点上，从而避免服务集群中部分节点压力过大、资源紧张，而另一部分节点比较空闲的情况。</p>
+<p>dubbo提供了5种负载均衡实现，</p>
 <ul>
-<li>RedisDb：结构包含一个字典dict，还包含一些过期键值对等dict字典值。</li>
-<li>dict：dict是字典结构，保存键值的抽象数据结构，包含两个hash表，供平时和rehash时候使用。hash表使用链地址法来解决键冲突，对hash表进行扩容或者缩容的时候，为了服务的可用性，rehash的过程不是一次性完成的，而是渐进式的。</li>
-<li>dictht：即字典的dict的hashtable结构，包含多个dictEntry节点的数组。</li>
-<li>dicEntry：真正包装key、value的抽象存储结构，包含key(key都是string类型的)和value结构。value即可以通过RedisObject包装为不同的基础数据类型。</li>
+<li>一致性hash的负载均衡算法 ConsistentHashLoadBalance</li>
+<li>基于权重随机算法 RandomLoadBalance</li>
+<li>基于最小活跃调用数算法 LeastActiveLoadBalance</li>
+<li>基于加权轮询算法的 RoundRobinLoadBalance</li>
+<li>基于最短响应时间的算法  ShortestResponseLoadBalance</li>
 </ul>
-<h4 id="Redis中的字典是怎么扩容的。（什么是redis的渐进式rehash）"><a href="#Redis中的字典是怎么扩容的。（什么是redis的渐进式rehash）" class="headerlink" title="Redis中的字典是怎么扩容的。（什么是redis的渐进式rehash）"></a>Redis中的字典是怎么扩容的。（什么是redis的渐进式rehash）</h4><p>存放dictEntry的数组在容量不足时，肯定需要扩容，上看可以看到dict中持有两个dictht 哈希表，即ht[0]和ht[1]。在扩容的时候，把ht[0]里的值rehash到ht[1]，这是一个渐进式hash的过程。</p>
+<h3 id="AbstractLoadBalance"><a href="#AbstractLoadBalance" class="headerlink" title="AbstractLoadBalance"></a>AbstractLoadBalance</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">AbstractLoadBalance</span> <span class="keyword">implements</span> <span class="title">LoadBalance</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">calculateWarmupWeight</span><span class="params">(<span class="keyword">int</span> uptime, <span class="keyword">int</span> warmup, <span class="keyword">int</span> weight)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 计算权重，随着服务运行时间uptime增大，权重ww的值会慢慢接近配置值weight</span></span><br><span class="line">        <span class="keyword">int</span> ww = (<span class="keyword">int</span>) ( uptime / ((<span class="keyword">float</span>) warmup / weight));</span><br><span class="line">        <span class="keyword">return</span> ww &lt; <span class="number">1</span> ? <span class="number">1</span> : (Math.min(ww, weight));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> &lt;T&gt; <span class="function">Invoker&lt;T&gt; <span class="title">select</span><span class="params">(List&lt;Invoker&lt;T&gt;&gt; invokers, URL url, Invocation invocation)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (CollectionUtils.isEmpty(invokers)) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (invokers.size() == <span class="number">1</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> invokers.get(<span class="number">0</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 委托给子类实现</span></span><br><span class="line">        <span class="keyword">return</span> doSelect(invokers, url, invocation);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">abstract</span> &lt;T&gt; <span class="function">Invoker&lt;T&gt; <span class="title">doSelect</span><span class="params">(List&lt;Invoker&lt;T&gt;&gt; invokers, URL url, Invocation invocation)</span></span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * AbstractLoadBalance提供的getWeight方法 用于计算Provider节点权重</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> invoker    the invoker</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> invocation the invocation of this invoker</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> weight</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">getWeight</span><span class="params">(Invoker&lt;?&gt; invoker, Invocation invocation)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> weight;</span><br><span class="line">        <span class="comment">// provider节点的url</span></span><br><span class="line">        URL url = invoker.getUrl();</span><br><span class="line">        <span class="comment">// Multiple registry scenario, load balance among multiple registries.</span></span><br><span class="line">        <span class="keyword">if</span> (REGISTRY_SERVICE_REFERENCE_PATH.equals(url.getServiceInterface())) &#123;</span><br><span class="line">            <span class="comment">// 如果是RegistryService接口的话 直接获取参数上的权重</span></span><br><span class="line">            weight = url.getParameter(REGISTRY_KEY + <span class="string">"."</span> + WEIGHT_KEY, DEFAULT_WEIGHT);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 从url中获取 权重</span></span><br><span class="line">            weight = url.getMethodParameter(invocation.getMethodName(), WEIGHT_KEY, DEFAULT_WEIGHT);</span><br><span class="line">            <span class="keyword">if</span> (weight &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">long</span> timestamp = invoker.getUrl().getParameter(TIMESTAMP_KEY, <span class="number">0L</span>);</span><br><span class="line">                <span class="keyword">if</span> (timestamp &gt; <span class="number">0L</span>) &#123;</span><br><span class="line">                    <span class="keyword">long</span> uptime = System.currentTimeMillis() - timestamp;</span><br><span class="line">                    <span class="keyword">if</span> (uptime &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">int</span> warmup = invoker.getUrl().getParameter(WARMUP_KEY, DEFAULT_WARMUP);</span><br><span class="line">                    <span class="keyword">if</span> (uptime &gt; <span class="number">0</span> &amp;&amp; uptime &lt; warmup) &#123;</span><br><span class="line">                        <span class="comment">// 对刚启动的provider节点 进行降权</span></span><br><span class="line">                        weight = calculateWarmupWeight((<span class="keyword">int</span>)uptime, warmup, weight);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> Math.max(weight, <span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <ul>
-<li>渐进式hash：是rehash过程并不是一次性、集中式的完成的，而是分多次、渐进式的完成的。</li>
+<li>select方法委托给具体的子类实现。</li>
+<li>提供了getWeight获取provider节点权重的方法，内部对刚启动的provider节点做了预热处理，即权重在时间内逐步接近配置的权重值。</li>
 </ul>
-<p>全部rehash完成之后，h[1]就取代h[0]存储字典中的元素。</p>
-<h4 id="Redis中的value存储结构"><a href="#Redis中的value存储结构" class="headerlink" title="Redis中的value存储结构"></a>Redis中的value存储结构</h4><p>value支持很多数据类型。比如String、list、hash、set、sorted set等。在redis中value（dictEntry中的val指针）是使用RedisObject表示的。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>  <span class="title">redisObejct</span>&#123;</span></span><br><span class="line">    <span class="keyword">unsigned</span> type; <span class="comment">// value对象类型</span></span><br><span class="line">    <span class="keyword">unsigned</span> encoding; <span class="comment">// 编码方式</span></span><br><span class="line">    lru:LRU_BITS； <span class="comment">// 淘汰时用</span></span><br><span class="line">    <span class="keyword">void</span> *ptr; <span class="comment">// 真正底层数据结构指针</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="Redis底层数据结构-1"><a href="#Redis底层数据结构-1" class="headerlink" title="Redis底层数据结构"></a>Redis底层数据结构</h2><p>常用的value基础数据类型和底层数据结构的映射关系：<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701070220161.png" alt="image-20220701070220161"></p>
-<h3 id="Redis中的字符串"><a href="#Redis中的字符串" class="headerlink" title="Redis中的字符串"></a>Redis中的字符串</h3><p>redis中所有的key都是用字符串存储的，而且redis没有直接使用c语言中的字符串。而是使用自己实现的简单动态字符串(sds)。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sdshdr</span> &#123;</span></span><br><span class="line">    <span class="comment">// 记录buf数组中已经使用的数量</span></span><br><span class="line">    <span class="comment">// 等于sdc所保存字符串的长度</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> len;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 记录buf数组中未使用字节的数量</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> <span class="built_in">free</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 字符数组 用于保存字符串</span></span><br><span class="line">    <span class="keyword">char</span> buf[];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701070236976.png" alt="image-20220701070236976"></p>
-<h4 id="Redis为什么不使用c语言字符串进行存储"><a href="#Redis为什么不使用c语言字符串进行存储" class="headerlink" title="Redis为什么不使用c语言字符串进行存储"></a>Redis为什么不使用c语言字符串进行存储</h4><p>C语言中的字符串使用了长度为N+1的字符数组来存储表示长度为N的字符串，并且字符数组最后一个元素总是\0。<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701070248344.png" alt="image-20220701070248344"></p>
-<p>存在的问题：</p>
+<h3 id="ConsistenHashLoadBalance-一致性hash负载均衡算法"><a href="#ConsistenHashLoadBalance-一致性hash负载均衡算法" class="headerlink" title="ConsistenHashLoadBalance 一致性hash负载均衡算法"></a>ConsistenHashLoadBalance 一致性hash负载均衡算法</h3><h4 id="一致性Hash算法简介"><a href="#一致性Hash算法简介" class="headerlink" title="一致性Hash算法简介"></a>一致性Hash算法简介</h4><p>一致性 Hash 负载均衡可以让参数相同的请求每次都路由到相同的服务节点上，这种负载均衡策略可以在某些 Provider 节点下线的时候，让这些节点上的流量平摊到其他 Provider 上，不会引起流量的剧烈波动。</p>
+<p>与直接对节点数取模不同，为了避免因一个 Provider 节点宕机，而导致大量请求的处理节点发生变化的情况，我们可以考虑使用一致性 Hash 算法。一致性 Hash 算法的原理也是取模算法，与 Hash 取模的不同之处在于：Hash 取模是对 Provider 节点数量取模，而一致性 Hash 算法是对 2^32 取模。其对Provider地址和请求参数对2^32取模。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hash(Provider地址) % 2^32</span><br><span class="line">hash(请求参数) % 2^32</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220716000052705.png" alt="image-20220716000052705"></p>
+<p>一致性hash可能存在流量倾斜的问题，解决方案就是为真实节点设置虚拟槽位，来通过虚拟槽位让节点在逻辑上分布的更加均匀。</p>
+<h4 id="dubbo中的一致性hash实现"><a href="#dubbo中的一致性hash实现" class="headerlink" title="dubbo中的一致性hash实现"></a>dubbo中的一致性hash实现</h4><p>dubbo为每个dubbo接口（serviceKey做区分）的方法，缓存了一个一致性Hash选择器 ConsistentHashSelector，主要负载均衡去选出具体的Provider节点的过程就是去调用Selector的select方法。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// key：serviceKey+methodName value：ConsistentHashSelector 这个缓存来为方法调用选择一致性hash选择器</span></span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">final</span> ConcurrentMap&lt;String, ConsistentHashSelector&lt;?&gt;&gt; selectors = <span class="keyword">new</span> ConcurrentHashMap&lt;String, ConsistentHashSelector&lt;?&gt;&gt;();</span><br></pre></td></tr></table></figure></p>
+<p>可以看到一致性hash负载均衡算法的doSelect的实现：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"> <span class="keyword">protected</span> &lt;T&gt; <span class="function">Invoker&lt;T&gt; <span class="title">doSelect</span><span class="params">(List&lt;Invoker&lt;T&gt;&gt; invokers, URL url, Invocation invocation)</span> </span>&#123;</span><br><span class="line">     String methodName = RpcUtils.getMethodName(invocation);</span><br><span class="line">     <span class="comment">// key是 service.methodName</span></span><br><span class="line">     String key = invokers.get(<span class="number">0</span>).getUrl().getServiceKey() + <span class="string">"."</span> + methodName;</span><br><span class="line"></span><br><span class="line">     <span class="comment">// using the hashcode of list to compute the hash only pay attention to the elements in the list</span></span><br><span class="line">     <span class="comment">// 这是为了在invokers列表发生变化时都会重新生成ConsistentHashSelector对象</span></span><br><span class="line">     <span class="keyword">int</span> invokersHashCode = invokers.hashCode();</span><br><span class="line">     <span class="comment">// 根据key从缓存中取</span></span><br><span class="line">     ConsistentHashSelector&lt;T&gt; selector = (ConsistentHashSelector&lt;T&gt;) selectors.get(key);</span><br><span class="line">     <span class="keyword">if</span> (selector == <span class="keyword">null</span> || selector.identityHashCode != invokersHashCode) &#123;</span><br><span class="line">         <span class="comment">// selector不存在 则去创建一个</span></span><br><span class="line">         selectors.put(key, <span class="keyword">new</span> ConsistentHashSelector&lt;T&gt;(invokers, methodName, invokersHashCode));</span><br><span class="line">         selector = (ConsistentHashSelector&lt;T&gt;) selectors.get(key);</span><br><span class="line">     &#125;</span><br><span class="line">     <span class="comment">// 通过selector 选择一个Invoker对象</span></span><br><span class="line">     <span class="keyword">return</span> selector.select(invocation);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure></p>
+<p>选择器ConsistentHashSelector的初始化构造函数和最终select负载均衡逻辑：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">ConsistentHashSelector</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 用于记录虚拟 Invoker 对象的 Hash 环。这里使用 TreeMap 实现 Hash 环，并将虚拟的 Invoker 对象分布在 Hash 环上。</span></span><br><span class="line">        <span class="comment">// 虚拟槽是为了节点在分配流量时更加均匀</span></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">final</span> TreeMap&lt;Long, Invoker&lt;T&gt;&gt; virtualInvokers;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 虚拟Invoker个数</span></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> replicaNumber;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Invoker集合的hashcode值</span></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> identityHashCode;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 需要参与hash计算的参数索引</span></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span>[] argumentIndex;</span><br><span class="line"></span><br><span class="line">        ConsistentHashSelector(List&lt;Invoker&lt;T&gt;&gt; invokers, String methodName, <span class="keyword">int</span> identityHashCode) &#123;</span><br><span class="line">            <span class="comment">// 初始化virtualInvokers字段，也就是虚拟Hash槽</span></span><br><span class="line">            <span class="keyword">this</span>.virtualInvokers = <span class="keyword">new</span> TreeMap&lt;Long, Invoker&lt;T&gt;&gt;();</span><br><span class="line">            <span class="comment">// 记录Invoker集合的hashCode，用该hashCode值来判断Provider列表是否发生了变化</span></span><br><span class="line">            <span class="keyword">this</span>.identityHashCode = identityHashCode;</span><br><span class="line">            URL url = invokers.get(<span class="number">0</span>).getUrl();</span><br><span class="line">            <span class="comment">// 获取配置的虚拟槽的个数 默认160个</span></span><br><span class="line">            <span class="keyword">this</span>.replicaNumber = url.getMethodParameter(methodName, HASH_NODES, <span class="number">160</span>);</span><br><span class="line">            <span class="comment">// 获取参与Hash计算的参数下标值，默认对第一个参数进行Hash运算</span></span><br><span class="line">            String[] index = COMMA_SPLIT_PATTERN.split(url.getMethodParameter(methodName, HASH_ARGUMENTS, <span class="string">"0"</span>));</span><br><span class="line">            argumentIndex = <span class="keyword">new</span> <span class="keyword">int</span>[index.length];</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; index.length; i++) &#123;</span><br><span class="line">                argumentIndex[i] = Integer.parseInt(index[i]);</span><br><span class="line">            &#125;</span><br><span class="line">           <span class="comment">// 构建虚拟Hash槽，默认replicaNumber=160，相当于在Hash槽上放160个槽位</span></span><br><span class="line">            <span class="keyword">for</span> (Invoker&lt;T&gt; invoker : invokers) &#123;</span><br><span class="line">                <span class="comment">// 循环当前的provider对应的invokers节点</span></span><br><span class="line">                String address = invoker.getUrl().getAddress();</span><br><span class="line">                <span class="comment">// 外层轮询40次，内层轮询4次，共40*4=160次，也就是同一节点虚拟出160个槽位</span></span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; replicaNumber / <span class="number">4</span>; i++) &#123;</span><br><span class="line">                    <span class="keyword">byte</span>[] digest = md5(address + i);</span><br><span class="line">                    <span class="keyword">for</span> (<span class="keyword">int</span> h = <span class="number">0</span>; h &lt; <span class="number">4</span>; h++) &#123;</span><br><span class="line">                        <span class="keyword">long</span> m = hash(digest, h);</span><br><span class="line">                        <span class="comment">// 构建Hash槽</span></span><br><span class="line">                        virtualInvokers.put(m, invoker);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> Invoker&lt;T&gt; <span class="title">select</span><span class="params">(Invocation invocation)</span> </span>&#123;</span><br><span class="line">            <span class="comment">// 将参与一致性Hash的参数拼接到一起</span></span><br><span class="line">            String key = toKey(invocation.getArguments());</span><br><span class="line">            <span class="comment">// 计算key的Hash值</span></span><br><span class="line">            <span class="keyword">byte</span>[] digest = md5(key);</span><br><span class="line">            <span class="comment">// 从hash环中去匹配Invoker对象</span></span><br><span class="line">            <span class="keyword">return</span> selectForKey(hash(digest, <span class="number">0</span>));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">private</span> Invoker&lt;T&gt; <span class="title">selectForKey</span><span class="params">(<span class="keyword">long</span> hash)</span> </span>&#123;</span><br><span class="line">            <span class="comment">// 从virtualInvokers集合（TreeMap是按照Key排序的）中查找第一个节点值大于或等于传入Hash值的Invoker对象</span></span><br><span class="line">            Map.Entry&lt;Long, Invoker&lt;T&gt;&gt; entry = virtualInvokers.ceilingEntry(hash);</span><br><span class="line">            <span class="keyword">if</span> (entry == <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="comment">// 如果Hash值大于Hash环中的所有Invoker，则回到Hash环的开头，返回第一个Invoker对象</span></span><br><span class="line">                entry = virtualInvokers.firstEntry();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> entry.getValue();</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="RandomLoadBalance-加权随机负载均衡算法"><a href="#RandomLoadBalance-加权随机负载均衡算法" class="headerlink" title="RandomLoadBalance 加权随机负载均衡算法"></a>RandomLoadBalance 加权随机负载均衡算法</h3><h4 id="加权随机算法"><a href="#加权随机算法" class="headerlink" title="加权随机算法"></a>加权随机算法</h4><p>RandomLoadBalance是dubbo默认的负载均衡算法。加权随机算法简单高效，可以通过一个例子来说明加权随机算法的核心思想。</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220716000109233.png" alt="image-20220716000109233"></p>
+<h4 id="dubbo中的加权随机的实现"><a href="#dubbo中的加权随机的实现" class="headerlink" title="dubbo中的加权随机的实现"></a>dubbo中的加权随机的实现</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Select one invoker between a list using a random criteria</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> invokers List of possible invokers</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> url URL</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> invocation Invocation</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> &lt;T&gt;</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@return</span> The selected invoker</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line">   <span class="keyword">protected</span> &lt;T&gt; <span class="function">Invoker&lt;T&gt; <span class="title">doSelect</span><span class="params">(List&lt;Invoker&lt;T&gt;&gt; invokers, URL url, Invocation invocation)</span> </span>&#123;</span><br><span class="line">       <span class="comment">// Number of invokers</span></span><br><span class="line">       <span class="keyword">int</span> length = invokers.size();</span><br><span class="line">       <span class="comment">// Every invoker has the same weight?</span></span><br><span class="line">       <span class="keyword">boolean</span> sameWeight = <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">       <span class="comment">// the weight of every invokers  Invokers对应的权重数组</span></span><br><span class="line">       <span class="keyword">int</span>[] weights = <span class="keyword">new</span> <span class="keyword">int</span>[length];</span><br><span class="line"></span><br><span class="line">       <span class="comment">// the first invoker's weight 计算第一个节点的权重 getWright是在AbstractLoadBalance中提供的公共能力</span></span><br><span class="line">       <span class="keyword">int</span> firstWeight = getWeight(invokers.get(<span class="number">0</span>), invocation);</span><br><span class="line">       weights[<span class="number">0</span>] = firstWeight;</span><br><span class="line"></span><br><span class="line">       <span class="comment">// The sum of weights 记录总权重</span></span><br><span class="line">       <span class="keyword">int</span> totalWeight = firstWeight;</span><br><span class="line"></span><br><span class="line">       <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; length; i++) &#123;</span><br><span class="line">           <span class="comment">// 获取每个节点的权重</span></span><br><span class="line">           <span class="keyword">int</span> weight = getWeight(invokers.get(i), invocation);</span><br><span class="line">           <span class="comment">// save for later use</span></span><br><span class="line">           weights[i] = weight;</span><br><span class="line">           <span class="comment">// Sum</span></span><br><span class="line">           totalWeight += weight;</span><br><span class="line">           <span class="keyword">if</span> (sameWeight &amp;&amp; weight != firstWeight) &#123;</span><br><span class="line">               <span class="comment">// 标记是否为全部一样的权重</span></span><br><span class="line">               sameWeight = <span class="keyword">false</span>;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">        <span class="comment">// 各个Invoker权重值不相等时，计算随机数落在哪个区间上</span></span><br><span class="line">       <span class="keyword">if</span> (totalWeight &gt; <span class="number">0</span> &amp;&amp; !sameWeight) &#123;</span><br><span class="line">           <span class="comment">// If (not every invoker has the same weight &amp; at least one invoker's weight&gt;0), select randomly based on totalWeight.</span></span><br><span class="line">           <span class="comment">// 随机获取一个[0, totalWeight)区间的内的数字</span></span><br><span class="line">           <span class="keyword">int</span> offset = ThreadLocalRandom.current().nextInt(totalWeight);</span><br><span class="line">           <span class="comment">// Return a invoker based on the random value.</span></span><br><span class="line">           <span class="comment">// 循环让offset数减去Invoker的权重值，当offset小于0时，返回相应的Invoker</span></span><br><span class="line">           <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; length; i++) &#123;</span><br><span class="line">               offset -= weights[i];</span><br><span class="line">               <span class="keyword">if</span> (offset &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                   <span class="keyword">return</span> invokers.get(i);</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="comment">// If all invokers have the same weight value or totalWeight=0, return evenly.</span></span><br><span class="line">       <span class="comment">// 如果总权重为0 或者 权重都相等 则随机返回一个</span></span><br><span class="line">       <span class="keyword">return</span> invokers.get(ThreadLocalRandom.current().nextInt(length));</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<p>其核心逻辑有三个关键点：</p>
 <ul>
-<li>获取字符串的效率复杂度高：C不保存字符串数组的长度，要获取长度要遍历数组。</li>
-<li>不能杜绝 缓冲区溢出/内存泄漏的问题：C语言一个问题可能造成缓冲区溢出的问题，从而导致内存泄漏。</li>
-<li>C只能保存文本数据：C中的字符串不是二进制安全的，redis某些场景也要存储音视频文件，如果遇到字符 ‘\0’会截断不安全。</li>
+<li>计算每个Invoker对应的权重及总权重值。</li>
+<li>每个Invoker权重值不相等时，计算随机数应该落在哪个Invoker区间中，返回对应的Invoker对象。计算的逻辑其实就是生成[0, 总权重)区间内的随机数<br>，然后循环每个节点的长度，第一个减去长度小于0的区间对应的节点即为按权重随机选择出的节点。</li>
+<li>如果各个Invoker权重相等，随机返回一个Invoker即可。方法也是生成一个随机数，从Invoker集合中按照随机数作为下标获取。 </li>
 </ul>
-<h4 id="Redis的sds怎么解决的"><a href="#Redis的sds怎么解决的" class="headerlink" title="Redis的sds怎么解决的"></a>Redis的sds怎么解决的</h4><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701070303502.png" alt="image-20220701070303502"></p>
-<ol>
-<li>在sds中增加了数组长度len，获取长度直接获取。时间复杂度O(1)。</li>
-<li>自动扩展空间：SDS对字符串修改时，根据free能检查是否满足修改所需的空间，不够的话SDS会自动扩容，避免了C语言存在的字符串溢出的问题。</li>
-<li>预分配内存有效降低内存分配次数，避免频繁扩容分配内存。SDS在扩容时是成倍的扩容的，这种预分配的机制避免了字符数组频繁扩容。</li>
-<li>二进制安全：C语言字符串只能保存ASCII码，对于图片、视频等是二进制不安全的。SDS除了兼容了C语言的字符串，同时对写入、读取不做过滤、分割，是二进制安全的。</li>
-</ol>
-<h3 id="Redis中的双端链表（linkedlist）"><a href="#Redis中的双端链表（linkedlist）" class="headerlink" title="Redis中的双端链表（linkedlist）"></a>Redis中的双端链表（linkedlist）</h3><p>redis的数组结构的value可以通过list结构来实现。（list底层数据结构还有ziplist压缩列表实现）</p>
-<p>Redis中的list是一个双向无环链表结构，每个链表的节点用listNode结构，每个节点有前驱节点和后置节点方便遍历。</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701070319748.png" alt="image-20220701070319748"></p>
-<ul>
-<li>listNode：list中的一个节点，包含value（值）和前驱和后置节点。</li>
-<li>list：list结构，包含head和tail节点，是维护节点。持有了链表头尾的指针。 </li>
-</ul>
-<h3 id="Redis中的ziplist"><a href="#Redis中的ziplist" class="headerlink" title="Redis中的ziplist"></a>Redis中的ziplist</h3><p>压缩列表是为了节约内存而开发的线性顺序数据结构，可以包含多个节点，每个节点可以保留一个字节数组或者整数值。</p>
-<p>ziplist是一个为Redis专门提供的底层数据结构之一，本身可以有序也可以无序。当作为list和hash的底层实现时，节点之间没有顺序；当作为zset的底层实现时，节点之间会按照大小顺序排列。</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701070329909.png" alt="image-20220701070329909"></p>
-<h3 id="Redis中的quicklist"><a href="#Redis中的quicklist" class="headerlink" title="Redis中的quicklist"></a>Redis中的quicklist</h3><p>Redis早期版本list列表是通过压缩列表和普通的linkedlist来实现的，当元素少的时候用linkedlist，元素多的时候用ziplist。</p>
-<p>而链表的附加空间比较高（prev和next指针），且链表内存中不连续，会有内存碎片化的问题。</p>
-<p>在Redis 3.2版本之后对list结构的数据进行了改造，使用quicklist代替了ziplist和linkedlist。结合了空间和时间效率的考量。</p>
-<p>quicklist其实也是由ziplist和linkedlist组成：<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701070340512.png" alt="image-20220701070340512"></p>
-<ul>
-<li>quickList：本质还是一个linkedlist的维护节点，有头尾节点，连接的节点都是quicklistNode</li>
-<li>quickListNode：有前驱和后继节点，但真正的内容不再是list中的一个值，而是一个ziplist。</li>
-</ul>
-<p>这样两种数据结构的优点都能使用到。</p>
-<h3 id="Redis中的字典table结构"><a href="#Redis中的字典table结构" class="headerlink" title="Redis中的字典table结构"></a>Redis中的字典table结构</h3><p>Redis中的hashtable就是dictht结构，和整体Redis kv数据存储是一个数据结构。当value是hash结构即代表value也是类型是dictht，内部每个dictEntry结构存储。</p>
-<p>当hash结构的value元素比较少时，底层用ziplist存储（ziplist是有序的 dictht是无序的），元素数量比较大的时候会由字典来实现。由元素个数和元素大小的阈值来控制是否转变为字典结构。<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701070403339.png" alt="image-20220701070403339"></p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701070418240.png" alt="image-20220701070418240"></p>
-<h3 id="Redis中的skiplist跳表"><a href="#Redis中的skiplist跳表" class="headerlink" title="Redis中的skiplist跳表"></a>Redis中的skiplist跳表</h3><p>Redis中实现有序集合，底层选用的是hashtable和跳表作为数据结构。</p>
-<p>和hash基础数据结构一样，当数据量小的时候，zset也可以用ziplist数据结构实现，当数据量大之后采用hashtabel+skiplist。</p>
-<p>当zset满足：</p>
-<ul>
-<li>元素个数小于128</li>
-<li>所有成员的长度都小于64字节<br>这两个条件时候，会采用ziplist作为底层存储结构。</li>
-</ul>
-<p>当不满足任一条件时，会采用dict(hashtable) + skiplist来实现：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* zset结构体 */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">zset</span> &#123;</span></span><br><span class="line">    <span class="comment">// 字典，维护元素值和分值的映射关系</span></span><br><span class="line">    dict *dict;</span><br><span class="line">    <span class="comment">// 按分值对元素值排序，支持O(logN)数量级的查找操作</span></span><br><span class="line">    zskiplist *zsl;</span><br><span class="line">&#125; zset;</span><br></pre></td></tr></table></figure></p>
-<ul>
-<li>hashtable：支持zrank、zscore等直接根据key查找的命令。但hash结构无序，不能很好支持快速排序。</li>
-<li>skiplist：支持zrange、zrevrange等范围查找。跳表可以简单理解为简单的多层级排序链表，搜索的时间复杂度是O(LogN)。</li>
-</ul>
-<p>skipList在Redis中的应用：在链表增加、删除节点O(1)的时间复杂度基础上，能加入多层级的索引节点，来实现近似二分查找的时间复杂度O(LogN)数据结构。</p>
-<h4 id="为什么选用skiplist，而不去选择其他结构"><a href="#为什么选用skiplist，而不去选择其他结构" class="headerlink" title="为什么选用skiplist，而不去选择其他结构"></a>为什么选用skiplist，而不去选择其他结构</h4><ul>
-<li>有序和无序：skipList和各种平衡树（AVL、红黑树）都是有序排列的，而hash不是有序的。在hash表上只能做单key的查找，不适合范围查询。</li>
-<li>范围查找：在进行范围查找的时候，树结构比跳表的操作更复杂。虽然平衡树中序遍历能找到指定范围的小指，但需要再次中序遍历才能查找到范围的大值。而跳表只需要按照上层索引节点跳到第一层（原始链表）再次遍历即可。</li>
-<li>插入和删除：平衡树可能涉及到树的转换，子树的调整，实现复杂。而skiplist多层级都是链表，只需要维护对应的指针即可。</li>
-</ul>
-<h4 id="skipList的维护过程"><a href="#skipList的维护过程" class="headerlink" title="skipList的维护过程"></a>skipList的维护过程</h4><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701070445955.png" alt="image-20220701070445955"></p>
-<h4 id="跳表的时间复杂度和优缺点"><a href="#跳表的时间复杂度和优缺点" class="headerlink" title="跳表的时间复杂度和优缺点"></a>跳表的时间复杂度和优缺点</h4><p>跳表是空间换时间的一种链表基础上优化的数据结构。</p>
-<p>链表查找的时间复杂度是O(N)，借鉴数据库索引的思想，提取出关键节点（索引），先在关键节点上查找，然后下层链表继续查找。</p>
-<p>跳表的时间复杂度是O(logN)。空间复杂度是O(N)。在新增和删除的节点的过程中，因为要维护上层索引，且排序，时间复杂度也是logN。</p>
-<p>优点：在数据量大且读多写少的场景下，能让链表查找的时间复杂度降低，Redis底层的链表是双向链表，很好的支持了zset的范围查询。</p>
-<p>缺点：需要更多的空间，每次插入删除都要维护上层索引，写多的场景下效率存在折中。</p>
-<h3 id="Redis中的整数集合intset"><a href="#Redis中的整数集合intset" class="headerlink" title="Redis中的整数集合intset"></a>Redis中的整数集合intset</h3><p>用于保存整数值的抽象数据结构，不会出现重复元素。</p>
-<p>Redis中的set value默认是用值为null的字典ht实现的。（和java中HashMap、HashSet很像），当值元素都是整数时，使用此intset结构来存储value。</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701070459745.png" alt="image-20220701070459745"><br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">intset</span> &#123;</span></span><br><span class="line">    <span class="comment">//编码方式</span></span><br><span class="line">    <span class="keyword">uint32_t</span> encoding;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 数组长度</span></span><br><span class="line">    <span class="keyword">uint32_t</span> length;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 保存元素的数组</span></span><br><span class="line">    <span class="keyword">int8_t</span> contents[]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701070511491.png" alt="image-20220701070511491"></p>
+<h3 id="LeastActiveLoadBalance-最小活跃调用数负载均衡算法"><a href="#LeastActiveLoadBalance-最小活跃调用数负载均衡算法" class="headerlink" title="LeastActiveLoadBalance 最小活跃调用数负载均衡算法"></a>LeastActiveLoadBalance 最小活跃调用数负载均衡算法</h3><p>最小活跃数负载均衡算法认为当前活跃请求数越小的Provider节点，剩余的处理能力越多，利用率越高。那么这个Provider会在单位时间内承载更多的请求，优先将这些请求分配给该Provider节点。</p>
+<p>LeastActiveLoadBalance需要配合ActiveLimitFilter使用，ActiveLimitFilter会记录每个接口方法的活跃请求数，在进行负载均衡的时候，会根据活跃请求数最少的Invoker集合里挑选Invoker。</p>
+<p>当然最小活跃调用数对应的Invoker可能有多个，在dubbo的实现中还像加权随机那样，去根据权重选出有一样最小活跃调用数的Invoker来调用。</p>
+<h4 id="dubbo实现"><a href="#dubbo实现" class="headerlink" title="dubbo实现"></a>dubbo实现</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> &lt;T&gt; <span class="function">Invoker&lt;T&gt; <span class="title">doSelect</span><span class="params">(List&lt;Invoker&lt;T&gt;&gt; invokers, URL url, Invocation invocation)</span> </span>&#123;</span><br><span class="line">       <span class="comment">// Number of invokers</span></span><br><span class="line">       <span class="keyword">int</span> length = invokers.size();</span><br><span class="line"></span><br><span class="line">       <span class="comment">// The least active value of all invokers</span></span><br><span class="line">       <span class="comment">// 最小的活跃请求数</span></span><br><span class="line">       <span class="keyword">int</span> leastActive = -<span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">       <span class="comment">// The number of invokers having the same least active value (leastActive)</span></span><br><span class="line">       <span class="comment">// 记录活跃请求数最小的Invoker集合的个数</span></span><br><span class="line">       <span class="keyword">int</span> leastCount = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">       <span class="comment">// The index of invokers having the same least active value (leastActive)</span></span><br><span class="line">       <span class="comment">// 记录活跃请求数最小的Invoker在invokers数组中的下标位置</span></span><br><span class="line">       <span class="keyword">int</span>[] leastIndexes = <span class="keyword">new</span> <span class="keyword">int</span>[length];</span><br><span class="line"></span><br><span class="line">       <span class="comment">// the weight of every invokers</span></span><br><span class="line">       <span class="comment">// 记录活跃请求数最小的Invoker集合中，每个Invoker的权重值</span></span><br><span class="line">       <span class="keyword">int</span>[] weights = <span class="keyword">new</span> <span class="keyword">int</span>[length];</span><br><span class="line"></span><br><span class="line">       <span class="comment">// The sum of the warmup weights of all the least active invokers</span></span><br><span class="line">       <span class="keyword">int</span> totalWeight = <span class="number">0</span>; <span class="comment">// 总权重</span></span><br><span class="line"></span><br><span class="line">       <span class="comment">// The weight of the first least active invoker</span></span><br><span class="line">       <span class="keyword">int</span> firstWeight = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">       <span class="comment">// Every least active invoker has the same weight value?</span></span><br><span class="line">       <span class="keyword">boolean</span> sameWeight = <span class="keyword">true</span>; <span class="comment">// 是否每个最小活跃数的Invoker有相同的权重</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">       <span class="comment">// Filter out all the least active invokers</span></span><br><span class="line">       <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; length; i++) &#123;</span><br><span class="line">           Invoker&lt;T&gt; invoker = invokers.get(i);</span><br><span class="line">           <span class="comment">// Get the active number of the invoker 获取活跃数</span></span><br><span class="line">           <span class="keyword">int</span> active = RpcStatus.getStatus(invoker.getUrl(), invocation.getMethodName()).getActive();</span><br><span class="line"></span><br><span class="line">           <span class="comment">// Get the weight of the invoker's configuration. The default value is 100.</span></span><br><span class="line">           <span class="comment">// 获取当前Invoker节点的权重</span></span><br><span class="line">           <span class="keyword">int</span> afterWarmup = getWeight(invoker, invocation);</span><br><span class="line"></span><br><span class="line">           <span class="comment">// save for later use</span></span><br><span class="line">           weights[i] = afterWarmup;</span><br><span class="line"></span><br><span class="line">           <span class="comment">// If it is the first invoker or the active number of the invoker is less than the current least active number</span></span><br><span class="line">           <span class="keyword">if</span> (leastActive == -<span class="number">1</span> || active &lt; leastActive) &#123;</span><br><span class="line">               <span class="comment">// 当前的Invoker是第一个活跃请求数最小的Invoker，则记录如下信息</span></span><br><span class="line"></span><br><span class="line">               <span class="comment">// Reset the active number of the current invoker to the least active number</span></span><br><span class="line">               <span class="comment">// 重新记录最小活跃数</span></span><br><span class="line">               leastActive = active;</span><br><span class="line"></span><br><span class="line">               <span class="comment">// Reset the number of least active invokers</span></span><br><span class="line">               <span class="comment">// 重新记录活跃请求数最小的Invoker集合个数</span></span><br><span class="line">               leastCount = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">               <span class="comment">// Put the first least active invoker first in leastIndexes</span></span><br><span class="line">               <span class="comment">// 重新记录最小活跃数Invoker索引下标</span></span><br><span class="line">               leastIndexes[<span class="number">0</span>] = i;</span><br><span class="line"></span><br><span class="line">               <span class="comment">// Reset totalWeight 重新记录总权重</span></span><br><span class="line">               totalWeight = afterWarmup;</span><br><span class="line">               <span class="comment">// Record the weight the first least active invoker 记录第一个最小活跃数的权重</span></span><br><span class="line">               firstWeight = afterWarmup;</span><br><span class="line"></span><br><span class="line">               <span class="comment">// Each invoke has the same weight (only one invoker here)</span></span><br><span class="line">               sameWeight = <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">               <span class="comment">// If current invoker's active value equals with leaseActive, then accumulating.</span></span><br><span class="line">           &#125; <span class="keyword">else</span> <span class="keyword">if</span> (active == leastActive) &#123;</span><br><span class="line">               <span class="comment">// 又找到一个最小活跃请求数的Invoker</span></span><br><span class="line"></span><br><span class="line">               <span class="comment">// Record the index of the least active invoker in leastIndexes order 记录该Invoker的下标</span></span><br><span class="line">               leastIndexes[leastCount++] = i;</span><br><span class="line">               <span class="comment">// Accumulate the total weight of the least active invoker 更新总权重</span></span><br><span class="line">               totalWeight += afterWarmup;</span><br><span class="line">               <span class="comment">// If every invoker has the same weight?</span></span><br><span class="line">               <span class="keyword">if</span> (sameWeight &amp;&amp; afterWarmup != firstWeight) &#123;</span><br><span class="line">                   <span class="comment">//  更新权重值是否相等</span></span><br><span class="line">                   sameWeight = <span class="keyword">false</span>;</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="comment">// Choose an invoker from all the least active invokers</span></span><br><span class="line">       <span class="keyword">if</span> (leastCount == <span class="number">1</span>) &#123;</span><br><span class="line">           <span class="comment">// 只有一个最小活跃数 直接返回</span></span><br><span class="line">           <span class="comment">// If we got exactly one invoker having the least active value, return this invoker directly.</span></span><br><span class="line">           <span class="keyword">return</span> invokers.get(leastIndexes[<span class="number">0</span>]);</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">if</span> (!sameWeight &amp;&amp; totalWeight &gt; <span class="number">0</span>) &#123;</span><br><span class="line">           <span class="comment">// 下面按照RandomLoadBalance的逻辑，从活跃请求数最小的Invoker集合中，随机选择一个Invoker对象返回</span></span><br><span class="line">           <span class="comment">// 即最小活跃数Invoker集合中如果权重不一致 那么按照加权随机算法去选出一个Invoker 具体@see RandomLoadBalance</span></span><br><span class="line">           <span class="comment">// If (not every invoker has the same weight &amp; at least one invoker's weight&gt;0), select randomly based on </span></span><br><span class="line">           <span class="comment">// totalWeight.</span></span><br><span class="line">           <span class="keyword">int</span> offsetWeight = ThreadLocalRandom.current().nextInt(totalWeight);</span><br><span class="line">           <span class="comment">// Return a invoker based on the random value.</span></span><br><span class="line">           <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; leastCount; i++) &#123;</span><br><span class="line">               <span class="keyword">int</span> leastIndex = leastIndexes[i];</span><br><span class="line">               offsetWeight -= weights[leastIndex];</span><br><span class="line">               <span class="keyword">if</span> (offsetWeight &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                   <span class="keyword">return</span> invokers.get(leastIndex);</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="comment">// If all invokers have the same weight value or totalWeight=0, return evenly.</span></span><br><span class="line">       <span class="comment">// 和加权随机一样 如果都有一样的权重 则从最小随机数的Invoker列表中随机选一个</span></span><br><span class="line">       <span class="keyword">return</span> invokers.get(leastIndexes[ThreadLocalRandom.current().nextInt(leastCount)]);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="RoundRobinLoadBalance-加权轮询负载均衡算法"><a href="#RoundRobinLoadBalance-加权轮询负载均衡算法" class="headerlink" title="RoundRobinLoadBalance 加权轮询负载均衡算法"></a>RoundRobinLoadBalance 加权轮询负载均衡算法</h3><p>轮询指的是将请求轮流分配给每个 Provider。例如，有 A、B、C 三个 Provider 节点，按照普通轮询的方式，我们会将第一个请求分配给 Provider A，将第二个请求分配给 Provider B，第三个请求分配给 Provider C，第四个请求再次分配给 Provider A……如此循环往复。</p>
+<p>轮询是一种无状态负载均衡算法，实现简单，适用于集群中所有 Provider 节点性能相近的场景。但现实情况中就很难保证这一点了，因为很容易出现集群中性能最好和最差的 Provider 节点处理同样流量的情况，这就可能导致性能差的 Provider 节点各方面资源非常紧张，甚至无法及时响应了，但是性能好的 Provider 节点的各方面资源使用还较为空闲。这时我们可以通过加权轮询的方式，降低分配到性能较差的 Provider 节点的流量。</p>
+<p>加权之后，分配给每个 Provider 节点的流量比会接近或等于它们的权重比。例如，Provider 节点 A、B、C 权重比为 5:1:1，那么在 7 次请求中，节点 A 将收到 5 次请求，节点 B 会收到 1 次请求，节点 C 则会收到 1 次请求。</p>
+<h4 id="Dubbo加权轮询负载均衡算法的实现"><a href="#Dubbo加权轮询负载均衡算法的实现" class="headerlink" title="Dubbo加权轮询负载均衡算法的实现"></a>Dubbo加权轮询负载均衡算法的实现</h4><p>算法总的描述：<br>每个Provider节点（Invoker）创建两个权重，一个是配置的weight，在整个过程中不会变化，另一个是currentWeight，在负载均衡的过程中动态调整，初始值为0。</p>
+<p>当请求进来的时候，RoundRobinLoadBalance会遍历Invoker列表，并用响应的currentWeight加上其配置的权重。遍历完成之后，再找到最大的currentWeight，将其减去权重总和，然后返回相应的Invoker对象。 新的请求来了之后会重复上面的操作。</p>
+<p>原理示意图：<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220716000215242.png" alt="image-20220716000215242"></p>
+<p>一个示例：<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220716000241259.png" alt="image-20220716000241259"></p>
+<p>源码实现：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 和一致性hash套路一样 缓存serviceKey_methodName 作为key value也是map key是Invoker对象 value是WeightedRoundRobin对象（记录了Invoker节点的配置权重和在轮询过程中的动态当前权重）</span></span><br><span class="line">   <span class="keyword">private</span> ConcurrentMap&lt;String, ConcurrentMap&lt;String, WeightedRoundRobin&gt;&gt; methodWeightMap = <span class="keyword">new</span> ConcurrentHashMap&lt;String, ConcurrentMap&lt;String, WeightedRoundRobin&gt;&gt;();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">protected</span> &lt;T&gt; <span class="function">Invoker&lt;T&gt; <span class="title">doSelect</span><span class="params">(List&lt;Invoker&lt;T&gt;&gt; invokers, URL url, Invocation invocation)</span> </span>&#123;</span><br><span class="line">       String key = invokers.get(<span class="number">0</span>).getUrl().getServiceKey() + <span class="string">"."</span> + invocation.getMethodName();</span><br><span class="line">       <span class="comment">// 为当前服务方法在缓存中初始化 Invoker -&gt; WeightedRoundRobin 映射 存在直接获取</span></span><br><span class="line">       ConcurrentMap&lt;String, WeightedRoundRobin&gt; map = methodWeightMap.computeIfAbsent(key, k -&gt; <span class="keyword">new</span> ConcurrentHashMap&lt;&gt;());</span><br><span class="line">       <span class="keyword">int</span> totalWeight = <span class="number">0</span>;</span><br><span class="line">       <span class="comment">// 最大的current值</span></span><br><span class="line">       <span class="keyword">long</span> maxCurrent = Long.MIN_VALUE;</span><br><span class="line">       <span class="keyword">long</span> now = System.currentTimeMillis();</span><br><span class="line">       Invoker&lt;T&gt; selectedInvoker = <span class="keyword">null</span>;</span><br><span class="line">       WeightedRoundRobin selectedWRR = <span class="keyword">null</span>;</span><br><span class="line">       <span class="keyword">for</span> (Invoker&lt;T&gt; invoker : invokers) &#123;</span><br><span class="line">           <span class="comment">// 获取invoker的身份String 作为map的key</span></span><br><span class="line">           String identifyString = invoker.getUrl().toIdentityString();</span><br><span class="line">           <span class="comment">// 获取权重 （配置值）</span></span><br><span class="line">           <span class="keyword">int</span> weight = getWeight(invoker, invocation);</span><br><span class="line">           WeightedRoundRobin weightedRoundRobin = map.computeIfAbsent(identifyString, k -&gt; &#123;</span><br><span class="line">               <span class="comment">//  检测当前Invoker是否有相应的WeightedRoundRobin对象，没有则进行创建</span></span><br><span class="line">               WeightedRoundRobin wrr = <span class="keyword">new</span> WeightedRoundRobin();</span><br><span class="line">               wrr.setWeight(weight);</span><br><span class="line">               <span class="keyword">return</span> wrr;</span><br><span class="line">           &#125;);</span><br><span class="line"></span><br><span class="line">           <span class="keyword">if</span> (weight != weightedRoundRobin.getWeight()) &#123;</span><br><span class="line">               <span class="comment">//weight changed 配置的权重发生变化也会重新设置</span></span><br><span class="line">               weightedRoundRobin.setWeight(weight);</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="comment">// current+配置的权重</span></span><br><span class="line">           <span class="keyword">long</span> cur = weightedRoundRobin.increaseCurrent();</span><br><span class="line">           <span class="comment">//  设置lastUpdate字段</span></span><br><span class="line">           weightedRoundRobin.setLastUpdate(now);</span><br><span class="line"></span><br><span class="line">           <span class="comment">// 找具有最大currentWeight的Invoker，以及Invoker对应的WeightedRoundRobin</span></span><br><span class="line">           <span class="keyword">if</span> (cur &gt; maxCurrent) &#123;</span><br><span class="line">               maxCurrent = cur;</span><br><span class="line">               selectedInvoker = invoker;</span><br><span class="line">               selectedWRR = weightedRoundRobin;</span><br><span class="line">           &#125;</span><br><span class="line">           totalWeight += weight; <span class="comment">// 计算权重总和</span></span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">if</span> (invokers.size() != map.size()) &#123;</span><br><span class="line">           map.entrySet().removeIf(item -&gt; now - item.getValue().getLastUpdate() &gt; RECYCLE_PERIOD);</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">if</span> (selectedInvoker != <span class="keyword">null</span>) &#123;</span><br><span class="line">           <span class="comment">// 用选中的最大权重的Invoker的currentWeight减去totalWeight</span></span><br><span class="line">           selectedWRR.sel(totalWeight);</span><br><span class="line">           <span class="comment">// 返回选中的Invoker对象</span></span><br><span class="line">           <span class="keyword">return</span> selectedInvoker;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="comment">// should not happen here</span></span><br><span class="line">       <span class="comment">// 一个兜底 应该不会走到这</span></span><br><span class="line">       <span class="keyword">return</span> invokers.get(<span class="number">0</span>);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure></p>
 
           
         
@@ -2574,7 +2573,7 @@
               
                 <a href="/blog/archives/">
               
-                  <span class="site-state-item-count">105</span>
+                  <span class="site-state-item-count">108</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2596,7 +2595,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/blog/tags/index.html">
-                  <span class="site-state-item-count">112</span>
+                  <span class="site-state-item-count">115</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -2670,7 +2669,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">152.1k</span>
+    <span title="Site words total count">158.6k</span>
   
 </div>
 
@@ -2692,7 +2691,7 @@
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共152.1k字</span>
+  <span class="post-count">博客全站共158.6k字</span>
 </div>
 
 <br />

@@ -297,6 +297,809 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/05/20/JVM对象创建与内存分配/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2020/05/20/JVM对象创建与内存分配/" itemprop="url">JVM对象创建与内存分配</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-05-20T00:17:24+08:00">
+                2020-05-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java基础/" itemprop="url" rel="index">
+                    <span itemprop="name">Java基础</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java基础/JVM/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2020/05/20/JVM对象创建与内存分配/" class="leancloud_visitors" data-flag-title="JVM对象创建与内存分配">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3,450
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  12
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="JVM对象创建的流程"><a href="#JVM对象创建的流程" class="headerlink" title="JVM对象创建的流程"></a>JVM对象创建的流程</h2><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104241903.png" alt="image-20220701104241903"></p>
+<h3 id="1-类加载的检查"><a href="#1-类加载的检查" class="headerlink" title="1. 类加载的检查"></a>1. 类加载的检查</h3><p>new指令可以是new对象、对象克隆、对象序列化等。</p>
+<p>虚拟机会检查常量池中是否能定位到类的符号引用（字面量），以及这个类是否被类加载器加载、校验、准备、解析、初始化等工作。如果没有，则进行类加载的工作。</p>
+<h3 id="2-分配内存"><a href="#2-分配内存" class="headerlink" title="2. 分配内存"></a>2. 分配内存</h3><p>从堆中划分一块区域为对象分配内存。<br>划分有两种方式：</p>
+<ul>
+<li>指针碰撞（默认使用）：内存是规整的，用过的内存放一边，空闲的再另一边，中间有个指针作为分界点，那么分配内存就是移动指针向空闲那边分配内存。</li>
+<li>空闲列表（Free List）：内存不是规整的，空闲和已使用的交错，这时维护一个空闲列表来存空闲内存块，划分一块区域给对象实例。</li>
+</ul>
+<p>这其中的并发问题解决：</p>
+<ul>
+<li>CAS失败重试，对分配的空间做同步处理</li>
+<li>本地线程分配缓存（TLAB)：每个线程划分自己的一块缓冲区，-XX:+UseTLAB来控制大小，这样避免并发问题。</li>
+</ul>
+<h3 id="3-初始化"><a href="#3-初始化" class="headerlink" title="3. 初始化"></a>3. 初始化</h3><p>对分配到的内存初始化零值，这时成员变量字段会初始化为默认值，此时其实已经可以被访问到。</p>
+<h3 id="4-设置对象头"><a href="#4-设置对象头" class="headerlink" title="4. 设置对象头"></a>4. 设置对象头</h3><p>初始化零值之后，JVM对对象设置对象头。</p>
+<p>JVM一个对象有三部分组成：<br>对象头、实例数据、对齐补齐的区域（要求是8字节的倍数）<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104253896.png" alt="image-20220701104253896"></p>
+<p>对象头是存放比如这个对象是哪个类的实例（KClass对象的类型指针）、MarkWord（一些记录信息比如hashcode、GC分代年龄、偏向锁id、锁标志、线程持有锁、偏向锁时间戳等）、数组长度（如果是数组对象）</p>
+<h3 id="5-执行方法"><a href="#5-执行方法" class="headerlink" title="5. 执行方法"></a>5. 执行<init>方法</init></h3><p>对成员变量进行赋值，且执行类的构造方法。对应着助记符invokespecial，比如下面代码对应的助记符：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">       Math math = <span class="keyword">new</span> Math();</span><br><span class="line">   &#125;</span><br><span class="line">   </span><br><span class="line">   </span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(java.lang.String[])</span></span>;</span><br><span class="line">   Code:</span><br><span class="line">      0: new           #2                  // class jvm/内存区域/Math</span><br><span class="line">      <span class="number">3</span>: dup</span><br><span class="line">      4: invokespecial #3                  // Method "&lt;init&gt;":()V 执行init方法</span><br><span class="line">      <span class="number">5</span>: <span class="keyword">return</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="java对象的指针压缩"><a href="#java对象的指针压缩" class="headerlink" title="java对象的指针压缩"></a>java对象的指针压缩</h2><p>在64位操作系统中支持JVM的指针压缩。jvm配置参数：-XX: +UseCompressedOops。其中compressed–压缩、oop(ordinary object pointer)–c++中的对象指针。</p>
+<h3 id="为什么要进行指针压缩"><a href="#为什么要进行指针压缩" class="headerlink" title="为什么要进行指针压缩"></a>为什么要进行指针压缩</h3><ol>
+<li>在64位操作系统使用32位指针，内存使用会多1.5倍左右。比如32位的操作系统支持寻址内存最大是4g，而一个对象假设在64位操作系统中只需要33位来（即8g，夸张的假设），这里可以用压缩算法来存储对象，即指针压缩之后用4个字节就能表达对象，在真正使用时解压使用。</li>
+<li>指针压缩的好处是减少对象大小，能承载更多的对象，减少GC的压力，且复制对象数据也更节省效率。即用4个字节即32位地址就能支持更大的内存。</li>
+<li>当然对堆的大小有要求，小于4g是不需要指针压缩。jvm用去除高32位地址，即使用低虚拟地址空间；大于32g时压缩指针会失效，强制使用64位来进行寻址，所以也不建议堆内存特别大。</li>
+</ol>
+<h2 id="对象内存分配的细节"><a href="#对象内存分配的细节" class="headerlink" title="对象内存分配的细节"></a>对象内存分配的细节</h2><p>对象内存分配的流程：<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104309765.png" alt="image-20220701104309765"></p>
+<h3 id="逃逸分析、标量替换和对象栈上分配"><a href="#逃逸分析、标量替换和对象栈上分配" class="headerlink" title="逃逸分析、标量替换和对象栈上分配"></a>逃逸分析、标量替换和对象栈上分配</h3><p>大多数对象都是在堆上进行分配，对象没有被GCROOTS引用时依靠GC进行回收内存。但也不全是在堆上分配。JVM通过逃逸分析可以确定对象不会在外部访问，即不会发生逃逸即可在栈上分配，这样对象随着栈帧出栈而销毁，不需要进行GC。</p>
+<p>逃逸分析的JVM参数：-XX:+DoEscapeAnalysis开启逃逸分析。</p>
+<p>标量替换：通过逃逸分析确定对象不会被外部访问，会进一步尝试将对象进行标量（基本数据类型）的替换，将整个对象里的成员拆分为标量在栈帧或者寄存器上分配，这样不需要一大块内存来存放内存在栈上。 对应的JVM参数是：-XX:+EliminateAllocations。</p>
+<p>demo:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 逃逸分析和标量替换带来的栈上分配的优化</span></span><br><span class="line"><span class="comment"> * 调用1亿次 大约需要1GB的内存 15m肯定会发生GC</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * 堆大小20m 开启逃逸分析和标量替换 栈上分配对象 所以不会大量GC</span></span><br><span class="line"><span class="comment"> * -Xms20M -Xmx20M -Xmn10M -XX:+PrintGC -XX:+DoEscapeAnalysis -XX:+EliminateAllocations</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * 下面这两种因为没有进行栈上分配 所以会大量GC</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * 关闭逃逸分析</span></span><br><span class="line"><span class="comment"> * -Xms20M -Xmx20M -Xmn10M -XX:+PrintGC -XX:-DoEscapeAnalysis -XX:+EliminateAllocations</span></span><br><span class="line"><span class="comment"> * 关闭标量替换</span></span><br><span class="line"><span class="comment"> * -Xms20M -Xmx20M -Xmn10M -XX:+PrintGC -XX:-DoEscapeAnalysis -XX:-EliminateAllocations</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AllocateInStackDemo</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">long</span> start = System.currentTimeMillis();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; <span class="number">1000000000</span>;i++) &#123;</span><br><span class="line">            alloc();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">long</span> end = System.currentTimeMillis();</span><br><span class="line">        System.out.println(<span class="string">"运行完毕"</span> + (end - start));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">alloc</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        User user = <span class="keyword">new</span> User();</span><br><span class="line">        <span class="comment">// user只有标量变量 可以直接替换</span></span><br><span class="line">        user.setId(<span class="number">1</span>);</span><br><span class="line">        user.setName(<span class="string">"aaa"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="在Eden区分配"><a href="#在Eden区分配" class="headerlink" title="在Eden区分配"></a>在Eden区分配</h3><ul>
+<li>MinorGC/YoungGC：年轻代（新生代）发生的垃圾收集动作，MinorGC非常频繁，回收速度也很快，应用中大多数对象都是在年轻代通过MinorGC被回收的。</li>
+<li>MajorGC/FullGC：会回收年轻代、老年代、方法区（元空间）的垃圾。FullGC的速度比较慢，一般比MinorGC慢上10倍左右。</li>
+</ul>
+<h4 id="一般什么场景下会发生fullgc？"><a href="#一般什么场景下会发生fullgc？" class="headerlink" title="一般什么场景下会发生fullgc？"></a>一般什么场景下会发生fullgc？</h4><ul>
+<li>老年代内存不足</li>
+<li>方法区（元空间）内存不足</li>
+<li>System.gc()调用时</li>
+<li>老年代担保分配场景中，担保失败的场景（promotion failture），年轻代对象总和或者每次MinorGC之后晋升老年代的平均对象大小 &gt; 老年代剩余空间，则会进行一次fullgc来回收老年代的对象，来担保能晋升到老年代。</li>
+<li>CMS垃圾回收器使用在并发标记或者并发清理阶段，产生的浮动垃圾导致没有足够的空间分配新的对象，出现Concurrent mode failure，会触发再一次FullGC清理堆空间，CMS也退化为Serial Old单线程垃圾收集器。</li>
+</ul>
+<p>在堆内存的年轻代的Eden区分配对象才是大多数对象内存分配的途径。当Eden区没有足够空间分配对象，JVM会发起一次MinorGC。</p>
+<p>对象新创建之后会分配在Eden区（没有超过大对象直接老年代分配的阈值），eden不满足大小会触发一次minorGC，剩余存活的对象会复制到Survivor区域（S0或者S1)，下一次eden区满了之后会再次触发minorGC，会回收eden和survivor所有垃圾对象，把剩余存活的对象再一次复制到另一块空的Survivor区域。</p>
+<p>年轻代中Eden和S0、S1区默认8：1：1。这里因为新生代的对象都是很快消亡的（可能就是一次请求），所以Eden区尽量的大，而Survivor区是用来存储GC之后存活的复制对象的，够用即可。JVM参数-XX:+UseAdaptiveSizePolicy（默认开启）来自适应Eden和Survivor的比例。</p>
+<h3 id="大对象直接进入老年代"><a href="#大对象直接进入老年代" class="headerlink" title="大对象直接进入老年代"></a>大对象直接进入老年代</h3><p>JVM参数 -XX:PretenureSizeThreshold设置了直接进入老年代分配内存的对象大小， 控制了大对象（需要大量连续内存空间，比如字符串、数组）避免在年轻代中的Eden和S区中的复制算法降低效率。这个参数在Serial和ParNew两个垃圾收集器下有效。</p>
+<p>比如设置：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-XX:PretenureSizeThreshold=1000000(单位是字节) -XX:+UseSerialGC</span><br></pre></td></tr></table></figure></p>
+<p>大于设置值大小的对象会直接分配至老年代的内存。</p>
+<h3 id="长期存活的对象进入老年代"><a href="#长期存活的对象进入老年代" class="headerlink" title="长期存活的对象进入老年代"></a>长期存活的对象进入老年代</h3><p>每个对象在对象头的MarkWord中记录了对象的GC分代年龄，对象在Eden分配完经历第一次MinorGC之后还存活，且能被Survivor容纳，将会被移动到Survivor区域（S0区），并设置对象的GC分代年龄为1。在Survivor区每经过一次MinorGC年龄都会+1。JVM参数：-XX:MaxTenuringThreshold来控制晋升到老年代的阈值。</p>
+<h3 id="对象动态年龄判断"><a href="#对象动态年龄判断" class="headerlink" title="对象动态年龄判断"></a>对象动态年龄判断</h3><p>在MinorGC之后，会触发一个动态年龄判断机制。即MinorGC之后Survivor区有一批对象（剩余存活的），年龄1+年龄2+年龄3+…+年龄n的多个年龄对象总和超过了Survivor区的50%，此时会把年龄n以上的对象直接放入到老年代，这个规则其实就是希望长期存活的大对象提前进入到老年代，而不是在年轻代多次复制之后达到阈值再进入老年代。</p>
+<h3 id="老年代空间分配担保机制"><a href="#老年代空间分配担保机制" class="headerlink" title="老年代空间分配担保机制"></a>老年代空间分配担保机制</h3><p>年轻代每次MinorGC之前都会计算下老年代的剩余空间。如果这个可用空间小于年轻代所有对象（包括未清理的垃圾对象）就会依赖一个JVM参数：-XX:-HandlePromotionFailure（jdk1.8默认设置了）的参数是否设置了，如果设置了，就会判断老年代当前可用内存大小，是否大于之前每一次MinorGC之后进入老年代的对象的平均大小，如果上一步结果是小于或者参数没有设置，则触发一次fullgc，让老年代和年轻代一起进行一次GC，如果回收完还是没有足够的空间存放新的对象则会发生OOM。</p>
+<p>当然如果没有触发老年代空间分配担保机制，MinorGC之后剩余空间需要挪到老年代的对象还是大于可用空间，也会触发full gc，full gc之后如果还不够就会触发OOM。</p>
+<p>整个过程如下：<br><img src="/Users/zhanglijun/Library/Application%20Support/typora-user-images/image-20220701104323541.png" alt="image-20220701104323541"></p>
+<h2 id="对象内存回收"><a href="#对象内存回收" class="headerlink" title="对象内存回收"></a>对象内存回收</h2><h3 id="引用计数法"><a href="#引用计数法" class="headerlink" title="引用计数法"></a>引用计数法</h3><p>每个对象维护一个引用计数器，每当有一个地方引用其对象，计数器加1。计数器为0时，对象可以被回收。这个方法效率高，但是存在循环引用的场景，很难去解决。所以主流JVM没有采用这个算法来确定无用的对象。</p>
+<h3 id="可达性分析算法"><a href="#可达性分析算法" class="headerlink" title="可达性分析算法"></a>可达性分析算法</h3><p>以GCROOTS为起点，从这些对象节点向下搜索引用的对象，能连通找到的对象都是非垃圾对象，其余未被标记的都是垃圾可回收对象。</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104351339.png" alt="image-20220701104351339"></p>
+<p>能作为GCRoots的根节点：</p>
+<ul>
+<li>线程栈的本地变量（局部变量）引用的对象。</li>
+<li>本地方法（native方法）引用的对象。</li>
+<li>元空间中类的静态变量。</li>
+<li>元空间中常量引用的对象。</li>
+</ul>
+<h3 id="java中的引用"><a href="#java中的引用" class="headerlink" title="java中的引用"></a>java中的引用</h3><p>常见的强引用就是内存中存在一块内存区域存放对象的地址值，则这个对象被内存地址引用。而其他引用出现的背景是当需要描述一些这些引用：内存足够的时候存活，内存不足够的时候可以被GC，许多缓存的场景可以用这些引用。</p>
+<h4 id="强引用"><a href="#强引用" class="headerlink" title="强引用"></a>强引用</h4><p>这个没啥说的就是 object = new Object，只要强引用在，GC不会手机回收被引用的对象。</p>
+<h4 id="软引用"><a href="#软引用" class="headerlink" title="软引用"></a>软引用</h4><p>SoftReference是描述有用但是不是必须的对象。在GC之后还没有足够可用的内存，会回收软引用的对象，如果还没有足够的空间会抛出内存溢出异常。</p>
+<p>使用场景可以想想浏览器前进后退保留的页面内容，如果GC内存不足清除，再重新加载即可，不需要一直保留缓存。</p>
+<h4 id="弱引用"><a href="#弱引用" class="headerlink" title="弱引用"></a>弱引用</h4><p>WeakReference是弱引用，描述非必须对象，弱引用关联的对象只生存到下一次GC之前，无论是否内存足够，都会在GC时回收只有弱引用的对象。应用可以看看ThreadLocal中实现的ThreadLocalMap。</p>
+<h4 id="虚引用"><a href="#虚引用" class="headerlink" title="虚引用"></a>虚引用</h4><p>最弱的一种引用关系，虚引用不影响对象存活，也无法通过引用获取到对象实例。在GC时会收到一个通知，PhantomReference一个应用场景是jdk里DirectByteBuffer被回收之后，Cleaner会把分配的堆外内存释放了；netty里用来探测内存泄漏。当堆内的对象被GC时收到通知可以对堆外内存进行手动调用Unsafe进行回收。</p>
+<h3 id="finalize-方法"><a href="#finalize-方法" class="headerlink" title="finalize()方法"></a>finalize()方法</h3><p>对象宣告死亡需要两次标记的过程：<br>（1）GCRoots可达性分析连通不到之后，即没被标记不可清除对象<br>（2）没有覆盖finalize()方法或者已经执行过finalize()方法</p>
+<p>这种才会真正GC。</p>
+<p>在覆盖finalize()方法中如果把当前this引用关联上别的静态变量或者成员变量，则会逃过之后的GC，相当于给了一次逃亡的机会。这个方法不建议去覆盖。</p>
+<h3 id="元空间的回收"><a href="#元空间的回收" class="headerlink" title="元空间的回收"></a>元空间的回收</h3><p>元空间主要是对常量池和无用类的回收。</p>
+<p>确定废弃常量池中的字面量也是看有没有对象引用常量池中的字面量，可以对常量进行废弃回归。</p>
+<p>而无用类的确定十分苛刻：</p>
+<ul>
+<li>该类对应的实例都被回收，堆中没有该类对应的对象实例。</li>
+<li>加载该类的ClassLoader被回收。</li>
+<li>对应的Class对象都没被使用，没有反射调用该类的方法。</li>
+</ul>
+<p>满足这三个条件才会进行元空间中无用类的回收。且对于频繁动态代理、反射、动态JSP的系统，因为运行中动态生成类或者替换类加载器，要关注元空间的类卸载情况，避免元空间溢出。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/04/20/JVM内存模型/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2020/04/20/JVM内存模型/" itemprop="url">JVM内存模型</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-04-20T10:34:42+08:00">
+                2020-04-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java基础/" itemprop="url" rel="index">
+                    <span itemprop="name">Java基础</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java基础/JVM/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2020/04/20/JVM内存模型/" class="leancloud_visitors" data-flag-title="JVM内存模型">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,173
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  4
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="JVM的整体结构和内存模型"><a href="#JVM的整体结构和内存模型" class="headerlink" title="JVM的整体结构和内存模型"></a>JVM的整体结构和内存模型</h2><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103855422.png" alt="image-20220701103855422"></p>
+<h3 id="关于方法区和元空间"><a href="#关于方法区和元空间" class="headerlink" title="关于方法区和元空间"></a>关于方法区和元空间</h3><ul>
+<li>jdk1.8之前存放方法元信息、Class信息、常量池等的为方法区，在堆内存储。而在1.8之后废弃了永久代，替换为元空间，常量池和静态变量并入堆内存储，MetaSpace来存储类、方法元信息，同时使用了本地内存来存储。</li>
+<li>相当于1.8版本之后，方法区一部分归到堆内存中，一部分移动到堆外内存，受机器本地内存大小限制。不过设置了Metaspace参数也会在内存不足时OOM。</li>
+</ul>
+<h2 id="JVM内存参数设置（简要说明）"><a href="#JVM内存参数设置（简要说明）" class="headerlink" title="JVM内存参数设置（简要说明）"></a>JVM内存参数设置（简要说明）</h2><p>运行时数据区的一些基本参数</p>
+<ul>
+<li>-Xms：堆的最小值参数</li>
+<li>-Xmx：堆的最大值参数</li>
+<li>-Xmn：新生代的内存大小</li>
+<li>-XX: MaxDirectMemorySize：直接内存的最大值。即NIO使用的堆外内存的最大值。 这里注意heap dump不会记录堆外内存的移除，但也可以造成OOM，现象是dump文件很小，即堆内存其实使用很少。</li>
+<li>-XX：MetaspaceSize：设置元空间触发fullgc的初始阈值（元空间没有固定初始值大小）。默认不设置为21M。到达该值就会触发full gc进行类型卸载，同时收集器会对该值进行调整，如果释放了大量空间，则调小；如果释放了很少的空间，则在不超过-XX: MaxMetaspaceSize的情况下适当提高此值。 在jdk1.8之前的永久代参数-XX: PermsSize参数标识为初始化的容量，1.8之后调整为元空间后不一样</li>
+<li>-XX: MaxMetaspaceSize：元空间最大值，默认是-1，不限制的话，受限于直接内存大小。</li>
+<li>-Xss：线程栈的大小（默认为1M）</li>
+</ul>
+<h2 id="常量池"><a href="#常量池" class="headerlink" title="常量池"></a>常量池</h2><h3 id="Class常量池和运行时常量池"><a href="#Class常量池和运行时常量池" class="headerlink" title="Class常量池和运行时常量池"></a>Class常量池和运行时常量池</h3><p>Class文件中包含常量池，也包含字段、方法、接口、类版本等描述信息。常量池用于存放编译期间的字面量和符号引用。</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103908248.png" alt="image-20220701103908248"></p>
+<p>当常量池字面量和符号引用被加载到内存中，符号才会有内存的地址，常量池就是运行时常量池。<br>而动态链接的过程就是把运行时常量池的符号引用变为直接内存地址引用。</p>
+<p>常量池在1.8之后从永久代（元空间）拿出，移动到了堆内存。</p>
+<h3 id="字符串常量池"><a href="#字符串常量池" class="headerlink" title="字符串常量池"></a>字符串常量池</h3><p>创建字符串对象时，做了一些优化：</p>
+<ul>
+<li>如果字符串常量在常量池中存在，返回此常量的地址引用；</li>
+<li>如果不存在，则实例化改字符串放入常量池中，是字面量的引用直接返回，是new String()这种则会在堆内新创建一个对象。</li>
+</ul>
+<h4 id="字符串操作"><a href="#字符串操作" class="headerlink" title="字符串操作"></a>字符串操作</h4><ul>
+<li>字面量直接赋值<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String a = <span class="string">"aaa"</span>;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>这样会用equals()方法判断字符串常量池是否存在，如果存在返回引用，不存在创建一个放入字符串常量池之后返回引用。</p>
+<ul>
+<li>new String()复制<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String a = <span class="keyword">new</span> String(<span class="string">"aaa"</span>);</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>这里也会判断字符串常量池和堆中是否有这个对象，没有则都创建，然后返回堆中的对象引用。也就是可能会创建两个对象。</p>
+<ul>
+<li>intern方法<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String s1 = <span class="string">"aaa"</span>;</span><br><span class="line">String s2 = s1.intern();</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>一个native方法，调用intern()时如果字符串常量池中存在常量，则返回池中的引用地址，否则将池中的地址直接指向堆中字符串对象（例子是s1）的地址。</p>
+<h4 id="常见面试题"><a href="#常见面试题" class="headerlink" title="常见面试题"></a>常见面试题</h4><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103933318.png" alt="image-20220701103933318"><br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103954181.png" alt="image-20220701103954181"><br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104015926.png" alt="image-20220701104015926"></p>
+<h4 id="关于String是不可变的"><a href="#关于String是不可变的" class="headerlink" title="关于String是不可变的"></a>关于String是不可变的</h4><p>除非下面的a、b、c三个变量被final修饰，即变为常量，那么执行String s1 = a + b + c时会编译为常量进行优化，也就是和String s = “a” + “b” + “c” 字面量直接相加一样，都是字符串常量池中常量对象的引用。<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104030743.png" alt="image-20220701104030743"></p>
+<p>为什么是不可变的？</p>
+<ul>
+<li>安全。最常用的String内部char[]数组是final的，规避了直接改变对象内容，封装了内部数据。（享元模式）</li>
+<li>线程安全，final在要求构造函数中初始化char[]数组</li>
+<li>hashcode初始化时确定，String很适合作为hash表的key。</li>
+</ul>
+<h5 id="彩蛋：比较对象时为什么要重写hashcode-方法"><a href="#彩蛋：比较对象时为什么要重写hashcode-方法" class="headerlink" title="彩蛋：比较对象时为什么要重写hashcode()方法"></a>彩蛋：比较对象时为什么要重写hashcode()方法</h5><p>equals()方法相等，则对象一定相等，为什么还要hashcode方法呢？</p>
+<ul>
+<li>因为hashcode效率高，一般约束都是equals()方法相等，则hashcode()一定相等；而hashcode()不相等，一定不是一个对象。</li>
+<li>HashSet这种数据结构是去重的，比较时候为了效率如果hashcode不相等，那么即使equals方法相等也会认为不是一个对象。</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/04/20/JVM类加载机制详解/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2020/04/20/JVM类加载机制详解/" itemprop="url">JVM类加载机制详解</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-04-20T10:34:42+08:00">
+                2020-04-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java基础/" itemprop="url" rel="index">
+                    <span itemprop="name">Java基础</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java基础/JVM/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2020/04/20/JVM类加载机制详解/" class="leancloud_visitors" data-flag-title="JVM类加载机制详解">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,963
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  12
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="类加载的过程"><a href="#类加载的过程" class="headerlink" title="类加载的过程"></a>类加载的过程</h2><h3 id="通过Java命令执行代码的大体流程："><a href="#通过Java命令执行代码的大体流程：" class="headerlink" title="通过Java命令执行代码的大体流程："></a>通过Java命令执行代码的大体流程：</h3><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103636576.png" alt="image-20220701103636576"></p>
+<p>其中loadClass的过程如下：<br>加载 -&gt; 验证 -&gt; 准备 -&gt;  解析 -&gt; 初始化 -&gt; 使用 -&gt; 卸载</p>
+<ul>
+<li>加载：在硬盘上查找并通过IO读入字节码文件，使用类时才会记载，调用类的main()方法、new类的对象等等。在加载阶段会在内存生成一个代表这个类的java.lang.Class对象，作为方法区这个类各种数据的访问入口。</li>
+<li>验证：校验字节码文件的正确性</li>
+<li>准备：给类的静态变量初始化内存并复制默认值</li>
+<li>解析：将符号引用替换为直接引用，将静态方法（符号引用比如main()方法）替换为指向数据所存内存的指针或者句柄等（直接引用），这种叫静态链接过程（类加载期间完成）。动态链接是在程序运行期间完成的将符号引用替换为直接引用。</li>
+<li>初始化：对类的静态变量初始化为指定的值，且加载static代码块。</li>
+</ul>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103649868.png" alt="image-20220701103649868"></p>
+<p>类被加载到方法区之后主要包含 运行时常量池、类型信息、字段信息、方法信息、类加载器的引用、对应class实例的引用等信息。其中Class对象是开发人员访问方法区中类定义的入口和切入点。</p>
+<h4 id="类的初始化"><a href="#类的初始化" class="headerlink" title="类的初始化"></a>类的初始化</h4><p>对于类的初始化只有在主动引用的场景下才会进行初始化操作。即类加载了（取决jvm的实现）但类不一定去初始化。主动引用有五种场景：</p>
+<ul>
+<li>new实例、读取设置类的static字段、调用类的静态方法时</li>
+<li>对类进行反射调用时</li>
+<li>初始化一个类时发现父类没有初始化，触发父类的初始化</li>
+<li>main方法调用时要对类进行初始化</li>
+<li>jdk1.7之后对动态语言支持，MethodHandler实例解析结果句柄对应的类没有初始化时要初始化。</li>
+</ul>
+<p>这里注意：</p>
+<ul>
+<li><p>对应static final修饰的常量被调用不会触发主动引用。但是运行时常量是会触发类初始化的，比如下面这样的运行时常量：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 运行时常量是特殊的 不会加入到对应类的常量池中 会主动调用常量所在的类 导致类初始化 对应的助记符也是getstatic助记符</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> String rom = UUID.randomUUID().toString();</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>引用类型数组new出来不会造成引用类的初始化，这里比较特殊，会JVM自己生成一个数组对象，不算主动引用。</p>
+</li>
+</ul>
+<p>类初始化换个角度来说就是对类所有变量赋值和执行static代码块的过程，即执行类构造器（不是构造函数）<clinit>()方法的过程。</clinit></p>
+<p><clinit>()方法是由编译器自动收集类所有类变量的赋值动作和静态static块合并产生的，其在执行子类的clinit()方法之前保证父类的clinit()方法已经执行。虚拟机保证对一个类的clinit()方法在多线程 环境下正确的加锁、同步、只有一个线程会执行clinit()方法（所以单例模式中有静态变量初始化这一个例子）。</clinit></p>
+<h2 id="类加载器和双亲委派机制。"><a href="#类加载器和双亲委派机制。" class="headerlink" title="类加载器和双亲委派机制。"></a>类加载器和双亲委派机制。</h2><p>jdk自带的类加载器：</p>
+<ul>
+<li>引导类加载器：负责加载支撑JVM运行的位于jre的lib目录下的核心类库，比如rt.jar、charsets.jar等。</li>
+<li>扩展类加载器：负责加载支撑JVM允许的位于jre的lib目录下的ext扩展目录中的jar包类</li>
+<li>应用程序类加载器：负责加载ClassPath路径下的类包，主要是开发人员写的类。</li>
+</ul>
+<p>关于类加载器的一个demo：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestClassLoader</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        System.out.println(String.class.getClassLoader());  <span class="comment">// 输出null，因为引导类加载器是由C++实现的 不是直接在Launcher中的内部类</span></span><br><span class="line">        System.out.println(DESKeyFactory.class.getClassLoader()); <span class="comment">// ext扩展类加载器</span></span><br><span class="line">        System.out.println(TestClassLoader.class.getClassLoader()); <span class="comment">// app类加载器 加载开发者写在classpath的class</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 看下维护的parent父加载器</span></span><br><span class="line">        ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader(); <span class="comment">// systemClassLoader默认是app类加载器</span></span><br><span class="line">        ClassLoader extClassLoader = systemClassLoader.getParent();</span><br><span class="line">        ClassLoader bootstarpClassLoader = extClassLoader.getParent();<span class="comment">// 在逻辑上是引导类加载器 但是引导类加载器是由c++实现的。 这里ext的parent是null</span></span><br><span class="line">        System.out.println(<span class="string">"systemClassLoader:"</span> + systemClassLoader);</span><br><span class="line">        System.out.println(<span class="string">"extClassLoader:"</span> + extClassLoader);</span><br><span class="line">        System.out.println(<span class="string">"bootstarpClassLoader:"</span> + bootstarpClassLoader);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 线程上下文保存的类加载器 有些SPI场景需要通过这个来打破双亲委派原则</span></span><br><span class="line">        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader(); <span class="comment">//线程上下文类加载器默认是appClassLoader</span></span><br><span class="line">        System.out.println(contextClassLoader);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 加载路径 APP类加载器对应 classpath的路径 这里注意也会有rt.jar和ext的包路径 但是因为双亲委派会优先给引导类加载器去加载核心jar包 自己写的类在target下最终会在appClassLoader中加载</span></span><br><span class="line">        System.out.println(System.getProperty(<span class="string">"java.class.path"</span>));</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 输出</span></span><br><span class="line"><span class="keyword">null</span></span><br><span class="line">sun.misc.Launcher$ExtClassLoader@<span class="number">2</span>c7b84de</span><br><span class="line">sun.misc.Launcher$AppClassLoader@<span class="number">18</span>b4aac2</span><br><span class="line">systemClassLoader:sun.misc.Launcher$AppClassLoader@<span class="number">18</span>b4aac2</span><br><span class="line">extClassLoader:sun.misc.Launcher$ExtClassLoader@<span class="number">2</span>c7b84de</span><br><span class="line">bootstarpClassLoader:<span class="keyword">null</span></span><br><span class="line">sun.misc.Launcher$AppClassLoader@<span class="number">18</span>b4aac2</span><br><span class="line">省略appClassLoader路径的输出</span><br></pre></td></tr></table></figure></p>
+<h3 id="类加载器初始化过程"><a href="#类加载器初始化过程" class="headerlink" title="类加载器初始化过程"></a>类加载器初始化过程</h3><p>AppClassLoader和ExtClassLoader是JVM启动类sun.misc.Launcher的内部类，其都继承了URLClassLoader。在JVM启动时，虚拟机会创建一个Launcher类的实例，且保证全局单例，而在Launcher的构造函数中初始化了ExtClassLoader和AppClassLoader：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"> <span class="function"><span class="keyword">public</span> <span class="title">Launcher</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Launcher.ExtClassLoader var1;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 内部DCL单例创建ExtClassLoader</span></span><br><span class="line">            var1 = Launcher.ExtClassLoader.getExtClassLoader();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException var10) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> InternalError(<span class="string">"Could not create extension class loader"</span>, var10);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 内部DCL创建AppClassLoader var1（extClassLoader）作为参数传入赋值给parent变量</span></span><br><span class="line">            <span class="keyword">this</span>.loader = Launcher.AppClassLoader.getAppClassLoader(var1);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException var9) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> InternalError(<span class="string">"Could not create application class loader"</span>, var9);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 线程上下文加载器</span></span><br><span class="line">        Thread.currentThread().setContextClassLoader(<span class="keyword">this</span>.loader);</span><br><span class="line">        <span class="comment">// 省略代码</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>可以看到先初始化了一个extClassLoader，然后将ext作为参数传入了AppClassLoader的构造过程中，其中APP类加载器中的parent父类加载器会赋值为ext类加载器，方便后续的双亲委派。</p>
+<p>JVM默认设置线程上下文的类加载器为AppClassLoader。ClassLoader.getSystemClassLoader()返回的也是APP类加载器。</p>
+<h3 id="双亲委派机制"><a href="#双亲委派机制" class="headerlink" title="双亲委派机制"></a>双亲委派机制</h3><p>由上面的代码可以看到jdk自带的类加载器在逻辑上是有继承父子关系的,而类加载器的加载是存在双亲委派的机制。</p>
+<p>双亲委派机制：加载类时会先委托给父类加载器去加载，找不到再委托给上层父类加载器去加载，如果所有父类加载器在自己的加载路径下找不到目标类，则此时才在子类加载器加载目标类。</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103705295.png" alt="image-20220701103705295"></p>
+<p>来看下代码是怎么实现双亲委派机制的：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AppClassLoader.loadClass方法</span></span><br><span class="line"> <span class="keyword">public</span> Class&lt;?&gt; loadClass(String var1, <span class="keyword">boolean</span> var2) <span class="keyword">throws</span> ClassNotFoundException &#123;</span><br><span class="line">            <span class="keyword">int</span> var3 = var1.lastIndexOf(<span class="number">46</span>);</span><br><span class="line">            <span class="keyword">if</span> (var3 != -<span class="number">1</span>) &#123;</span><br><span class="line">                SecurityManager var4 = System.getSecurityManager();</span><br><span class="line">                <span class="keyword">if</span> (var4 != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    var4.checkPackageAccess(var1.substring(<span class="number">0</span>, var3));</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">this</span>.ucp.knownToNotExist(var1)) &#123;</span><br><span class="line">                Class var5 = <span class="keyword">this</span>.findLoadedClass(var1);</span><br><span class="line">                <span class="keyword">if</span> (var5 != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (var2) &#123;</span><br><span class="line">                        <span class="keyword">this</span>.resolveClass(var5);</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">return</span> var5;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> ClassNotFoundException(var1);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">// 直接委托给super.loadClass方法</span></span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">super</span>.loadClass(var1, var2);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line"><span class="comment">// ClassLoader中的loadClass方法</span></span><br><span class="line"> <span class="keyword">protected</span> Class&lt;?&gt; loadClass(String name, <span class="keyword">boolean</span> resolve)</span><br><span class="line">        <span class="keyword">throws</span> ClassNotFoundException</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (getClassLoadingLock(name)) &#123;</span><br><span class="line">            <span class="comment">// First, check if the class has already been loaded</span></span><br><span class="line">            <span class="comment">// 检查当前类加载器是否已经加载了该类 如果存在直接返回</span></span><br><span class="line">            Class&lt;?&gt; c = findLoadedClass(name);</span><br><span class="line">            <span class="keyword">if</span> (c == <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">long</span> t0 = System.nanoTime();</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    <span class="keyword">if</span> (parent != <span class="keyword">null</span>) &#123;</span><br><span class="line">                        <span class="comment">// 如果此类加载器还有parent类加载器 则委托给父类loadClass</span></span><br><span class="line">                        c = parent.loadClass(name, <span class="keyword">false</span>);</span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        <span class="comment">// parent为null 让引导类加载器去加载 这里相当于extClassLoader的parent是引导类加载器</span></span><br><span class="line">                        c = findBootstrapClassOrNull(name);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</span><br><span class="line">                    <span class="comment">// ClassNotFoundException thrown if class not found</span></span><br><span class="line">                    <span class="comment">// from the non-null parent class loader</span></span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (c == <span class="keyword">null</span>) &#123;</span><br><span class="line">                    <span class="comment">// If still not found, then invoke findClass in order</span></span><br><span class="line">                    <span class="comment">// to find the class.</span></span><br><span class="line">                    <span class="keyword">long</span> t1 = System.nanoTime();</span><br><span class="line">                    <span class="comment">// 都会调用URLClassLoader的findClass方法在加载器的类路径里查找并加载该类</span></span><br><span class="line">                    c = findClass(name);</span><br><span class="line"></span><br><span class="line">                    <span class="comment">// this is the defining class loader; record the stats</span></span><br><span class="line">                    sun.misc.PerfCounter.getParentDelegationTime().addTime(t1 - t0);</span><br><span class="line">                    sun.misc.PerfCounter.getFindClassTime().addElapsedTimeFrom(t1);</span><br><span class="line">                    sun.misc.PerfCounter.getFindClasses().increment();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (resolve) &#123;</span><br><span class="line">                resolveClass(c);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 返回类</span></span><br><span class="line">            <span class="keyword">return</span> c;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>从代码里可以看到，双亲委派就是委托给parent父类加载器变量来load的，如果parent为null则委托给引导类加载器。如果父类加载器加载失败，会回到子类加载器在findClass方法中根据name加载对应的类。如果自定义类加载器想符合双亲委派机制，可以直接重写findClass这个方法，且默认自定义类加载器的父加载器是AppClassLoader，这样自定义类加载器会遵循双亲委派机制来加载类。</p>
+<h4 id="双亲委派的优点"><a href="#双亲委派的优点" class="headerlink" title="双亲委派的优点"></a>双亲委派的优点</h4><ul>
+<li>沙箱安全机制：自己写的java.lang.String类不会被加载，因为优先委托给引导类加载器来加载，只会加载rt.jar中的核心api，这样可以防止核心API被篡改。</li>
+<li>避免类的重复加载：父类加载器已经加载过的类，因为双亲委派不会被加载第二次。保证加载类的唯一性。</li>
+</ul>
+<h3 id="双亲委派机制的打破"><a href="#双亲委派机制的打破" class="headerlink" title="双亲委派机制的打破"></a>双亲委派机制的打破</h3><p>双亲委派机制本身也存在限制和缺点。双亲委派使得类有了层级划分（跟随类加载器），越基础的类越上层的类加载器去加载，但是如果基础的类要调用用户写的类时（不在加载基础类加载器包路径下），这个模型就不灵活。或者比如在Tomcat这种容器中，想实现不同war包之间的隔离和部分共享，双亲委派机制也不能满足。所以需要打破双亲委派机制。</p>
+<p>打破方式：</p>
+<ul>
+<li>利用线程上下文类加载器来加载对应类。比如SPI的应用，JNDI或者JDBC。对应JNDI来说，基础的资源查找和管理都在rt.jar中由启动类加载器加载，而其需要加载的spi文件有的在classpath里，这时就依赖线程上下文类加载器来加载，打破了双亲委派机制。</li>
+<li>自己实现自定义的类加载器（默认的parent为应用程序类加载器），重写loadClass方法，不委托对应的parent去加载。</li>
+</ul>
+<h4 id="Tomcat打破双亲委派的机制"><a href="#Tomcat打破双亲委派的机制" class="headerlink" title="Tomcat打破双亲委派的机制"></a>Tomcat打破双亲委派的机制</h4><p>Tomcat作为web容器要解决的问题：</p>
+<ol>
+<li>web容器可能要部署不同的war包，要依赖三方包不同的版本，不能要求同一个类只加载了一次，要实现war包之间的隔离。</li>
+<li>可以共享的类在不同的war包也不应该加载10次，有web程序可共享的类。</li>
+<li>server自己和web程序依赖的类应该是隔离的，为了安全。</li>
+<li>web容器要支持jsp的修改，支持jsp的热更新。</li>
+</ol>
+<p>显然，默认的双亲委派机制是支持不聊tomcat这个需求的。第一点和第三点其实都是要多个相同全限定类名的类加载多次实现隔离，这显然不能去双亲委派。而jsp的要求热更新，jsp对应的class文件在加载之后变更，可以卸载jsp的类加载器，再重新去生成一个类加载器去加载对应的jsp文件实现热更新。</p>
+<p>在tomcat中有三组目录（/common/<em>、/server/</em>、/shared/*），分别对应所有共享、server容器自己所用、web程序共享，当然每个web程序都有自己的/WEB-INF/目录来存放自己的web应用程序的资源。tomact的类加载器依赖了这些目录的功能，如下：<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103717270.png" alt="image-20220701103717270"></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/04/12/类加载系列之理解类加载/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1728,687 +2531,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/01/21/数据库死锁日志查看/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2020/01/21/数据库死锁日志查看/" itemprop="url">数据库死锁日志查看</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-21T10:25:13+08:00">
-                2020-01-21
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/mysql/" itemprop="url" rel="index">
-                    <span itemprop="name">mysql</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2020/01/21/数据库死锁日志查看/" class="leancloud_visitors" data-flag-title="数据库死锁日志查看">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  763
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  4
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p><a href="https://segmentfault.com/a/1190000018730103" target="_blank" rel="noopener">https://segmentfault.com/a/1190000018730103</a></p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="keyword">engine</span> <span class="keyword">innodb</span> <span class="keyword">status</span>;</span><br></pre></td></tr></table></figure>
-<hr>
-<h4 id="记录锁，间隙锁，Next-key-锁和插入意向锁。这四种锁对应的死锁如下："><a href="#记录锁，间隙锁，Next-key-锁和插入意向锁。这四种锁对应的死锁如下：" class="headerlink" title="记录锁，间隙锁，Next-key 锁和插入意向锁。这四种锁对应的死锁如下："></a>记录锁，间隙锁，Next-key 锁和插入意向锁。这四种锁对应的死锁如下：</h4><p>记录锁（LOCK_REC_NOT_GAP）: lock_mode X locks rec but not gap<br>间隙锁（LOCK_GAP）: lock_mode X locks gap before rec<br>Next-key 锁（LOCK_ORNIDARY）: lock_mode X<br>插入意向锁（LOCK_INSERT_INTENTION）: lock_mode X locks gap before rec insert intention</p>
-<h4 id="关于显式锁和隐式锁"><a href="#关于显式锁和隐式锁" class="headerlink" title="关于显式锁和隐式锁"></a>关于显式锁和隐式锁</h4><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701102530237.png" alt="image-20220701102530237"></p>
-<h4 id="死锁日志"><a href="#死锁日志" class="headerlink" title="死锁日志"></a>死锁日志</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">=====================================</span><br><span class="line">2018-08-05 21:20:27 0x7fd40c082700 INNODB MONITOR OUTPUT</span><br><span class="line">=====================================</span><br><span class="line">Per second averages calculated from the last 4 seconds</span><br><span class="line">-----------------</span><br><span class="line">BACKGROUND THREAD</span><br><span class="line">-----------------</span><br><span class="line">srv_master_thread loops: 251 srv_active, 0 srv_shutdown, 22663 srv_idle</span><br><span class="line">srv_master_thread log flush and writes: 22905</span><br><span class="line">----------</span><br><span class="line">SEMAPHORES</span><br><span class="line">----------</span><br><span class="line">OS WAIT ARRAY INFO: reservation count 513</span><br><span class="line">OS WAIT ARRAY INFO: signal count 450</span><br><span class="line">RW-shared spins 0, rounds 569, OS waits 286</span><br><span class="line">RW-excl spins 0, rounds 127, OS waits 1</span><br><span class="line">RW-sx spins 0, rounds 0, OS waits 0</span><br><span class="line">Spin rounds per wait: 569.00 RW-shared, 127.00 RW-excl, 0.00 RW-sx</span><br><span class="line">------------------------</span><br><span class="line">LATEST DETECTED DEADLOCK</span><br><span class="line">------------------------</span><br><span class="line">2018-08-05 21:15:42 0x7fd40c0b3700</span><br><span class="line">*** (1) TRANSACTION:</span><br><span class="line">TRANSACTION 1095010, ACTIVE 21 sec inserting</span><br><span class="line">mysql tables in use 1, locked 1</span><br><span class="line">LOCK WAIT 5 lock struct(s), heap size 1136, 4 row lock(s), undo log entries 2</span><br><span class="line">MySQL thread id 16, OS thread handle 140548578129664, query id 3052 183.6.50.229 root update</span><br><span class="line">insert into t_bitfly values(7,7)</span><br><span class="line">*** (1) WAITING FOR THIS LOCK TO BE GRANTED:</span><br><span class="line">RECORD LOCKS space id 2514 page no 4 n bits 72 index num_key of table `test`.`t_bitfly` trx id 1095010 lock_mode X locks gap before rec insert intention waiting</span><br><span class="line">Record lock, heap no 3 PHYSICAL RECORD: n_fields 2; compact format; info bits 32</span><br><span class="line"> 0: len 4; hex 80000007; asc     ;;</span><br><span class="line"> 1: len 8; hex 8000000000000008; asc         ;;</span><br><span class="line"></span><br><span class="line">*** (2) TRANSACTION:</span><br><span class="line">TRANSACTION 1095015, ACTIVE 6 sec inserting</span><br><span class="line">mysql tables in use 1, locked 1</span><br><span class="line">4 lock struct(s), heap size 1136, 4 row lock(s), undo log entries 2</span><br><span class="line">MySQL thread id 17, OS thread handle 140548711855872, query id 3056 183.6.50.229 root update</span><br><span class="line">insert into t_bitfly values(5,5)</span><br><span class="line">*** (2) HOLDS THE LOCK(S):</span><br><span class="line">RECORD LOCKS space id 2514 page no 4 n bits 72 index num_key of table `test`.`t_bitfly` trx id 1095015 lock_mode X</span><br><span class="line">Record lock, heap no 1 PHYSICAL RECORD: n_fields 1; compact format; info bits 0</span><br><span class="line"> 0: len 8; hex 73757072656d756d; asc supremum;;</span><br><span class="line"></span><br><span class="line">Record lock, heap no 3 PHYSICAL RECORD: n_fields 2; compact format; info bits 32</span><br><span class="line"> 0: len 4; hex 80000007; asc     ;;</span><br><span class="line"> 1: len 8; hex 8000000000000008; asc         ;;</span><br><span class="line"></span><br><span class="line">*** (2) WAITING FOR THIS LOCK TO BE GRANTED:</span><br><span class="line">RECORD LOCKS space id 2514 page no 4 n bits 72 index num_key of table `test`.`t_bitfly` trx id 1095015 lock_mode X locks gap before rec insert intention waiting</span><br><span class="line">Record lock, heap no 3 PHYSICAL RECORD: n_fields 2; compact format; info bits 32</span><br><span class="line"> 0: len 4; hex 80000007; asc     ;;</span><br><span class="line"> 1: len 8; hex 8000000000000008; asc         ;;</span><br><span class="line"></span><br><span class="line">省略。。。</span><br></pre></td></tr></table></figure>
-<p>一些注释：<br>LATEST DETECTED DEADLOCK：标示为最新发生的死锁；<br>(1) TRANSACTION：此处表示事务1开始 ；<br>MySQL thread id 16, OS thread handle 140548578129664, query id 3052 183.6.50.229 root update：此处为记录当前数据库线程id；<br>insert into t_bitfly values(7,7)：表示事务1在执行的sql ，不过比较悲伤的事情是show engine innodb status 是查看不到完整的事务的sql 的，通常显示当前正在等待锁的sql；<br>(1) WAITING FOR THIS LOCK TO BE GRANTED：此处表示当前事务1等待获取行锁；<br>(2) TRANSACTION：此处表示事务2开始 ；<br>insert into t_bitfly values(5,5)：表示事务2在执行的sql<br>(2) HOLDS THE LOCK(S)：此处表示当前事务2持有的行锁；<br>(2) WAITING FOR THIS LOCK TO BE GRANTED：此处表示当前事务2等待获取行锁；</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/12/10/windows下typora图床/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2019/12/10/windows下typora图床/" itemprop="url">windows下typora图床（附带阿里云教程）</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-10T00:43:56+08:00">
-                2019-12-10
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/日常工具/" itemprop="url" rel="index">
-                    <span itemprop="name">日常工具</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2019/12/10/windows下typora图床/" class="leancloud_visitors" data-flag-title="windows下typora图床（附带阿里云教程）">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  2,216
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  8
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="typora"><a href="#typora" class="headerlink" title="typora"></a>typora</h1><p>Typora是大家写博客、记笔记、写文档等日常使用场景下都会使用的一个MarkDown语法的软件，对于熟悉markdown语法和喜欢markdown简洁性的朋友来说，typora是不可或缺的工具。但是，对于图片处理，我们需要图床去将我们的本地图片（截图、流程图之类的）上传到第三方的对象存储上（当然自己的服务器也是可以的）。</p>
-<p>本文基于一个typora在windows下的小插件<a href="https://github.com/Thobian/typora-plugins-win-img" target="_blank" rel="noopener">windows下typora图床</a> 来实现实时的粘贴图片到typora即将你的图片上传到阿里云OSS上，并且替换的实现过程，github上已经其实写的比较明白了，但是还是想把自己接入的过程和踩得坑记录一下。</p>
-<p>对于typora的使用、阿里云OSS的使用（我记得一年只要个位数的钱）、markdown语法等网上有很多介绍和例子，下面是几个传送门：</p>
-<ol>
-<li><p><a href="https://help.aliyun.com/document_detail/31947.html" target="_blank" rel="noopener">阿里云对象存储</a> </p>
-</li>
-<li><p><a href="https://www.typora.io/" target="_blank" rel="noopener">typora.io</a></p>
-</li>
-<li><p><a href="https://www.markdownguide.org/basic-syntax/" target="_blank" rel="noopener">markdown语法</a></p>
-</li>
-</ol>
-<h1 id="typora图床"><a href="#typora图床" class="headerlink" title="typora图床"></a>typora图床</h1><h2 id="怎么发现的"><a href="#怎么发现的" class="headerlink" title="怎么发现的"></a>怎么发现的</h2><p>如果你没有图床，那么在你写博客的过程中如果要使用阿里云图片的外链，得是这样的操作。</p>
-<ol>
-<li>将图片上传到阿里云OSS对象存储上</li>
-</ol>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210201936-475640.png" alt="image-20191210201936023"></p>
-<ol start="2">
-<li>复制该图片的外链</li>
-</ol>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210202043-187642.png" alt="image-20191210202043284"></p>
-<ol start="3">
-<li>将外链用markdown语法粘贴到正文中</li>
-</ol>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210202126-882435.png" alt="image-20191210202125030"></p>
-<p>这真的真的相当麻烦。<em>(:з」∠)</em></p>
-<p>所以图床就是用来解决这个问题，但是之前用的图床（之前用过chrome的一个图床插件）都是也只是省去了你登录对象存储在页面上上传的这一步，最后就还是要复制生成的url然后到typora的文章中。</p>
-<p>这里就在网上搜了下typora的图床，看看有没有符合自己偷懒的想法的做法，一键截图之后复制到typora中然后就可以了。</p>
-<p>然后就是Google搜了下，发现第一条就是日常学（划）习（水）的网站——知乎。</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210202740-488773.png" alt="image-20191210202739755"></p>
-<p>于是就点开之后看到了typora的这个插件，进而有了这个文章</p>
-<h2 id="手工教程"><a href="#手工教程" class="headerlink" title="手工教程"></a>手工教程</h2><p>首先贴一下这个插件的地址：<a href="https://github.com/Thobian/typora-plugins-win-img" target="_blank" rel="noopener">github</a></p>
-<p>这个文档中和知乎的回答差不多，我们可以直接来到使用这里开始：</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210203153-947469.png" alt="image-20191210203153008"></p>
-<p>下载插件的代码到本地，这里不熟悉的github的同学可以直接点击图中的download zip即可。</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210203323-619092.png" alt="image-20191210203319035"></p>
-<p>解压之后可以看到有这些文件，和github上的目录对应</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210203431-481659.png" alt="image-20191210203431182"></p>
-<p>然后按照文档上的教程手工替换（复制plugins目录、替换window.html）到对应的typora安装目录下的resource\app目录下。替换完成之后的目录长这个样子。</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210203641-860142.png" alt="image-20191210203640933"></p>
-<p>然后就是对里面的代码进行自己OSS的配置了。</p>
-<p>打开plugins–&gt;image–&gt;upload.js文件（这里可以直接用记事本打开js文件，当然程序员自动sublime或者vscode。），拉到底就可以看到文档中说的init相关的代码。</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210203936-497519.png" alt="image-20191210203936380"></p>
-<p>然后复制文档上的阿里云这段配置，把整个473行替换掉。</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210214247-119600.png" alt="image-20191210204100544"></p>
-<p>接下来就按照注释（“//“后面的东西）来操作即可。</p>
-<p>首先插件作者建议你添加一个子账号来单独操作你的OSS，这里简单理解下就是在你的阿里云上你可以建立多个用户组，而每个用户组中可以建立多个子用户，通过对用户组或者用户来设置权限达到一定操作。插件其实是用代码去调用阿里云提供的API来操作上传图片的，所以你肯定要在本地的typora的配置代码里填上一个关联你OSS的账号并且配置对应的权限才能成功上传图片；同时，出于安全考虑，你的这个账号应该只对你的OSS有写入和读的操作权限，所以建议来个子账号专门搞这个事情。</p>
-<p>作者其实这里写的也很明白了，包括申请子用户的地址：<code>https://ram.console.aliyun.com/users</code></p>
-<p>打开之后点击新建用户，即可看到让你填用户账户信息。<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210204749-103389.png" alt="image-20191210204747378"></p>
-<p>当然这里也可以直接添加用户组，然后在组下面添加用户。</p>
-<p>填写你想要的登录名称（复杂点也没关系，在后面配置一般是关键字搜索选择的）、显示名称和勾选上<strong>编程访问</strong>。这里的编程访问我们也可以清楚看到是通过assess信息来支持开发者调用API访问的用户。</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210205105-966090.png" alt="image-20191210205026239"></p>
-<p>点击确定，这时要收一个验证码：</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210214247-283734.png" alt="image-20191210205203529"></p>
-<p>填写完之后这步很关键，可以看到会在页面上告知你一个accessKeyId和accessKeySercret，但是坑的地方是这个授权key的值只有在创建的这个页面才能看到，之后就看不到了，所以这里一定要进行复制或者保存这两个值。可以看到页面上也提供了对这两个值的复制功能。</p>
-<p><img src="C:\Users\hasee\AppData\Roaming\Typora\typora-user-images\image-20191210205455114.png" alt="image-20191210205455114"></p>
-<p>这时候就要给这个用户去设置权限。刚创建的子用户是没有任何权限的，这里你既然要对OSS进行上传写入的操作，肯定要给这个账户权限，可以看到在用户界面有拟刚才创建的子用户，并且可以配置权限</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210205723-594012.png" alt="image-20191210205719451"></p>
-<p>这里在权限搜索框内输入OSS，就可以看到我们要配置的权限（管理OSS的权限），点击确定即可。</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210205901-495252.png" alt="image-20191210205859885"></p>
-<p>到这里，init代码中需要的前三项就都有了。</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210210321-914840.png" alt="image-20191210210321356"></p>
-<p>还剩个bucketDomain，这里作者其实也说的很明白了，在你的OSS概览页面上，会有对应的bucket域名，这里挑选一个即可，我挑选的是外网访问的这个bucket域名</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210210534-200940.png" alt="image-20191210210533111"></p>
-<p>其实文档到这步也就没有了，我就以为是OK了，然后就很有自信的去保存了修改后的js文件去试了下。果然，不行<em>(:з」∠)</em>。</p>
-<p>一直在提示我<code>服务响应解析失败，错误</code>。之后又对了遍文档发现也没漏啥。最后还是选择去看了upload代码。</p>
-<p>首先这个错误肯定是作者定义的，然后就在upload.js中看到了这个错误。</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210210950-512239.png" alt="image-20191210210949483"></p>
-<p>这里可以看到其实是调用接口异常了，所以返回的这个错误，所以大概率是刚才配置的问题，再往上翻才看到原来除了文件底部的init方法之外，还要去配置下代码中的setting信息，这里稍微吐槽下为啥文档里没有写（没有，就是我前端不熟就没看代码，菜是原罪= =）。</p>
-<p>在setting配置里有这段代码：<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210214248-66258.png" alt="image-20191210211346838"></p>
-<p>可以看到请求的域名和API访问是从这里解析的，所以你不配置这里，默认会用作者写死的jiebianjin去访问接口，当然调不通了（因为阿里云上并没有这个子用户）。这里还是刚才的accessKey信息和bucket信息。这里看到了设置了过期时间和上传的大小限制，进而手工改了下大小限制，默认是512k，我这里放大到了5M。</p>
-<p>之后保存之后，又信心满满的去试了下，卧槽，居然还是报错。然后又对了下文档中的配置。</p>
-<p>无奈打开了调试，typora其实就是个浏览器= =。windows下shift+f12是调试工具。这里没有把当时报错的接口的截图贴上，当时忘记截图了，这里是我在写这篇博客的时候调试截图的。通过一顿分析发现自己在配置BucketDomain的时候，忘记在最后加上一个反斜杠。这里大家在配置的过程中也可以注意下。</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210212015-416701.png" alt=""></p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/typora/20191210212848-345879.png" alt="image-20191210212848266"></p>
-<h2 id="给插件的建议"><a href="#给插件的建议" class="headerlink" title="给插件的建议"></a>给插件的建议</h2><p>首先感谢插件作者 @Thobian 大佬写了这个插件，真的在typora下很方便，应该以后会比较重度使用。这里提几个建议。</p>
-<ul>
-<li>完善各个厂商对象存储的配置教程，其实腾讯云OSS我也用过，和阿里云大同小异。</li>
-<li>点击再上传这个功能可以加个弹窗之类的中间过程（不能省这个我get到，因为可能失败要重传），在写文过程中点击到图片会自动再上传一次，OSS上会有比较多的重复文件，不好管理</li>
-<li>接第二条，我在写文过程中喜欢<code>ctrl+s</code>保存，这个好像也会把我的图片再重新上传一次（不太确定），也会造成大量的相同文件。</li>
-<li>性能上有时会卡顿，如果是阿里云接口的锅当我没说哈<em>(:з」∠)</em>。</li>
-<li>继续开发更好的功能给大家用，会一如既往的支持的~</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/12/09/方法引用拾遗/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2019/12/09/方法引用拾遗/" itemprop="url">方法引用拾遗</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-09T16:53:39+08:00">
-                2019-12-09
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Java语法/" itemprop="url" rel="index">
-                    <span itemprop="name">Java语法</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Java语法/Java8/" itemprop="url" rel="index">
-                    <span itemprop="name">Java8</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2019/12/09/方法引用拾遗/" class="leancloud_visitors" data-flag-title="方法引用拾遗">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  955
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  4
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="方法引用"><a href="#方法引用" class="headerlink" title="方法引用"></a>方法引用</h2><p>方法引用是java8引入lambda表达式之后的一个特性，在日常的开发工作中经常使用，可以看做是一种函数指针（function pointer），也可以简单看做lambda表达式的一种语法糖。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/blog/2019/12/09/方法引用拾遗/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2463,7 +2585,7 @@
               
                 <a href="/blog/archives/">
               
-                  <span class="site-state-item-count">105</span>
+                  <span class="site-state-item-count">108</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2485,7 +2607,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/blog/tags/index.html">
-                  <span class="site-state-item-count">112</span>
+                  <span class="site-state-item-count">115</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -2559,7 +2681,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">152.1k</span>
+    <span title="Site words total count">158.6k</span>
   
 </div>
 
@@ -2581,7 +2703,7 @@
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共152.1k字</span>
+  <span class="post-count">博客全站共158.6k字</span>
 </div>
 
 <br />
