@@ -297,6 +297,491 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/05/20/dubbo的spi实现/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2020/05/20/dubbo的spi实现/" itemprop="url">dubboSPI的实现</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-05-20T00:17:24+08:00">
+                2020-05-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/dubbo/" itemprop="url" rel="index">
+                    <span itemprop="name">dubbo</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2020/05/20/dubbo的spi实现/" class="leancloud_visitors" data-flag-title="dubboSPI的实现">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3,846
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  17
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="dubbo的spi概述"><a href="#dubbo的spi概述" class="headerlink" title="dubbo的spi概述"></a>dubbo的spi概述</h1><p>采用spi是为了更好的达到OCP原则（对扩展开放，对修改封闭）。dubbo采用微内核+插件的架构。内核部分功能稳定，面向功能的可拓展性实现都是由插件来完成的，内核只是管理插件和应用插件实现。这样更灵活。</p>
+<p>dubbo就是采用spi来加载插件的。</p>
+<h1 id="SPI原理"><a href="#SPI原理" class="headerlink" title="SPI原理"></a>SPI原理</h1><h2 id="jdk中的spi"><a href="#jdk中的spi" class="headerlink" title="jdk中的spi"></a>jdk中的spi</h2><h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><p>需要在resource目录下的META-INFO/services下新建对应SPI接口名称为名字的文件，然后将实现类的全限类名作为文件内容。</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/20210710162401.png" alt=""></p>
+<p>其文件内容：<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/20210710162535.png" alt=""></p>
+<p>然后利用ServiceLoader接口去加载和使用对应的spi接口即可。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public class 测试jdk_spi &#123;</span><br><span class="line"></span><br><span class="line">    @Test</span><br><span class="line">    public void testJdkSPI() &#123;</span><br><span class="line">        ServiceLoader&lt;IShot&gt; serviceLoader = ServiceLoader.load(IShot.class);</span><br><span class="line">        Iterator&lt;IShot&gt; iterator = serviceLoader.iterator();</span><br><span class="line">        while (iterator.hasNext()) &#123;</span><br><span class="line">            IShot next = iterator.next();</span><br><span class="line">            System.out.println(next.shot());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>输出：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">i am a dog</span><br><span class="line">i am a cat</span><br></pre></td></tr></table></figure></p>
+<h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>ServiceLoader接口在调用load时，会创建一个ServiceLoader对应的实例，其中维护了一个providers变量，是一个LinkedHashMap，其会将spi文件中的每个接口实现的名称作为key，具体实例化的实现作为value存储，并且会生成一个LazyIterator作为迭代器的实现。</p>
+<p>在调用ServiceLoader迭代器的hasNext和next方法时，会调用到上边的Lazy迭代器，其就是去读取配置文件中的内容，保存到providers中。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">private S nextService() &#123;</span><br><span class="line">           if (!hasNextService())</span><br><span class="line">               throw new NoSuchElementException();</span><br><span class="line">           String cn = nextName;</span><br><span class="line">           nextName = null;</span><br><span class="line">           Class&lt;?&gt; c = null;</span><br><span class="line">           try &#123;</span><br><span class="line">               c = Class.forName(cn, false, loader);</span><br><span class="line">           &#125; catch (ClassNotFoundException x) &#123;</span><br><span class="line">               fail(service,</span><br><span class="line">                    &quot;Provider &quot; + cn + &quot; not found&quot;);</span><br><span class="line">           &#125;</span><br><span class="line">           if (!service.isAssignableFrom(c)) &#123;</span><br><span class="line">               fail(service,</span><br><span class="line">                    &quot;Provider &quot; + cn  + &quot; not a subtype&quot;);</span><br><span class="line">           &#125;</span><br><span class="line">           try &#123;</span><br><span class="line">               S p = service.cast(c.newInstance());</span><br><span class="line">               providers.put(cn, p);</span><br><span class="line">               return p;</span><br><span class="line">           &#125; catch (Throwable x) &#123;</span><br><span class="line">               fail(service,</span><br><span class="line">                    &quot;Provider &quot; + cn + &quot; could not be instantiated&quot;,</span><br><span class="line">                    x);</span><br><span class="line">           &#125;</span><br><span class="line">           throw new Error();          // This cannot happen</span><br><span class="line">       &#125;</span><br></pre></td></tr></table></figure>
+<h2 id="dubbo中的SPI"><a href="#dubbo中的SPI" class="headerlink" title="dubbo中的SPI"></a>dubbo中的SPI</h2><p>dubbo没有直接使用java的SPI来实现自己的插件加载，而是在SPI基础上进行改造。因为java的SPI需要加载文件中所有扩展点的实现，</p>
+<p>java SPI是需要加载文件中所有的实现类，会造成资源浪费，且不能动态加载某个实现类<br>。</p>
+<p>而dubbo的spi文件首先拓展了三个目录下：</p>
+<ul>
+<li>META-INF/services/ 目录：该目录下的 SPI 配置文件用来兼容 JDK SPI 。</li>
+<li>META-INF/dubbo/ 目录：该目录用于存放用户自定义 SPI 配置文件。</li>
+<li>META-INF/dubbo/internal/ 目录：该目录用于存放 Dubbo 内部使用的 SPI 配置文件。</li>
+</ul>
+<p>其次dubbo的SPI文件的配置改为了KV形式，实现了只加载对应key的值的扩展点具体实现。</p>
+<p>配置文件举例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dubbo=org.apache.dubbo.rpc.protocol.dubbo.DubboProtocol</span><br></pre></td></tr></table></figure></p>
+<p>这时因为扩展点的key：extensionName为dubbo，所以找到DubboProtocol这个Protocol接口的实现。</p>
+<h3 id="1-Spi注解"><a href="#1-Spi注解" class="headerlink" title="1. @Spi注解"></a>1. @Spi注解</h3><p>Dubbo中接口用@SPI注解注释时，标注为扩展点接口，其value值的作用是在加载Protocol接口实现时，如果没有明确指定扩展名，则取value值作为扩展名去加载spi文件中对应的实现类。</p>
+<h4 id="ExtensionLoader如何处理-SPI注解"><a href="#ExtensionLoader如何处理-SPI注解" class="headerlink" title="ExtensionLoader如何处理@SPI注解"></a>ExtensionLoader如何处理@SPI注解</h4><p>ExtensionLoader是SPI实现的核心工具类，对于每个扩展点接口都会有一个ExtensionLoader实例。同时还有一些静态字段作为缓存加载过的扩展点实现。</p>
+<p>静态字段：</p>
+<ul>
+<li><p>strategies(LoadingStrategy[]类型)：LoadingStrategy接口有三个实现，对应是三个SPI配置文件的加载路径。其也都实现了优先级接口，优先级为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DubboInternalLoadingStrategy &gt; DubboLoadingStrategy &gt; ServicesLoadingStrateg</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>EXTENSION_LOADERS (ConcurrentHashMap&lt;Class&lt;?&gt;, ExtensionLoader&lt;?&gt;&gt;类型)：表示type类型对应的extensionLoader实例映射缓存。</p>
+</li>
+<li>EXTENSION_INSTANCES：表示扩展实现类和其实例对象的映射</li>
+</ul>
+<p>实例字段：</p>
+<ul>
+<li>type：当前的ExtensionLoader实例负责加载的扩展接口</li>
+<li>objectFactory：所属的对象工厂，注入所依赖的其他扩展点接口时所用</li>
+<li>cachedDefaultName(String类型)：默认扩展名。即@SPI接口的value值</li>
+<li>cachedNames (ConcurrentHashMap&lt;Class&lt;?&gt;, String&gt;类型)：缓存了该ExtensionLoader实例加载的扩展实现类与扩展名之间的映射关系。</li>
+<li>cachedClasses (Holder&lt;ConcurrentHashMap&lt;String, Class&lt;?&gt;&gt;&gt;类型)：缓存了扩展点名称和扩展点实现类之间的映射关系</li>
+<li>cachedInstances (ConcurrentMap&lt;String, Holder<objcet>&gt;类型)：缓存了该ExtensionLoader实例加载的扩展名与扩展实现对象之间的映射关系。</objcet></li>
+<li>cachedAdaptiveInstance：缓存了adaptive扩展点实例</li>
+<li>cachedAdaptiveClass：缓存该extensionLoader加载过程中直接标注@Adaptive注解的扩展实现类</li>
+<li>cachedWrapperClasses：缓存该extensionLoader加载过程中的包装类wrapper实现</li>
+</ul>
+<p>ExtensionLoader.getExtensionLoader() 方法会创建对应的ExtensionLoader对象：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">public static &lt;T&gt; ExtensionLoader&lt;T&gt; getExtensionLoader(Class&lt;T&gt; type) &#123;</span><br><span class="line">        // 从缓存中找 </span><br><span class="line">        ExtensionLoader&lt;T&gt; loader = (ExtensionLoader&lt;T&gt;) EXTENSION_LOADERS.get(type);</span><br><span class="line">        if (loader == null) &#123;</span><br><span class="line">        // 如果缓存为null 则初始化一个 再放入缓存</span><br><span class="line">            EXTENSION_LOADERS.putIfAbsent(type, new ExtensionLoader&lt;T&gt;(type));</span><br><span class="line">            loader = (ExtensionLoader&lt;T&gt;) EXTENSION_LOADERS.get(type);</span><br><span class="line">        &#125;</span><br><span class="line">        return loader;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>这里的new ExtensionLoader就是初始化type和objectFactory两个字段。</p>
+<p>初始化完ExtensionLoader实例之后，可以根据getExtension方法用name加载扩展点：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">public T getExtension(String name) &#123; </span><br><span class="line">    // getOrCreateHolder()方法中封装了查找cachedInstances缓存的逻辑 </span><br><span class="line">    Holder&lt;Object&gt; holder = getOrCreateHolder(name); </span><br><span class="line">    Object instance = holder.get(); </span><br><span class="line">    if (instance == null) &#123; // double-check防止并发问题 </span><br><span class="line">        synchronized (holder) &#123; </span><br><span class="line">            instance = holder.get(); </span><br><span class="line">            if (instance == null) &#123; </span><br><span class="line">                // 根据扩展名从SPI配置文件中查找对应的扩展实现类 </span><br><span class="line">                instance = createExtension(name); </span><br><span class="line">                holder.set(instance); </span><br><span class="line">            &#125; </span><br><span class="line">        &#125; </span><br><span class="line">    &#125; </span><br><span class="line">    return (T) instance; </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// getOrCreateHolder方法：</span><br><span class="line">    private Holder&lt;Object&gt; getOrCreateHolder(String name) &#123;</span><br><span class="line">        Holder&lt;Object&gt; holder = cachedInstances.get(name);</span><br><span class="line">        if (holder == null) &#123;</span><br><span class="line">            cachedInstances.putIfAbsent(name, new Holder&lt;&gt;());</span><br><span class="line">            holder = cachedInstances.get(name);</span><br><span class="line">        &#125;</span><br><span class="line">        return holder;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>看到是调用了createExtension(name) 来实例化扩展点实现类：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line">     * 获取 cachedClasses 缓存，根据扩展名从 cachedClasses 缓存中获取扩展实现类。</span><br><span class="line">     * 如果 cachedClasses 未初始化，则会扫描前面介绍的三个 SPI 目录获取查找相应的 SPI 配置文件，</span><br><span class="line">     * 然后加载其中的扩展实现类，最后将扩展名和扩展实现类的映射关系记录到 cachedClasses 缓存中。</span><br><span class="line">     * 这部分逻辑在 loadExtensionClasses() 和 loadDirectory() 方法中。</span><br><span class="line">     *</span><br><span class="line">     * 根据扩展实现类从 EXTENSION_INSTANCES 缓存中查找相应的实例。如果查找失败，会通过反射创建扩展实现对象。</span><br><span class="line">     *</span><br><span class="line">     * 自动装配扩展实现对象中的属性（即调用其 setter）。这里涉及 ExtensionFactory 以及自动装配的相关内容，</span><br><span class="line">     *</span><br><span class="line">     * 自动包装扩展实现对象。这里涉及 Wrapper 类以及自动包装特性的相关内容</span><br><span class="line">     *</span><br><span class="line">     * 如果扩展实现类实现了 Lifecycle 接口，在 initExtension() 方法中会调用 initialize() 方法进行初始化。</span><br><span class="line">     * @param name</span><br><span class="line">     * @return</span><br><span class="line">     */</span><br><span class="line">    @SuppressWarnings(&quot;unchecked&quot;)</span><br><span class="line">    private T createExtension(String name) &#123;</span><br><span class="line">        // 获取扩展名对应的扩展实现类</span><br><span class="line">        Class&lt;?&gt; clazz = getExtensionClasses().get(name);</span><br><span class="line">        if (clazz == null) &#123;</span><br><span class="line">            throw findException(name);</span><br><span class="line">        &#125;</span><br><span class="line">        try &#123;</span><br><span class="line">            // 从扩展实现类和其实例对象中获取</span><br><span class="line">            T instance = (T) EXTENSION_INSTANCES.get(clazz);</span><br><span class="line">            if (instance == null) &#123;</span><br><span class="line">                // newInstance放入缓存中</span><br><span class="line">                EXTENSION_INSTANCES.putIfAbsent(clazz, clazz.newInstance());</span><br><span class="line">                instance = (T) EXTENSION_INSTANCES.get(clazz);</span><br><span class="line">            &#125;</span><br><span class="line">            // 处理依赖的其他扩展点实现 调用了setter方法</span><br><span class="line">            injectExtension(instance);</span><br><span class="line"></span><br><span class="line">            // 实现wrapper包装</span><br><span class="line">            Set&lt;Class&lt;?&gt;&gt; wrapperClasses = cachedWrapperClasses;</span><br><span class="line">            if (CollectionUtils.isNotEmpty(wrapperClasses)) &#123;</span><br><span class="line">                for (Class&lt;?&gt; wrapperClass : wrapperClasses) &#123;</span><br><span class="line">                    // 遍历全部wrapper类包装到当前的扩展点实现</span><br><span class="line">                    instance = injectExtension((T) wrapperClass.getConstructor(type).newInstance(instance));</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            // 初始化instanced对象 如果扩展点实现了LifeCycle接口的话</span><br><span class="line">            initExtension(instance);</span><br><span class="line">            return instance;</span><br><span class="line">        &#125; catch (Throwable t) &#123;</span><br><span class="line">            throw new IllegalStateException(&quot;Extension instance (name: &quot; + name + &quot;, class: &quot; +</span><br><span class="line">                    type + &quot;) couldn&apos;t be instantiated: &quot; + t.getMessage(), t);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="2-Adaptive注解和适配器"><a href="#2-Adaptive注解和适配器" class="headerlink" title="2. @Adaptive注解和适配器"></a>2. @Adaptive注解和适配器</h3><p>@Adaptive表示自适应的扩展点实现。</p>
+<ul>
+<li>当@Adaptive注解在类上注解时，表示此类为扩展实现，在SPI中使用并不多，只使用在了ExtensionFactory接口上。</li>
+</ul>
+<p>可以看到ExtensionFactory接口的自适应实现AdaptiveExtensionFactory即为ExtensionLoader.getAdaptiveExtension()方法的返回值，即注解在类上即为自适应实现，且会缓存在ExtensionLoader实例中的cachedAdaptiveClass变量中。</p>
+<p>AdaptiveExtensionFactory内部逻辑也比较简单，即根据注入的其他两个ExtensionFactory具体实现去加载对应的扩展点实现。一个是Dubbo SPI自适应扩展点实现加载，一个是Spring上下文获取bean。</p>
+<ul>
+<li>当@Adaptive注解在方法上时，Dubbo会动态代理生成Adaptive实现类（比如Transporter$Adaptive)，此动态代理类也会实现扩展点接口。</li>
+</ul>
+<p>代理类中的逻辑也是根据@Adaptive注解中值作为从url获取扩展名称的key，然后再根据ExtensionLoader获取扩展实现类。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">public class Transporter$Adaptive implements Transporter &#123; </span><br><span class="line">    public org.apache.dubbo.remoting.Client connect(URL arg0, ChannelHandler arg1) throws RemotingException &#123; </span><br><span class="line">        // 必须传递URL参数 </span><br><span class="line">        if (arg0 == null) throw new IllegalArgumentException(&quot;url == null&quot;); </span><br><span class="line">        URL url = arg0; </span><br><span class="line">        // 确定扩展名，优先从URL中的client参数获取，其次是transporter参数 </span><br><span class="line">        // 这两个参数名称由@Adaptive注解指定，最后是@SPI注解中的默认值 </span><br><span class="line">        String extName = url.getParameter(&quot;client&quot;,</span><br><span class="line">            url.getParameter(&quot;transporter&quot;, &quot;netty&quot;)); </span><br><span class="line">        if (extName == null) </span><br><span class="line">            throw new IllegalStateException(&quot;...&quot;); </span><br><span class="line">        // 通过ExtensionLoader加载Transporter接口的指定扩展实现 </span><br><span class="line">        Transporter extension = (Transporter) ExtensionLoader </span><br><span class="line">              .getExtensionLoader(Transporter.class) </span><br><span class="line">                    .getExtension(extName); </span><br><span class="line">        return extension.connect(arg0, arg1); </span><br><span class="line">    &#125; </span><br><span class="line">    ... // 省略bind()方法 </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以上这两种为自适应的适配器实现。获取适配器的代码为getAdaptiveExtension()方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">public T getAdaptiveExtension() &#123;</span><br><span class="line">        // 从缓存中取</span><br><span class="line">        Object instance = cachedAdaptiveInstance.get();</span><br><span class="line">        if (instance == null) &#123;</span><br><span class="line">            if (createAdaptiveInstanceError != null) &#123;</span><br><span class="line">                throw new IllegalStateException(&quot;Failed to create adaptive instance: &quot; +</span><br><span class="line">                        createAdaptiveInstanceError.toString(),</span><br><span class="line">                        createAdaptiveInstanceError);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            synchronized (cachedAdaptiveInstance) &#123; // double check</span><br><span class="line">                instance = cachedAdaptiveInstance.get();</span><br><span class="line">                if (instance == null) &#123;</span><br><span class="line">                    try &#123;</span><br><span class="line">                        // 创建自适应的扩展点实现</span><br><span class="line">                        instance = createAdaptiveExtension();</span><br><span class="line">                        // 缓存</span><br><span class="line">                        cachedAdaptiveInstance.set(instance);</span><br><span class="line">                    &#125; catch (Throwable t) &#123;</span><br><span class="line">                        createAdaptiveInstanceError = t;</span><br><span class="line">                        throw new IllegalStateException(&quot;Failed to create adaptive instance: &quot; + t.toString(), t);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">// createAdaptiveExtension方法中调用的getAdaptiveExtensionClass方法</span><br><span class="line"> private Class&lt;?&gt; getAdaptiveExtensionClass() &#123;</span><br><span class="line">        // 触发loadClass 内部如果有直接加了@Adaptive注解的扩展点实现，则会维护到cacheAdaptiveClass变量中</span><br><span class="line">        getExtensionClasses();</span><br><span class="line">        if (cachedAdaptiveClass != null) &#123;</span><br><span class="line">            return cachedAdaptiveClass;</span><br><span class="line">        &#125;</span><br><span class="line">        // 动态代理类选择出的扩展点实现也维护在cacheAdaptiveClass变量中</span><br><span class="line">        return cachedAdaptiveClass = createAdaptiveExtensionClass();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><h3 id="3-自动包装特性"><a href="#3-自动包装特性" class="headerlink" title="3. 自动包装特性"></a>3. 自动包装特性</h3><p>扩展点的实现中可能有很多通用逻辑，dubbo SPI中的自动包装特性将多个扩展实现类的公共逻辑抽象到Wrapper类中，Wrapper类和普通扩展点实现一样，也实现了扩展接口，在获取真正的扩展对象时，在外面包一层Wrapper对象，是装饰器模式的实现。</p>
+</li>
+</ul>
+<p>判断是否为Wrapper的实现：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">private boolean isWrapperClass(Class&lt;?&gt; clazz) &#123;</span><br><span class="line">        try &#123;</span><br><span class="line">            // 检查是否是wrapper包装方式：是否有当前扩展点接口为参数的构造函数</span><br><span class="line">            // wrap类是为了解决多个扩展点实现的公共逻辑</span><br><span class="line">            clazz.getConstructor(type);</span><br><span class="line">            return true;</span><br><span class="line">        &#125; catch (NoSuchMethodException e) &#123;</span><br><span class="line">            return false;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>在加载spi文件时，会去缓存当前扩展点的wrapper实现类到一个集合变量中：cachedWrapperClasses，然后在之后遍历wrapper实现包装：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Set&lt;Class&lt;?&gt;&gt; wrapperClasses = cachedWrapperClasses;</span><br><span class="line">if (CollectionUtils.isNotEmpty(wrapperClasses)) &#123; </span><br><span class="line">    for (Class&lt;?&gt; wrapperClass : wrapperClasses) &#123; </span><br><span class="line">        instance = injectExtension((T) wrapperClass </span><br><span class="line">            .getConstructor(type).newInstance(instance)); </span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="4-自动装配特性"><a href="#4-自动装配特性" class="headerlink" title="4. 自动装配特性"></a>4. 自动装配特性</h3><p>自动装配在injectExtension()方法中。其会扫描所有setter方法，并根据setter方法的名称以及参数的类型，加载相应的扩展实现，然后反射调用setter方法填充属性。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">private T injectExtension(T instance) &#123; </span><br><span class="line">    if (objectFactory == null) &#123; // 检测objectFactory字段 </span><br><span class="line">        return instance; </span><br><span class="line">    &#125; </span><br><span class="line"></span><br><span class="line">    for (Method method : instance.getClass().getMethods()) &#123; </span><br><span class="line">        ... // 如果不是setter方法，忽略该方法(略) </span><br><span class="line">        if (method.getAnnotation(DisableInject.class) != null) &#123; </span><br><span class="line">            continue; // 如果方法上明确标注了@DisableInject注解，忽略该方法 </span><br><span class="line">        &#125; </span><br><span class="line">        // 根据setter方法的参数，确定扩展接口 </span><br><span class="line">        Class&lt;?&gt; pt = method.getParameterTypes()[0]; </span><br><span class="line">        ... // 如果参数为简单类型，忽略该setter方法(略) </span><br><span class="line">        // 根据setter方法的名称确定属性名称 </span><br><span class="line">        String property = getSetterProperty(method); </span><br><span class="line">        // 加载并实例化扩展实现类 </span><br><span class="line">        Object object = objectFactory.getExtension(pt, property); </span><br><span class="line">        if (object != null) &#123; </span><br><span class="line">            method.invoke(instance, object); // 调用setter方法进行装配 </span><br><span class="line">        &#125; </span><br><span class="line">    &#125; </span><br><span class="line">    return instance; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="5-Activate注解和自动激活特性"><a href="#5-Activate注解和自动激活特性" class="headerlink" title="5. @Activate注解和自动激活特性"></a>5. @Activate注解和自动激活特性</h3><p>以Filter接口为例，扩展点的实现非常多，不同场景下需要不同Filter一起执行，根据配置决定哪些场景下哪些Filter自动激活且加入到拦截链中就是@Activate注解的作用。</p>
+<ul>
+<li>group：是Provider端还是Consumer端的</li>
+<li>value：修饰的实现类只在URL参数指定key时才会激活</li>
+<li>order：排序</li>
+</ul>
+<h4 id="对-Activate注解的扫描"><a href="#对-Activate注解的扫描" class="headerlink" title="对@Activate注解的扫描"></a>对@Activate注解的扫描</h4><p>在loadClass对自动激活的注解进行扫描：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">private void loadClass()&#123; </span><br><span class="line">    if (clazz.isAnnotationPresent(Adaptive.class)) &#123; </span><br><span class="line">        // 处理@Adaptive注解 </span><br><span class="line">        cacheAdaptiveClass(clazz, overridden); </span><br><span class="line">    &#125; else if (isWrapperClass(clazz)) &#123; // 处理Wrapper类 </span><br><span class="line">        cacheWrapperClass(clazz); </span><br><span class="line">    &#125; else &#123; // 处理真正的扩展实现类 </span><br><span class="line">        clazz.getConstructor(); // 扩展实现类必须有无参构造函数 </span><br><span class="line">        ...// 兜底:SPI配置文件中未指定扩展名称，则用类的简单名称作为扩展名(略) </span><br><span class="line">        String[] names = NAME_SEPARATOR.split(name); </span><br><span class="line">        if (ArrayUtils.isNotEmpty(names)) &#123; </span><br><span class="line">            // 将包含@Activate注解的实现类缓存到cachedActivates集合中 </span><br><span class="line">            cacheActivateClass(clazz, names[0]); </span><br><span class="line">            for (String n : names) &#123; </span><br><span class="line">                // 在cachedNames集合中缓存实现类-&gt;扩展名的映射 </span><br><span class="line">                cacheName(clazz, n);</span><br><span class="line">                // 在cachedClasses集合中缓存扩展名-&gt;实现类的映射 </span><br><span class="line">                saveInExtensionClass(extensionClasses, clazz, n, </span><br><span class="line">                     overridden); </span><br><span class="line">            &#125; </span><br><span class="line">        &#125; </span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="getActivateExtension方法"><a href="#getActivateExtension方法" class="headerlink" title="getActivateExtension方法"></a>getActivateExtension方法</h4><p>在此方法中：</p>
+<ul>
+<li>如果传入配置没有-default配置，会触发写入自动激活的缓存。</li>
+<li>然后遍历需要自动激活的扩展点接口，如果符合group（provider端或consumer端），并且没有出现在names配置的和被去除的，则加载激活扩展点实现，放入到activateExtensions且sort方法排序。</li>
+<li>遍历传入的filter配置（这里和配置文件的顺序保持一致），会处理与default扩展点实现（上一步加载的自动激活扩展点实现）的顺序和配置保持一致。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">public List&lt;T&gt; getActivateExtension(URL url, String[] values, String group) &#123;</span><br><span class="line">        List&lt;T&gt; activateExtensions = new ArrayList&lt;&gt;();</span><br><span class="line">        // names是dubbo配置传入的顺序</span><br><span class="line">        List&lt;String&gt; names = values == null ? new ArrayList&lt;&gt;(0) : asList(values);</span><br><span class="line">        if (!names.contains(REMOVE_VALUE_PREFIX + DEFAULT_KEY)) &#123; // 无-default</span><br><span class="line">            // 触发 cachedActivate缓存字段的加载</span><br><span class="line">            getExtensionClasses();</span><br><span class="line">            for (Map.Entry&lt;String, Object&gt; entry : cachedActivates.entrySet()) &#123;</span><br><span class="line">                String name = entry.getKey(); // 扩展名</span><br><span class="line">                Object activate = entry.getValue(); // @Activate注解</span><br><span class="line"></span><br><span class="line">                String[] activateGroup, activateValue;</span><br><span class="line"></span><br><span class="line">                if (activate instanceof Activate) &#123;</span><br><span class="line">                    activateGroup = ((Activate) activate).group();</span><br><span class="line">                    activateValue = ((Activate) activate).value();</span><br><span class="line">                &#125; else if (activate instanceof com.alibaba.dubbo.common.extension.Activate) &#123;</span><br><span class="line">                    activateGroup = ((com.alibaba.dubbo.common.extension.Activate) activate).group();</span><br><span class="line">                    activateValue = ((com.alibaba.dubbo.common.extension.Activate) activate).value();</span><br><span class="line">                &#125; else &#123;</span><br><span class="line">                    continue;</span><br><span class="line">                &#125;</span><br><span class="line">                if (isMatchGroup(group, activateGroup) // 匹配group</span><br><span class="line">                        &amp;&amp; !names.contains(name) // 没有出现在names中 走默认激活的</span><br><span class="line">                        &amp;&amp; !names.contains(REMOVE_VALUE_PREFIX + name) // 未在配置中去除的</span><br><span class="line">                        &amp;&amp; isActive(activateValue, url)) &#123; // 检查url中是否出现指定的key</span><br><span class="line">                    // 加载扩展实现的实例对象 这些是不在传入的 names 里的且被去除掉的</span><br><span class="line">                    activateExtensions.add(getExtension(name));</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            // 对不在filter配置中加载的激活扩展点进行排序</span><br><span class="line">            activateExtensions.sort(ActivateComparator.COMPARATOR);</span><br><span class="line">        &#125;</span><br><span class="line">        List&lt;T&gt; loadedExtensions = new ArrayList&lt;&gt;();</span><br><span class="line">        for (int i = 0; i &lt; names.size(); i++) &#123;</span><br><span class="line">            String name = names.get(i);</span><br><span class="line">            if (!name.startsWith(REMOVE_VALUE_PREFIX) // -开头的不加载 -开头的直接跳过 因为在上边已经过滤了</span><br><span class="line">                    &amp;&amp; !names.contains(REMOVE_VALUE_PREFIX + name)) &#123;</span><br><span class="line">                if (DEFAULT_KEY.equals(name)) &#123;</span><br><span class="line">                    // 这里在default之前的都会放在上边加载过的默认自动激活扩展点之前</span><br><span class="line">                    if (!loadedExtensions.isEmpty()) &#123;</span><br><span class="line">                        // 按照顺序 把自定义的扩展添加 到 默认扩展集合之前</span><br><span class="line">                        activateExtensions.addAll(0, loadedExtensions);</span><br><span class="line">                        loadedExtensions.clear();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125; else &#123;</span><br><span class="line">                    // 根据扩展名去加载对应的扩展点实现类</span><br><span class="line">                    loadedExtensions.add(getExtension(name));</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        if (!loadedExtensions.isEmpty()) &#123;</span><br><span class="line">            // 在default之后的会加载到default之后</span><br><span class="line">            activateExtensions.addAll(loadedExtensions);</span><br><span class="line">        &#125;</span><br><span class="line">        return activateExtensions;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>比如有如下几个Filter<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/20210714192712.png" alt=""></p>
+<p>传入filter配置是为Provider端的：”demoFilter3、-demoFilter2、default、demoFilter1”。<br>那么最终Filter链的结果是： [demoFilter3, demoFilter6, demoFilter4, demoFilter1]。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/05/20/dubbofilter的路径问题/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2020/05/20/dubbofilter的路径问题/" itemprop="url">dubbofilter的路径问题</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-05-20T00:17:24+08:00">
+                2020-05-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/dubbo/" itemprop="url" rel="index">
+                    <span itemprop="name">dubbo</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2020/05/20/dubbofilter的路径问题/" class="leancloud_visitors" data-flag-title="dubbofilter的路径问题">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  429
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  2
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="自定义dubbofilter"><a href="#自定义dubbofilter" class="headerlink" title="自定义dubbofilter"></a>自定义dubbofilter</h2><p>在使用dubbo框架的时候可以使用filter去实现一些拦截功能和调整拦截顺序，在每次调用的过程中，Filter的拦截都会被执行。当然除了Dubbo默认的filter，用户也可以自定义dubbo filter来实现对应的功能。这里记录一个遇到的spi文件路径问题。</p>
+<h2 id="问题现象"><a href="#问题现象" class="headerlink" title="问题现象"></a>问题现象</h2><p>在测试自定义一个dubbo filter之后，发现并没有生效。</p>
+<p>对应的filter代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Activate</span>(group = Constants.PROVIDER, order = Integer.MIN_VALUE)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloFilter</span> <span class="keyword">implements</span> <span class="title">Filter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> invoker</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> invocation</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> RpcException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Result <span class="title">invoke</span><span class="params">(Invoker&lt;?&gt; invoker, Invocation invocation)</span> <span class="keyword">throws</span> RpcException </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"filter调用了"</span>);</span><br><span class="line">        <span class="keyword">return</span> invoker.invoke(invocation);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对应的spi文件内容：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dubboLoggerFilter=com.xxx.demo.xxx.filter.HelloFilter</span><br></pre></td></tr></table></figure>
+<p>经过排查之后发现代码写的没啥问题，但dubbo并没有加载这个自定义filter的spi。隐约感觉是路径问题。</p>
+<h2 id="问题解决"><a href="#问题解决" class="headerlink" title="问题解决"></a>问题解决</h2><p>因为是对应一个已生效的filter去设置的，所以当时看到已有项目中的文件是这样的：</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20200520204641035.png" alt="image-20200520204641035"></p>
+<p>所以在建立spi文件的文件目录时直接new了一个目录名字叫做META-INF.dubbo。但其实看官方blog中的介绍是要在maven资源文件下建立如下的结果的spi文件：</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20200520204834979.png" alt="image-20200520204834979"></p>
+<p>这里恍然大悟才发现自己的目录路径建立错误了。</p>
+<p>这里其实是idea展示的一个坑，比如我在现在改对的基础上去建立META-INF.dubbo目录，其实是和正确目录展示是一样的：</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20200520205113150.png" alt="image-20200520205113150"></p>
+<p>但是在你提交git文件的时候，其实是能明显看到对应的差别的：</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20200520205152514.png" alt="image-20200520205152514"></p>
+<p>这里记录下踩到的这个坑。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/05/20/JVM对象创建与内存分配/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -579,7 +1064,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/05/20/dubbofilter的路径问题/">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/04/20/JVM内存模型/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="夸克">
@@ -598,7 +1083,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/blog/2020/05/20/dubbofilter的路径问题/" itemprop="url">dubbofilter的路径问题</a></h1>
+                <a class="post-title-link" href="/blog/2020/04/20/JVM内存模型/" itemprop="url">JVM内存模型</a></h1>
         
 
         <div class="post-meta">
@@ -610,8 +1095,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-05-20T00:17:24+08:00">
-                2020-05-20
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-04-20T10:34:42+08:00">
+                2020-04-20
               </time>
             
 
@@ -633,8 +1118,19 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/dubbo/" itemprop="url" rel="index">
-                    <span itemprop="name">dubbo</span>
+                  <a href="/blog/categories/Java基础/" itemprop="url" rel="index">
+                    <span itemprop="name">Java基础</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java基础/JVM/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM</span>
                   </a>
                 </span>
 
@@ -650,7 +1146,7 @@
 
           
           
-             <span id="/blog/2020/05/20/dubbofilter的路径问题/" class="leancloud_visitors" data-flag-title="dubbofilter的路径问题">
+             <span id="/blog/2020/04/20/JVM内存模型/" class="leancloud_visitors" data-flag-title="JVM内存模型">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -676,7 +1172,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  429
+                  1,173
                 </span>
               
 
@@ -692,7 +1188,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  2
+                  4
                 </span>
               
             </div>
@@ -715,299 +1211,58 @@
       
         
           
-            <h2 id="自定义dubbofilter"><a href="#自定义dubbofilter" class="headerlink" title="自定义dubbofilter"></a>自定义dubbofilter</h2><p>在使用dubbo框架的时候可以使用filter去实现一些拦截功能和调整拦截顺序，在每次调用的过程中，Filter的拦截都会被执行。当然除了Dubbo默认的filter，用户也可以自定义dubbo filter来实现对应的功能。这里记录一个遇到的spi文件路径问题。</p>
-<h2 id="问题现象"><a href="#问题现象" class="headerlink" title="问题现象"></a>问题现象</h2><p>在测试自定义一个dubbo filter之后，发现并没有生效。</p>
-<p>对应的filter代码：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Activate</span>(group = Constants.PROVIDER, order = Integer.MIN_VALUE)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloFilter</span> <span class="keyword">implements</span> <span class="title">Filter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> invoker</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> invocation</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> RpcException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Result <span class="title">invoke</span><span class="params">(Invoker&lt;?&gt; invoker, Invocation invocation)</span> <span class="keyword">throws</span> RpcException </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"filter调用了"</span>);</span><br><span class="line">        <span class="keyword">return</span> invoker.invoke(invocation);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>对应的spi文件内容：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dubboLoggerFilter=com.xxx.demo.xxx.filter.HelloFilter</span><br></pre></td></tr></table></figure>
-<p>经过排查之后发现代码写的没啥问题，但dubbo并没有加载这个自定义filter的spi。隐约感觉是路径问题。</p>
-<h2 id="问题解决"><a href="#问题解决" class="headerlink" title="问题解决"></a>问题解决</h2><p>因为是对应一个已生效的filter去设置的，所以当时看到已有项目中的文件是这样的：</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20200520204641035.png" alt="image-20200520204641035"></p>
-<p>所以在建立spi文件的文件目录时直接new了一个目录名字叫做META-INF.dubbo。但其实看官方blog中的介绍是要在maven资源文件下建立如下的结果的spi文件：</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20200520204834979.png" alt="image-20200520204834979"></p>
-<p>这里恍然大悟才发现自己的目录路径建立错误了。</p>
-<p>这里其实是idea展示的一个坑，比如我在现在改对的基础上去建立META-INF.dubbo目录，其实是和正确目录展示是一样的：</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20200520205113150.png" alt="image-20200520205113150"></p>
-<p>但是在你提交git文件的时候，其实是能明显看到对应的差别的：</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20200520205152514.png" alt="image-20200520205152514"></p>
-<p>这里记录下踩到的这个坑。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/05/20/dubbo的spi实现/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2020/05/20/dubbo的spi实现/" itemprop="url">dubboSPI的实现</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-05-20T00:17:24+08:00">
-                2020-05-20
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/dubbo/" itemprop="url" rel="index">
-                    <span itemprop="name">dubbo</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2020/05/20/dubbo的spi实现/" class="leancloud_visitors" data-flag-title="dubboSPI的实现">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  3,846
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  17
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="dubbo的spi概述"><a href="#dubbo的spi概述" class="headerlink" title="dubbo的spi概述"></a>dubbo的spi概述</h1><p>采用spi是为了更好的达到OCP原则（对扩展开放，对修改封闭）。dubbo采用微内核+插件的架构。内核部分功能稳定，面向功能的可拓展性实现都是由插件来完成的，内核只是管理插件和应用插件实现。这样更灵活。</p>
-<p>dubbo就是采用spi来加载插件的。</p>
-<h1 id="SPI原理"><a href="#SPI原理" class="headerlink" title="SPI原理"></a>SPI原理</h1><h2 id="jdk中的spi"><a href="#jdk中的spi" class="headerlink" title="jdk中的spi"></a>jdk中的spi</h2><h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><p>需要在resource目录下的META-INFO/services下新建对应SPI接口名称为名字的文件，然后将实现类的全限类名作为文件内容。</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/20210710162401.png" alt=""></p>
-<p>其文件内容：<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/20210710162535.png" alt=""></p>
-<p>然后利用ServiceLoader接口去加载和使用对应的spi接口即可。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public class 测试jdk_spi &#123;</span><br><span class="line"></span><br><span class="line">    @Test</span><br><span class="line">    public void testJdkSPI() &#123;</span><br><span class="line">        ServiceLoader&lt;IShot&gt; serviceLoader = ServiceLoader.load(IShot.class);</span><br><span class="line">        Iterator&lt;IShot&gt; iterator = serviceLoader.iterator();</span><br><span class="line">        while (iterator.hasNext()) &#123;</span><br><span class="line">            IShot next = iterator.next();</span><br><span class="line">            System.out.println(next.shot());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>输出：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">i am a dog</span><br><span class="line">i am a cat</span><br></pre></td></tr></table></figure></p>
-<h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>ServiceLoader接口在调用load时，会创建一个ServiceLoader对应的实例，其中维护了一个providers变量，是一个LinkedHashMap，其会将spi文件中的每个接口实现的名称作为key，具体实例化的实现作为value存储，并且会生成一个LazyIterator作为迭代器的实现。</p>
-<p>在调用ServiceLoader迭代器的hasNext和next方法时，会调用到上边的Lazy迭代器，其就是去读取配置文件中的内容，保存到providers中。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">private S nextService() &#123;</span><br><span class="line">           if (!hasNextService())</span><br><span class="line">               throw new NoSuchElementException();</span><br><span class="line">           String cn = nextName;</span><br><span class="line">           nextName = null;</span><br><span class="line">           Class&lt;?&gt; c = null;</span><br><span class="line">           try &#123;</span><br><span class="line">               c = Class.forName(cn, false, loader);</span><br><span class="line">           &#125; catch (ClassNotFoundException x) &#123;</span><br><span class="line">               fail(service,</span><br><span class="line">                    &quot;Provider &quot; + cn + &quot; not found&quot;);</span><br><span class="line">           &#125;</span><br><span class="line">           if (!service.isAssignableFrom(c)) &#123;</span><br><span class="line">               fail(service,</span><br><span class="line">                    &quot;Provider &quot; + cn  + &quot; not a subtype&quot;);</span><br><span class="line">           &#125;</span><br><span class="line">           try &#123;</span><br><span class="line">               S p = service.cast(c.newInstance());</span><br><span class="line">               providers.put(cn, p);</span><br><span class="line">               return p;</span><br><span class="line">           &#125; catch (Throwable x) &#123;</span><br><span class="line">               fail(service,</span><br><span class="line">                    &quot;Provider &quot; + cn + &quot; could not be instantiated&quot;,</span><br><span class="line">                    x);</span><br><span class="line">           &#125;</span><br><span class="line">           throw new Error();          // This cannot happen</span><br><span class="line">       &#125;</span><br></pre></td></tr></table></figure>
-<h2 id="dubbo中的SPI"><a href="#dubbo中的SPI" class="headerlink" title="dubbo中的SPI"></a>dubbo中的SPI</h2><p>dubbo没有直接使用java的SPI来实现自己的插件加载，而是在SPI基础上进行改造。因为java的SPI需要加载文件中所有扩展点的实现，</p>
-<p>java SPI是需要加载文件中所有的实现类，会造成资源浪费，且不能动态加载某个实现类<br>。</p>
-<p>而dubbo的spi文件首先拓展了三个目录下：</p>
-<ul>
-<li>META-INF/services/ 目录：该目录下的 SPI 配置文件用来兼容 JDK SPI 。</li>
-<li>META-INF/dubbo/ 目录：该目录用于存放用户自定义 SPI 配置文件。</li>
-<li>META-INF/dubbo/internal/ 目录：该目录用于存放 Dubbo 内部使用的 SPI 配置文件。</li>
+            <h2 id="JVM的整体结构和内存模型"><a href="#JVM的整体结构和内存模型" class="headerlink" title="JVM的整体结构和内存模型"></a>JVM的整体结构和内存模型</h2><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103855422.png" alt="image-20220701103855422"></p>
+<h3 id="关于方法区和元空间"><a href="#关于方法区和元空间" class="headerlink" title="关于方法区和元空间"></a>关于方法区和元空间</h3><ul>
+<li>jdk1.8之前存放方法元信息、Class信息、常量池等的为方法区，在堆内存储。而在1.8之后废弃了永久代，替换为元空间，常量池和静态变量并入堆内存储，MetaSpace来存储类、方法元信息，同时使用了本地内存来存储。</li>
+<li>相当于1.8版本之后，方法区一部分归到堆内存中，一部分移动到堆外内存，受机器本地内存大小限制。不过设置了Metaspace参数也会在内存不足时OOM。</li>
 </ul>
-<p>其次dubbo的SPI文件的配置改为了KV形式，实现了只加载对应key的值的扩展点具体实现。</p>
-<p>配置文件举例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dubbo=org.apache.dubbo.rpc.protocol.dubbo.DubboProtocol</span><br></pre></td></tr></table></figure></p>
-<p>这时因为扩展点的key：extensionName为dubbo，所以找到DubboProtocol这个Protocol接口的实现。</p>
-<h3 id="1-Spi注解"><a href="#1-Spi注解" class="headerlink" title="1. @Spi注解"></a>1. @Spi注解</h3><p>Dubbo中接口用@SPI注解注释时，标注为扩展点接口，其value值的作用是在加载Protocol接口实现时，如果没有明确指定扩展名，则取value值作为扩展名去加载spi文件中对应的实现类。</p>
-<h4 id="ExtensionLoader如何处理-SPI注解"><a href="#ExtensionLoader如何处理-SPI注解" class="headerlink" title="ExtensionLoader如何处理@SPI注解"></a>ExtensionLoader如何处理@SPI注解</h4><p>ExtensionLoader是SPI实现的核心工具类，对于每个扩展点接口都会有一个ExtensionLoader实例。同时还有一些静态字段作为缓存加载过的扩展点实现。</p>
-<p>静态字段：</p>
+<h2 id="JVM内存参数设置（简要说明）"><a href="#JVM内存参数设置（简要说明）" class="headerlink" title="JVM内存参数设置（简要说明）"></a>JVM内存参数设置（简要说明）</h2><p>运行时数据区的一些基本参数</p>
 <ul>
-<li><p>strategies(LoadingStrategy[]类型)：LoadingStrategy接口有三个实现，对应是三个SPI配置文件的加载路径。其也都实现了优先级接口，优先级为：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DubboInternalLoadingStrategy &gt; DubboLoadingStrategy &gt; ServicesLoadingStrateg</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>EXTENSION_LOADERS (ConcurrentHashMap&lt;Class&lt;?&gt;, ExtensionLoader&lt;?&gt;&gt;类型)：表示type类型对应的extensionLoader实例映射缓存。</p>
-</li>
-<li>EXTENSION_INSTANCES：表示扩展实现类和其实例对象的映射</li>
+<li>-Xms：堆的最小值参数</li>
+<li>-Xmx：堆的最大值参数</li>
+<li>-Xmn：新生代的内存大小</li>
+<li>-XX: MaxDirectMemorySize：直接内存的最大值。即NIO使用的堆外内存的最大值。 这里注意heap dump不会记录堆外内存的移除，但也可以造成OOM，现象是dump文件很小，即堆内存其实使用很少。</li>
+<li>-XX：MetaspaceSize：设置元空间触发fullgc的初始阈值（元空间没有固定初始值大小）。默认不设置为21M。到达该值就会触发full gc进行类型卸载，同时收集器会对该值进行调整，如果释放了大量空间，则调小；如果释放了很少的空间，则在不超过-XX: MaxMetaspaceSize的情况下适当提高此值。 在jdk1.8之前的永久代参数-XX: PermsSize参数标识为初始化的容量，1.8之后调整为元空间后不一样</li>
+<li>-XX: MaxMetaspaceSize：元空间最大值，默认是-1，不限制的话，受限于直接内存大小。</li>
+<li>-Xss：线程栈的大小（默认为1M）</li>
 </ul>
-<p>实例字段：</p>
+<h2 id="常量池"><a href="#常量池" class="headerlink" title="常量池"></a>常量池</h2><h3 id="Class常量池和运行时常量池"><a href="#Class常量池和运行时常量池" class="headerlink" title="Class常量池和运行时常量池"></a>Class常量池和运行时常量池</h3><p>Class文件中包含常量池，也包含字段、方法、接口、类版本等描述信息。常量池用于存放编译期间的字面量和符号引用。</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103908248.png" alt="image-20220701103908248"></p>
+<p>当常量池字面量和符号引用被加载到内存中，符号才会有内存的地址，常量池就是运行时常量池。<br>而动态链接的过程就是把运行时常量池的符号引用变为直接内存地址引用。</p>
+<p>常量池在1.8之后从永久代（元空间）拿出，移动到了堆内存。</p>
+<h3 id="字符串常量池"><a href="#字符串常量池" class="headerlink" title="字符串常量池"></a>字符串常量池</h3><p>创建字符串对象时，做了一些优化：</p>
 <ul>
-<li>type：当前的ExtensionLoader实例负责加载的扩展接口</li>
-<li>objectFactory：所属的对象工厂，注入所依赖的其他扩展点接口时所用</li>
-<li>cachedDefaultName(String类型)：默认扩展名。即@SPI接口的value值</li>
-<li>cachedNames (ConcurrentHashMap&lt;Class&lt;?&gt;, String&gt;类型)：缓存了该ExtensionLoader实例加载的扩展实现类与扩展名之间的映射关系。</li>
-<li>cachedClasses (Holder&lt;ConcurrentHashMap&lt;String, Class&lt;?&gt;&gt;&gt;类型)：缓存了扩展点名称和扩展点实现类之间的映射关系</li>
-<li>cachedInstances (ConcurrentMap&lt;String, Holder<objcet>&gt;类型)：缓存了该ExtensionLoader实例加载的扩展名与扩展实现对象之间的映射关系。</objcet></li>
-<li>cachedAdaptiveInstance：缓存了adaptive扩展点实例</li>
-<li>cachedAdaptiveClass：缓存该extensionLoader加载过程中直接标注@Adaptive注解的扩展实现类</li>
-<li>cachedWrapperClasses：缓存该extensionLoader加载过程中的包装类wrapper实现</li>
+<li>如果字符串常量在常量池中存在，返回此常量的地址引用；</li>
+<li>如果不存在，则实例化改字符串放入常量池中，是字面量的引用直接返回，是new String()这种则会在堆内新创建一个对象。</li>
 </ul>
-<p>ExtensionLoader.getExtensionLoader() 方法会创建对应的ExtensionLoader对象：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">public static &lt;T&gt; ExtensionLoader&lt;T&gt; getExtensionLoader(Class&lt;T&gt; type) &#123;</span><br><span class="line">        // 从缓存中找 </span><br><span class="line">        ExtensionLoader&lt;T&gt; loader = (ExtensionLoader&lt;T&gt;) EXTENSION_LOADERS.get(type);</span><br><span class="line">        if (loader == null) &#123;</span><br><span class="line">        // 如果缓存为null 则初始化一个 再放入缓存</span><br><span class="line">            EXTENSION_LOADERS.putIfAbsent(type, new ExtensionLoader&lt;T&gt;(type));</span><br><span class="line">            loader = (ExtensionLoader&lt;T&gt;) EXTENSION_LOADERS.get(type);</span><br><span class="line">        &#125;</span><br><span class="line">        return loader;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
-<p>这里的new ExtensionLoader就是初始化type和objectFactory两个字段。</p>
-<p>初始化完ExtensionLoader实例之后，可以根据getExtension方法用name加载扩展点：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">public T getExtension(String name) &#123; </span><br><span class="line">    // getOrCreateHolder()方法中封装了查找cachedInstances缓存的逻辑 </span><br><span class="line">    Holder&lt;Object&gt; holder = getOrCreateHolder(name); </span><br><span class="line">    Object instance = holder.get(); </span><br><span class="line">    if (instance == null) &#123; // double-check防止并发问题 </span><br><span class="line">        synchronized (holder) &#123; </span><br><span class="line">            instance = holder.get(); </span><br><span class="line">            if (instance == null) &#123; </span><br><span class="line">                // 根据扩展名从SPI配置文件中查找对应的扩展实现类 </span><br><span class="line">                instance = createExtension(name); </span><br><span class="line">                holder.set(instance); </span><br><span class="line">            &#125; </span><br><span class="line">        &#125; </span><br><span class="line">    &#125; </span><br><span class="line">    return (T) instance; </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// getOrCreateHolder方法：</span><br><span class="line">    private Holder&lt;Object&gt; getOrCreateHolder(String name) &#123;</span><br><span class="line">        Holder&lt;Object&gt; holder = cachedInstances.get(name);</span><br><span class="line">        if (holder == null) &#123;</span><br><span class="line">            cachedInstances.putIfAbsent(name, new Holder&lt;&gt;());</span><br><span class="line">            holder = cachedInstances.get(name);</span><br><span class="line">        &#125;</span><br><span class="line">        return holder;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
-<p>看到是调用了createExtension(name) 来实例化扩展点实现类：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line">     * 获取 cachedClasses 缓存，根据扩展名从 cachedClasses 缓存中获取扩展实现类。</span><br><span class="line">     * 如果 cachedClasses 未初始化，则会扫描前面介绍的三个 SPI 目录获取查找相应的 SPI 配置文件，</span><br><span class="line">     * 然后加载其中的扩展实现类，最后将扩展名和扩展实现类的映射关系记录到 cachedClasses 缓存中。</span><br><span class="line">     * 这部分逻辑在 loadExtensionClasses() 和 loadDirectory() 方法中。</span><br><span class="line">     *</span><br><span class="line">     * 根据扩展实现类从 EXTENSION_INSTANCES 缓存中查找相应的实例。如果查找失败，会通过反射创建扩展实现对象。</span><br><span class="line">     *</span><br><span class="line">     * 自动装配扩展实现对象中的属性（即调用其 setter）。这里涉及 ExtensionFactory 以及自动装配的相关内容，</span><br><span class="line">     *</span><br><span class="line">     * 自动包装扩展实现对象。这里涉及 Wrapper 类以及自动包装特性的相关内容</span><br><span class="line">     *</span><br><span class="line">     * 如果扩展实现类实现了 Lifecycle 接口，在 initExtension() 方法中会调用 initialize() 方法进行初始化。</span><br><span class="line">     * @param name</span><br><span class="line">     * @return</span><br><span class="line">     */</span><br><span class="line">    @SuppressWarnings(&quot;unchecked&quot;)</span><br><span class="line">    private T createExtension(String name) &#123;</span><br><span class="line">        // 获取扩展名对应的扩展实现类</span><br><span class="line">        Class&lt;?&gt; clazz = getExtensionClasses().get(name);</span><br><span class="line">        if (clazz == null) &#123;</span><br><span class="line">            throw findException(name);</span><br><span class="line">        &#125;</span><br><span class="line">        try &#123;</span><br><span class="line">            // 从扩展实现类和其实例对象中获取</span><br><span class="line">            T instance = (T) EXTENSION_INSTANCES.get(clazz);</span><br><span class="line">            if (instance == null) &#123;</span><br><span class="line">                // newInstance放入缓存中</span><br><span class="line">                EXTENSION_INSTANCES.putIfAbsent(clazz, clazz.newInstance());</span><br><span class="line">                instance = (T) EXTENSION_INSTANCES.get(clazz);</span><br><span class="line">            &#125;</span><br><span class="line">            // 处理依赖的其他扩展点实现 调用了setter方法</span><br><span class="line">            injectExtension(instance);</span><br><span class="line"></span><br><span class="line">            // 实现wrapper包装</span><br><span class="line">            Set&lt;Class&lt;?&gt;&gt; wrapperClasses = cachedWrapperClasses;</span><br><span class="line">            if (CollectionUtils.isNotEmpty(wrapperClasses)) &#123;</span><br><span class="line">                for (Class&lt;?&gt; wrapperClass : wrapperClasses) &#123;</span><br><span class="line">                    // 遍历全部wrapper类包装到当前的扩展点实现</span><br><span class="line">                    instance = injectExtension((T) wrapperClass.getConstructor(type).newInstance(instance));</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            // 初始化instanced对象 如果扩展点实现了LifeCycle接口的话</span><br><span class="line">            initExtension(instance);</span><br><span class="line">            return instance;</span><br><span class="line">        &#125; catch (Throwable t) &#123;</span><br><span class="line">            throw new IllegalStateException(&quot;Extension instance (name: &quot; + name + &quot;, class: &quot; +</span><br><span class="line">                    type + &quot;) couldn&apos;t be instantiated: &quot; + t.getMessage(), t);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
-<h3 id="2-Adaptive注解和适配器"><a href="#2-Adaptive注解和适配器" class="headerlink" title="2. @Adaptive注解和适配器"></a>2. @Adaptive注解和适配器</h3><p>@Adaptive表示自适应的扩展点实现。</p>
-<ul>
-<li>当@Adaptive注解在类上注解时，表示此类为扩展实现，在SPI中使用并不多，只使用在了ExtensionFactory接口上。</li>
-</ul>
-<p>可以看到ExtensionFactory接口的自适应实现AdaptiveExtensionFactory即为ExtensionLoader.getAdaptiveExtension()方法的返回值，即注解在类上即为自适应实现，且会缓存在ExtensionLoader实例中的cachedAdaptiveClass变量中。</p>
-<p>AdaptiveExtensionFactory内部逻辑也比较简单，即根据注入的其他两个ExtensionFactory具体实现去加载对应的扩展点实现。一个是Dubbo SPI自适应扩展点实现加载，一个是Spring上下文获取bean。</p>
-<ul>
-<li>当@Adaptive注解在方法上时，Dubbo会动态代理生成Adaptive实现类（比如Transporter$Adaptive)，此动态代理类也会实现扩展点接口。</li>
-</ul>
-<p>代理类中的逻辑也是根据@Adaptive注解中值作为从url获取扩展名称的key，然后再根据ExtensionLoader获取扩展实现类。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">public class Transporter$Adaptive implements Transporter &#123; </span><br><span class="line">    public org.apache.dubbo.remoting.Client connect(URL arg0, ChannelHandler arg1) throws RemotingException &#123; </span><br><span class="line">        // 必须传递URL参数 </span><br><span class="line">        if (arg0 == null) throw new IllegalArgumentException(&quot;url == null&quot;); </span><br><span class="line">        URL url = arg0; </span><br><span class="line">        // 确定扩展名，优先从URL中的client参数获取，其次是transporter参数 </span><br><span class="line">        // 这两个参数名称由@Adaptive注解指定，最后是@SPI注解中的默认值 </span><br><span class="line">        String extName = url.getParameter(&quot;client&quot;,</span><br><span class="line">            url.getParameter(&quot;transporter&quot;, &quot;netty&quot;)); </span><br><span class="line">        if (extName == null) </span><br><span class="line">            throw new IllegalStateException(&quot;...&quot;); </span><br><span class="line">        // 通过ExtensionLoader加载Transporter接口的指定扩展实现 </span><br><span class="line">        Transporter extension = (Transporter) ExtensionLoader </span><br><span class="line">              .getExtensionLoader(Transporter.class) </span><br><span class="line">                    .getExtension(extName); </span><br><span class="line">        return extension.connect(arg0, arg1); </span><br><span class="line">    &#125; </span><br><span class="line">    ... // 省略bind()方法 </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>以上这两种为自适应的适配器实现。获取适配器的代码为getAdaptiveExtension()方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">public T getAdaptiveExtension() &#123;</span><br><span class="line">        // 从缓存中取</span><br><span class="line">        Object instance = cachedAdaptiveInstance.get();</span><br><span class="line">        if (instance == null) &#123;</span><br><span class="line">            if (createAdaptiveInstanceError != null) &#123;</span><br><span class="line">                throw new IllegalStateException(&quot;Failed to create adaptive instance: &quot; +</span><br><span class="line">                        createAdaptiveInstanceError.toString(),</span><br><span class="line">                        createAdaptiveInstanceError);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            synchronized (cachedAdaptiveInstance) &#123; // double check</span><br><span class="line">                instance = cachedAdaptiveInstance.get();</span><br><span class="line">                if (instance == null) &#123;</span><br><span class="line">                    try &#123;</span><br><span class="line">                        // 创建自适应的扩展点实现</span><br><span class="line">                        instance = createAdaptiveExtension();</span><br><span class="line">                        // 缓存</span><br><span class="line">                        cachedAdaptiveInstance.set(instance);</span><br><span class="line">                    &#125; catch (Throwable t) &#123;</span><br><span class="line">                        createAdaptiveInstanceError = t;</span><br><span class="line">                        throw new IllegalStateException(&quot;Failed to create adaptive instance: &quot; + t.toString(), t);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">// createAdaptiveExtension方法中调用的getAdaptiveExtensionClass方法</span><br><span class="line"> private Class&lt;?&gt; getAdaptiveExtensionClass() &#123;</span><br><span class="line">        // 触发loadClass 内部如果有直接加了@Adaptive注解的扩展点实现，则会维护到cacheAdaptiveClass变量中</span><br><span class="line">        getExtensionClasses();</span><br><span class="line">        if (cachedAdaptiveClass != null) &#123;</span><br><span class="line">            return cachedAdaptiveClass;</span><br><span class="line">        &#125;</span><br><span class="line">        // 动态代理类选择出的扩展点实现也维护在cacheAdaptiveClass变量中</span><br><span class="line">        return cachedAdaptiveClass = createAdaptiveExtensionClass();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
-<ul>
-<li><h3 id="3-自动包装特性"><a href="#3-自动包装特性" class="headerlink" title="3. 自动包装特性"></a>3. 自动包装特性</h3><p>扩展点的实现中可能有很多通用逻辑，dubbo SPI中的自动包装特性将多个扩展实现类的公共逻辑抽象到Wrapper类中，Wrapper类和普通扩展点实现一样，也实现了扩展接口，在获取真正的扩展对象时，在外面包一层Wrapper对象，是装饰器模式的实现。</p>
+<h4 id="字符串操作"><a href="#字符串操作" class="headerlink" title="字符串操作"></a>字符串操作</h4><ul>
+<li>字面量直接赋值<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String a = <span class="string">"aaa"</span>;</span><br></pre></td></tr></table></figure>
 </li>
 </ul>
-<p>判断是否为Wrapper的实现：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">private boolean isWrapperClass(Class&lt;?&gt; clazz) &#123;</span><br><span class="line">        try &#123;</span><br><span class="line">            // 检查是否是wrapper包装方式：是否有当前扩展点接口为参数的构造函数</span><br><span class="line">            // wrap类是为了解决多个扩展点实现的公共逻辑</span><br><span class="line">            clazz.getConstructor(type);</span><br><span class="line">            return true;</span><br><span class="line">        &#125; catch (NoSuchMethodException e) &#123;</span><br><span class="line">            return false;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
-<p>在加载spi文件时，会去缓存当前扩展点的wrapper实现类到一个集合变量中：cachedWrapperClasses，然后在之后遍历wrapper实现包装：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Set&lt;Class&lt;?&gt;&gt; wrapperClasses = cachedWrapperClasses;</span><br><span class="line">if (CollectionUtils.isNotEmpty(wrapperClasses)) &#123; </span><br><span class="line">    for (Class&lt;?&gt; wrapperClass : wrapperClasses) &#123; </span><br><span class="line">        instance = injectExtension((T) wrapperClass </span><br><span class="line">            .getConstructor(type).newInstance(instance)); </span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h3 id="4-自动装配特性"><a href="#4-自动装配特性" class="headerlink" title="4. 自动装配特性"></a>4. 自动装配特性</h3><p>自动装配在injectExtension()方法中。其会扫描所有setter方法，并根据setter方法的名称以及参数的类型，加载相应的扩展实现，然后反射调用setter方法填充属性。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">private T injectExtension(T instance) &#123; </span><br><span class="line">    if (objectFactory == null) &#123; // 检测objectFactory字段 </span><br><span class="line">        return instance; </span><br><span class="line">    &#125; </span><br><span class="line"></span><br><span class="line">    for (Method method : instance.getClass().getMethods()) &#123; </span><br><span class="line">        ... // 如果不是setter方法，忽略该方法(略) </span><br><span class="line">        if (method.getAnnotation(DisableInject.class) != null) &#123; </span><br><span class="line">            continue; // 如果方法上明确标注了@DisableInject注解，忽略该方法 </span><br><span class="line">        &#125; </span><br><span class="line">        // 根据setter方法的参数，确定扩展接口 </span><br><span class="line">        Class&lt;?&gt; pt = method.getParameterTypes()[0]; </span><br><span class="line">        ... // 如果参数为简单类型，忽略该setter方法(略) </span><br><span class="line">        // 根据setter方法的名称确定属性名称 </span><br><span class="line">        String property = getSetterProperty(method); </span><br><span class="line">        // 加载并实例化扩展实现类 </span><br><span class="line">        Object object = objectFactory.getExtension(pt, property); </span><br><span class="line">        if (object != null) &#123; </span><br><span class="line">            method.invoke(instance, object); // 调用setter方法进行装配 </span><br><span class="line">        &#125; </span><br><span class="line">    &#125; </span><br><span class="line">    return instance; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="5-Activate注解和自动激活特性"><a href="#5-Activate注解和自动激活特性" class="headerlink" title="5. @Activate注解和自动激活特性"></a>5. @Activate注解和自动激活特性</h3><p>以Filter接口为例，扩展点的实现非常多，不同场景下需要不同Filter一起执行，根据配置决定哪些场景下哪些Filter自动激活且加入到拦截链中就是@Activate注解的作用。</p>
+<p>这样会用equals()方法判断字符串常量池是否存在，如果存在返回引用，不存在创建一个放入字符串常量池之后返回引用。</p>
 <ul>
-<li>group：是Provider端还是Consumer端的</li>
-<li>value：修饰的实现类只在URL参数指定key时才会激活</li>
-<li>order：排序</li>
-</ul>
-<h4 id="对-Activate注解的扫描"><a href="#对-Activate注解的扫描" class="headerlink" title="对@Activate注解的扫描"></a>对@Activate注解的扫描</h4><p>在loadClass对自动激活的注解进行扫描：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">private void loadClass()&#123; </span><br><span class="line">    if (clazz.isAnnotationPresent(Adaptive.class)) &#123; </span><br><span class="line">        // 处理@Adaptive注解 </span><br><span class="line">        cacheAdaptiveClass(clazz, overridden); </span><br><span class="line">    &#125; else if (isWrapperClass(clazz)) &#123; // 处理Wrapper类 </span><br><span class="line">        cacheWrapperClass(clazz); </span><br><span class="line">    &#125; else &#123; // 处理真正的扩展实现类 </span><br><span class="line">        clazz.getConstructor(); // 扩展实现类必须有无参构造函数 </span><br><span class="line">        ...// 兜底:SPI配置文件中未指定扩展名称，则用类的简单名称作为扩展名(略) </span><br><span class="line">        String[] names = NAME_SEPARATOR.split(name); </span><br><span class="line">        if (ArrayUtils.isNotEmpty(names)) &#123; </span><br><span class="line">            // 将包含@Activate注解的实现类缓存到cachedActivates集合中 </span><br><span class="line">            cacheActivateClass(clazz, names[0]); </span><br><span class="line">            for (String n : names) &#123; </span><br><span class="line">                // 在cachedNames集合中缓存实现类-&gt;扩展名的映射 </span><br><span class="line">                cacheName(clazz, n);</span><br><span class="line">                // 在cachedClasses集合中缓存扩展名-&gt;实现类的映射 </span><br><span class="line">                saveInExtensionClass(extensionClasses, clazz, n, </span><br><span class="line">                     overridden); </span><br><span class="line">            &#125; </span><br><span class="line">        &#125; </span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h4 id="getActivateExtension方法"><a href="#getActivateExtension方法" class="headerlink" title="getActivateExtension方法"></a>getActivateExtension方法</h4><p>在此方法中：</p>
-<ul>
-<li>如果传入配置没有-default配置，会触发写入自动激活的缓存。</li>
-<li>然后遍历需要自动激活的扩展点接口，如果符合group（provider端或consumer端），并且没有出现在names配置的和被去除的，则加载激活扩展点实现，放入到activateExtensions且sort方法排序。</li>
-<li>遍历传入的filter配置（这里和配置文件的顺序保持一致），会处理与default扩展点实现（上一步加载的自动激活扩展点实现）的顺序和配置保持一致。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">public List&lt;T&gt; getActivateExtension(URL url, String[] values, String group) &#123;</span><br><span class="line">        List&lt;T&gt; activateExtensions = new ArrayList&lt;&gt;();</span><br><span class="line">        // names是dubbo配置传入的顺序</span><br><span class="line">        List&lt;String&gt; names = values == null ? new ArrayList&lt;&gt;(0) : asList(values);</span><br><span class="line">        if (!names.contains(REMOVE_VALUE_PREFIX + DEFAULT_KEY)) &#123; // 无-default</span><br><span class="line">            // 触发 cachedActivate缓存字段的加载</span><br><span class="line">            getExtensionClasses();</span><br><span class="line">            for (Map.Entry&lt;String, Object&gt; entry : cachedActivates.entrySet()) &#123;</span><br><span class="line">                String name = entry.getKey(); // 扩展名</span><br><span class="line">                Object activate = entry.getValue(); // @Activate注解</span><br><span class="line"></span><br><span class="line">                String[] activateGroup, activateValue;</span><br><span class="line"></span><br><span class="line">                if (activate instanceof Activate) &#123;</span><br><span class="line">                    activateGroup = ((Activate) activate).group();</span><br><span class="line">                    activateValue = ((Activate) activate).value();</span><br><span class="line">                &#125; else if (activate instanceof com.alibaba.dubbo.common.extension.Activate) &#123;</span><br><span class="line">                    activateGroup = ((com.alibaba.dubbo.common.extension.Activate) activate).group();</span><br><span class="line">                    activateValue = ((com.alibaba.dubbo.common.extension.Activate) activate).value();</span><br><span class="line">                &#125; else &#123;</span><br><span class="line">                    continue;</span><br><span class="line">                &#125;</span><br><span class="line">                if (isMatchGroup(group, activateGroup) // 匹配group</span><br><span class="line">                        &amp;&amp; !names.contains(name) // 没有出现在names中 走默认激活的</span><br><span class="line">                        &amp;&amp; !names.contains(REMOVE_VALUE_PREFIX + name) // 未在配置中去除的</span><br><span class="line">                        &amp;&amp; isActive(activateValue, url)) &#123; // 检查url中是否出现指定的key</span><br><span class="line">                    // 加载扩展实现的实例对象 这些是不在传入的 names 里的且被去除掉的</span><br><span class="line">                    activateExtensions.add(getExtension(name));</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            // 对不在filter配置中加载的激活扩展点进行排序</span><br><span class="line">            activateExtensions.sort(ActivateComparator.COMPARATOR);</span><br><span class="line">        &#125;</span><br><span class="line">        List&lt;T&gt; loadedExtensions = new ArrayList&lt;&gt;();</span><br><span class="line">        for (int i = 0; i &lt; names.size(); i++) &#123;</span><br><span class="line">            String name = names.get(i);</span><br><span class="line">            if (!name.startsWith(REMOVE_VALUE_PREFIX) // -开头的不加载 -开头的直接跳过 因为在上边已经过滤了</span><br><span class="line">                    &amp;&amp; !names.contains(REMOVE_VALUE_PREFIX + name)) &#123;</span><br><span class="line">                if (DEFAULT_KEY.equals(name)) &#123;</span><br><span class="line">                    // 这里在default之前的都会放在上边加载过的默认自动激活扩展点之前</span><br><span class="line">                    if (!loadedExtensions.isEmpty()) &#123;</span><br><span class="line">                        // 按照顺序 把自定义的扩展添加 到 默认扩展集合之前</span><br><span class="line">                        activateExtensions.addAll(0, loadedExtensions);</span><br><span class="line">                        loadedExtensions.clear();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125; else &#123;</span><br><span class="line">                    // 根据扩展名去加载对应的扩展点实现类</span><br><span class="line">                    loadedExtensions.add(getExtension(name));</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        if (!loadedExtensions.isEmpty()) &#123;</span><br><span class="line">            // 在default之后的会加载到default之后</span><br><span class="line">            activateExtensions.addAll(loadedExtensions);</span><br><span class="line">        &#125;</span><br><span class="line">        return activateExtensions;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<li>new String()复制<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String a = <span class="keyword">new</span> String(<span class="string">"aaa"</span>);</span><br></pre></td></tr></table></figure>
 </li>
 </ul>
-<p>比如有如下几个Filter<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/20210714192712.png" alt=""></p>
-<p>传入filter配置是为Provider端的：”demoFilter3、-demoFilter2、default、demoFilter1”。<br>那么最终Filter链的结果是： [demoFilter3, demoFilter6, demoFilter4, demoFilter1]。</p>
+<p>这里也会判断字符串常量池和堆中是否有这个对象，没有则都创建，然后返回堆中的对象引用。也就是可能会创建两个对象。</p>
+<ul>
+<li>intern方法<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String s1 = <span class="string">"aaa"</span>;</span><br><span class="line">String s2 = s1.intern();</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>一个native方法，调用intern()时如果字符串常量池中存在常量，则返回池中的引用地址，否则将池中的地址直接指向堆中字符串对象（例子是s1）的地址。</p>
+<h4 id="常见面试题"><a href="#常见面试题" class="headerlink" title="常见面试题"></a>常见面试题</h4><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103933318.png" alt="image-20220701103933318"><br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103954181.png" alt="image-20220701103954181"><br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104015926.png" alt="image-20220701104015926"></p>
+<h4 id="关于String是不可变的"><a href="#关于String是不可变的" class="headerlink" title="关于String是不可变的"></a>关于String是不可变的</h4><p>除非下面的a、b、c三个变量被final修饰，即变为常量，那么执行String s1 = a + b + c时会编译为常量进行优化，也就是和String s = “a” + “b” + “c” 字面量直接相加一样，都是字符串常量池中常量对象的引用。<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104030743.png" alt="image-20220701104030743"></p>
+<p>为什么是不可变的？</p>
+<ul>
+<li>安全。最常用的String内部char[]数组是final的，规避了直接改变对象内容，封装了内部数据。（享元模式）</li>
+<li>线程安全，final在要求构造函数中初始化char[]数组</li>
+<li>hashcode初始化时确定，String很适合作为hash表的key。</li>
+</ul>
+<h5 id="彩蛋：比较对象时为什么要重写hashcode-方法"><a href="#彩蛋：比较对象时为什么要重写hashcode-方法" class="headerlink" title="彩蛋：比较对象时为什么要重写hashcode()方法"></a>彩蛋：比较对象时为什么要重写hashcode()方法</h5><p>equals()方法相等，则对象一定相等，为什么还要hashcode方法呢？</p>
+<ul>
+<li>因为hashcode效率高，一般约束都是equals()方法相等，则hashcode()一定相等；而hashcode()不相等，一定不是一个对象。</li>
+<li>HashSet这种数据结构是去重的，比较时候为了效率如果hashcode不相等，那么即使equals方法相等也会认为不是一个对象。</li>
+</ul>
 
           
         
@@ -1274,261 +1529,6 @@
 </ol>
 <p>显然，默认的双亲委派机制是支持不聊tomcat这个需求的。第一点和第三点其实都是要多个相同全限定类名的类加载多次实现隔离，这显然不能去双亲委派。而jsp的要求热更新，jsp对应的class文件在加载之后变更，可以卸载jsp的类加载器，再重新去生成一个类加载器去加载对应的jsp文件实现热更新。</p>
 <p>在tomcat中有三组目录（/common/<em>、/server/</em>、/shared/*），分别对应所有共享、server容器自己所用、web程序共享，当然每个web程序都有自己的/WEB-INF/目录来存放自己的web应用程序的资源。tomact的类加载器依赖了这些目录的功能，如下：<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103717270.png" alt="image-20220701103717270"></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/04/20/JVM内存模型/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2020/04/20/JVM内存模型/" itemprop="url">JVM内存模型</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-04-20T10:34:42+08:00">
-                2020-04-20
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Java基础/" itemprop="url" rel="index">
-                    <span itemprop="name">Java基础</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Java基础/JVM/" itemprop="url" rel="index">
-                    <span itemprop="name">JVM</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2020/04/20/JVM内存模型/" class="leancloud_visitors" data-flag-title="JVM内存模型">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1,173
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  4
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="JVM的整体结构和内存模型"><a href="#JVM的整体结构和内存模型" class="headerlink" title="JVM的整体结构和内存模型"></a>JVM的整体结构和内存模型</h2><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103855422.png" alt="image-20220701103855422"></p>
-<h3 id="关于方法区和元空间"><a href="#关于方法区和元空间" class="headerlink" title="关于方法区和元空间"></a>关于方法区和元空间</h3><ul>
-<li>jdk1.8之前存放方法元信息、Class信息、常量池等的为方法区，在堆内存储。而在1.8之后废弃了永久代，替换为元空间，常量池和静态变量并入堆内存储，MetaSpace来存储类、方法元信息，同时使用了本地内存来存储。</li>
-<li>相当于1.8版本之后，方法区一部分归到堆内存中，一部分移动到堆外内存，受机器本地内存大小限制。不过设置了Metaspace参数也会在内存不足时OOM。</li>
-</ul>
-<h2 id="JVM内存参数设置（简要说明）"><a href="#JVM内存参数设置（简要说明）" class="headerlink" title="JVM内存参数设置（简要说明）"></a>JVM内存参数设置（简要说明）</h2><p>运行时数据区的一些基本参数</p>
-<ul>
-<li>-Xms：堆的最小值参数</li>
-<li>-Xmx：堆的最大值参数</li>
-<li>-Xmn：新生代的内存大小</li>
-<li>-XX: MaxDirectMemorySize：直接内存的最大值。即NIO使用的堆外内存的最大值。 这里注意heap dump不会记录堆外内存的移除，但也可以造成OOM，现象是dump文件很小，即堆内存其实使用很少。</li>
-<li>-XX：MetaspaceSize：设置元空间触发fullgc的初始阈值（元空间没有固定初始值大小）。默认不设置为21M。到达该值就会触发full gc进行类型卸载，同时收集器会对该值进行调整，如果释放了大量空间，则调小；如果释放了很少的空间，则在不超过-XX: MaxMetaspaceSize的情况下适当提高此值。 在jdk1.8之前的永久代参数-XX: PermsSize参数标识为初始化的容量，1.8之后调整为元空间后不一样</li>
-<li>-XX: MaxMetaspaceSize：元空间最大值，默认是-1，不限制的话，受限于直接内存大小。</li>
-<li>-Xss：线程栈的大小（默认为1M）</li>
-</ul>
-<h2 id="常量池"><a href="#常量池" class="headerlink" title="常量池"></a>常量池</h2><h3 id="Class常量池和运行时常量池"><a href="#Class常量池和运行时常量池" class="headerlink" title="Class常量池和运行时常量池"></a>Class常量池和运行时常量池</h3><p>Class文件中包含常量池，也包含字段、方法、接口、类版本等描述信息。常量池用于存放编译期间的字面量和符号引用。</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103908248.png" alt="image-20220701103908248"></p>
-<p>当常量池字面量和符号引用被加载到内存中，符号才会有内存的地址，常量池就是运行时常量池。<br>而动态链接的过程就是把运行时常量池的符号引用变为直接内存地址引用。</p>
-<p>常量池在1.8之后从永久代（元空间）拿出，移动到了堆内存。</p>
-<h3 id="字符串常量池"><a href="#字符串常量池" class="headerlink" title="字符串常量池"></a>字符串常量池</h3><p>创建字符串对象时，做了一些优化：</p>
-<ul>
-<li>如果字符串常量在常量池中存在，返回此常量的地址引用；</li>
-<li>如果不存在，则实例化改字符串放入常量池中，是字面量的引用直接返回，是new String()这种则会在堆内新创建一个对象。</li>
-</ul>
-<h4 id="字符串操作"><a href="#字符串操作" class="headerlink" title="字符串操作"></a>字符串操作</h4><ul>
-<li>字面量直接赋值<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String a = <span class="string">"aaa"</span>;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>这样会用equals()方法判断字符串常量池是否存在，如果存在返回引用，不存在创建一个放入字符串常量池之后返回引用。</p>
-<ul>
-<li>new String()复制<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String a = <span class="keyword">new</span> String(<span class="string">"aaa"</span>);</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>这里也会判断字符串常量池和堆中是否有这个对象，没有则都创建，然后返回堆中的对象引用。也就是可能会创建两个对象。</p>
-<ul>
-<li>intern方法<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String s1 = <span class="string">"aaa"</span>;</span><br><span class="line">String s2 = s1.intern();</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>一个native方法，调用intern()时如果字符串常量池中存在常量，则返回池中的引用地址，否则将池中的地址直接指向堆中字符串对象（例子是s1）的地址。</p>
-<h4 id="常见面试题"><a href="#常见面试题" class="headerlink" title="常见面试题"></a>常见面试题</h4><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103933318.png" alt="image-20220701103933318"><br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103954181.png" alt="image-20220701103954181"><br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104015926.png" alt="image-20220701104015926"></p>
-<h4 id="关于String是不可变的"><a href="#关于String是不可变的" class="headerlink" title="关于String是不可变的"></a>关于String是不可变的</h4><p>除非下面的a、b、c三个变量被final修饰，即变为常量，那么执行String s1 = a + b + c时会编译为常量进行优化，也就是和String s = “a” + “b” + “c” 字面量直接相加一样，都是字符串常量池中常量对象的引用。<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104030743.png" alt="image-20220701104030743"></p>
-<p>为什么是不可变的？</p>
-<ul>
-<li>安全。最常用的String内部char[]数组是final的，规避了直接改变对象内容，封装了内部数据。（享元模式）</li>
-<li>线程安全，final在要求构造函数中初始化char[]数组</li>
-<li>hashcode初始化时确定，String很适合作为hash表的key。</li>
-</ul>
-<h5 id="彩蛋：比较对象时为什么要重写hashcode-方法"><a href="#彩蛋：比较对象时为什么要重写hashcode-方法" class="headerlink" title="彩蛋：比较对象时为什么要重写hashcode()方法"></a>彩蛋：比较对象时为什么要重写hashcode()方法</h5><p>equals()方法相等，则对象一定相等，为什么还要hashcode方法呢？</p>
-<ul>
-<li>因为hashcode效率高，一般约束都是equals()方法相等，则hashcode()一定相等；而hashcode()不相等，一定不是一个对象。</li>
-<li>HashSet这种数据结构是去重的，比较时候为了效率如果hashcode不相等，那么即使equals方法相等也会认为不是一个对象。</li>
-</ul>
 
           
         
