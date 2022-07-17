@@ -1767,6 +1767,227 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2021/01/17/实现LRU算法/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2021/01/17/实现LRU算法/" itemprop="url">实现LRU算法</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-01-17T19:18:27+08:00">
+                2021-01-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/算法/" itemprop="url" rel="index">
+                    <span itemprop="name">算法</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2021/01/17/实现LRU算法/" class="leancloud_visitors" data-flag-title="实现LRU算法">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,874
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  9
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="LRU算法概述"><a href="#LRU算法概述" class="headerlink" title="LRU算法概述"></a>LRU算法概述</h2><p>LRU：Least Recently Read （最近最少访问），是一种常见的缓存淘汰算法，当容量不够时淘汰最近最少访问的元素。</p>
+<h3 id="使用示例"><a href="#使用示例" class="headerlink" title="使用示例"></a>使用示例</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">/* 缓存容量为 2 */</span><br><span class="line">LRUCache cache = new LRUCache(2);</span><br><span class="line">// 你可以把 cache 理解成一个队列</span><br><span class="line">// 假设左边是队头，右边是队尾</span><br><span class="line">// 最近使用的排在队头，久未使用的排在队尾</span><br><span class="line">// 圆括号表示键值对 (key, val)</span><br><span class="line">cache.put(1, 1);</span><br><span class="line">// cache = [(1, 1)]</span><br><span class="line">cache.put(2, 2);</span><br><span class="line">// cache = [(2, 2), (1, 1)]</span><br><span class="line">cache.get(1);       // 返回 1</span><br><span class="line">// cache = [(1, 1), (2, 2)]</span><br><span class="line">// 解释：因为最近访问了键 1，所以提前至队头</span><br><span class="line">// 返回键 1 对应的值 1</span><br><span class="line">cache.put(3, 3);</span><br><span class="line">// cache = [(3, 3), (1, 1)]</span><br><span class="line">// 解释：缓存容量已满，需要删除内容空出位置</span><br><span class="line">// 优先删除久未使用的数据，也就是队尾的数据</span><br><span class="line">// 然后把新的数据插入队头</span><br><span class="line">cache.get(2);       // 返回 -1 (未找到)</span><br><span class="line">// cache = [(3, 3), (1, 1)]</span><br><span class="line">// 解释：cache 中不存在键为 2 的数据</span><br><span class="line">cache.put(1, 4);    </span><br><span class="line">// cache = [(1, 4), (3, 3)]</span><br><span class="line">// 解释：键 1 已存在，把原始值 1 覆盖为 4</span><br><span class="line">// 不要忘了也要将键值对提前到队头</span><br></pre></td></tr></table></figure>
+<h3 id="一些特点"><a href="#一些特点" class="headerlink" title="一些特点"></a>一些特点</h3><ul>
+<li>查找效率高。尽量O(1)的查找效率</li>
+<li>插入、删除要求效率高，容量满的时候要淘汰最近最少访问的元素。</li>
+<li>元素之间是有顺序的，因为区分最近使用和久未使用的数据。</li>
+</ul>
+<h3 id="实现LRU核心数据结构"><a href="#实现LRU核心数据结构" class="headerlink" title="实现LRU核心数据结构"></a>实现LRU核心数据结构</h3><ul>
+<li>hash表：快速查找，但是各个节点的数据不是有顺序的。</li>
+<li>链表：插入删除快，有序但是查找速度不快。</li>
+</ul>
+<p>最终结合两种数据结构。哈希链表</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220717191857466.png" alt="image-20220717191857466"></p>
+<p>这里的两个问题：</p>
+<ul>
+<li><p>为什么链表是双向链表？<br>因为在容量满足了之后需要对链表尾部的节点删除，这时候要断开上一个节点和其的链，这就需要找到上一个节点。</p>
+</li>
+<li><p>为什么链表中也是key和value，不能直接放value吗？<br>因为在删除尾部节点的时候需要同时删除hash表中的元素，这时候需要根据key来删除，索引链表里也要冗余key。</p>
+</li>
+</ul>
+<h3 id="java代码实现"><a href="#java代码实现" class="headerlink" title="java代码实现"></a>java代码实现</h3><h4 id="使用HashMap和LinkedList来实现"><a href="#使用HashMap和LinkedList来实现" class="headerlink" title="使用HashMap和LinkedList来实现"></a>使用HashMap和LinkedList来实现</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LRUCache</span> </span>&#123;</span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">EasyNode</span> </span>&#123;</span><br><span class="line">        Integer key;</span><br><span class="line">        Integer value;</span><br><span class="line">        EasyNode(Integer key, Integer value) &#123;</span><br><span class="line">            <span class="keyword">this</span>.key = key;</span><br><span class="line">            <span class="keyword">this</span>.value = value;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    Map&lt;Integer, EasyNode&gt; map;</span><br><span class="line">    LinkedList&lt;EasyNode&gt; cache;</span><br><span class="line">    <span class="keyword">int</span> cap;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">LRUCache</span><span class="params">(<span class="keyword">int</span> capacity)</span> </span>&#123;</span><br><span class="line">        map = <span class="keyword">new</span> HashMap&lt;&gt;(capacity);</span><br><span class="line">        cache = <span class="keyword">new</span> LinkedList&lt;&gt;();</span><br><span class="line">        <span class="keyword">this</span>.cap = capacity;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">get</span><span class="params">(<span class="keyword">int</span> key)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 如果key在map中不存在 返回-1</span></span><br><span class="line">        <span class="keyword">if</span> (!map.containsKey(key)) &#123;</span><br><span class="line">            <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 存在 则维护LRU中双向链表的逻辑</span></span><br><span class="line">        EasyNode node = map.get(key);</span><br><span class="line">        <span class="comment">// 删除再添加到队尾</span></span><br><span class="line">        cache.remove(node);</span><br><span class="line">        cache.addLast(node);</span><br><span class="line">        <span class="keyword">return</span> node.value;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">put</span><span class="params">(<span class="keyword">int</span> key, <span class="keyword">int</span> value)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// map中存在 则map更新 且将该节点放入队尾</span></span><br><span class="line">        EasyNode node = <span class="keyword">new</span> EasyNode(key, value);</span><br><span class="line">        <span class="keyword">if</span> (map.containsKey(key)) &#123;</span><br><span class="line">            cache.remove(map.get(key));</span><br><span class="line">            cache.addLast(node);</span><br><span class="line">            map.put(key, node);</span><br><span class="line">        &#125; <span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="comment">// 判断是否需要淘汰</span></span><br><span class="line">            <span class="keyword">if</span> (cache.size() == cap) &#123;</span><br><span class="line">                <span class="comment">// 进行缓存的淘汰</span></span><br><span class="line">                EasyNode removeNode = cache.removeFirst();</span><br><span class="line">                map.remove(removeNode.key);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 再添加到map和队尾</span></span><br><span class="line">            map.put(key, node);</span><br><span class="line">            cache.addLast(node);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Your LRUCache object will be instantiated and called as such:</span></span><br><span class="line"><span class="comment"> * LRUCache obj = new LRUCache(capacity);</span></span><br><span class="line"><span class="comment"> * int param_1 = obj.get(key);</span></span><br><span class="line"><span class="comment"> * obj.put(key,value);</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>
+<h4 id="使用HashMap和自定义的双向链表实现"><a href="#使用HashMap和自定义的双向链表实现" class="headerlink" title="使用HashMap和自定义的双向链表实现"></a>使用HashMap和自定义的双向链表实现</h4><ul>
+<li>自定义双向链表的节点和双向链表<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 双向链表节点</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Setter</span></span><br><span class="line"><span class="meta">@Getter</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DeListNode</span> &lt;<span class="title">Key</span>, <span class="title">Value</span>&gt;</span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Key key;</span><br><span class="line">    <span class="keyword">private</span> Value value;</span><br><span class="line">    <span class="comment">// 前驱节点</span></span><br><span class="line">    <span class="keyword">private</span> DeListNode&lt;Key, Value&gt; prev;</span><br><span class="line">    <span class="comment">// 后继节点</span></span><br><span class="line">    <span class="keyword">private</span>  DeListNode&lt;Key, Value&gt; next;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">DeListNode</span><span class="params">(Key key, Value value)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.key = key;</span><br><span class="line">        <span class="keyword">this</span>.value = value;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> String.format(<span class="string">" (key:%s，value:%s) "</span>, key, value);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 简单实现双端链表</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DeLinkedList</span>&lt;<span class="title">Key</span>, <span class="title">Value</span>&gt; </span>&#123;</span><br><span class="line">    <span class="comment">// 头和尾节点</span></span><br><span class="line">    <span class="keyword">private</span> DeListNode&lt;Key, Value&gt; head, tail;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 链表元素个数</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> size;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">size</span><span class="params">()</span> </span>&#123;<span class="keyword">return</span>  size;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">DeLinkedList</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 初始化一个 头尾巴节点 两个节点不会在真正使用中用到</span></span><br><span class="line">        head = <span class="keyword">new</span> DeListNode&lt;&gt;(<span class="keyword">null</span>, <span class="keyword">null</span>);</span><br><span class="line">        tail = <span class="keyword">new</span> DeListNode&lt;&gt;(<span class="keyword">null</span>, <span class="keyword">null</span>);</span><br><span class="line">        <span class="comment">// 首尾连接</span></span><br><span class="line">        head.setNext(tail);</span><br><span class="line">        tail.setPrev(head);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 给尾巴加入新的节点</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addLast</span><span class="params">(DeListNode&lt;Key, Value&gt; node)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 虚拟的尾巴</span></span><br><span class="line">        DeListNode&lt;Key, Value&gt; dummyTail = tail;</span><br><span class="line">        <span class="comment">// 真实的尾节点</span></span><br><span class="line">        DeListNode&lt;Key, Value&gt; trueTail = dummyTail.getPrev();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 加入的节点和真实尾巴节点链接</span></span><br><span class="line">        trueTail.setNext(node);</span><br><span class="line">        node.setPrev(trueTail);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 再链接上虚拟尾巴节点</span></span><br><span class="line">        node.setNext(dummyTail);</span><br><span class="line">        dummyTail.setPrev(node);</span><br><span class="line">        size ++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (head.getNext() == tail) &#123;</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">                    <span class="string">"[]"</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            DeListNode current = head.getNext();</span><br><span class="line">            StringBuffer sb = <span class="keyword">new</span> StringBuffer();</span><br><span class="line">            sb.append(<span class="string">" 旧 ["</span>);</span><br><span class="line">            <span class="keyword">while</span> (!current.equals(tail)) &#123;</span><br><span class="line">                sb.append(current.toString());</span><br><span class="line">                current = current.getNext();</span><br><span class="line">            &#125;</span><br><span class="line">            sb.append(<span class="string">"] 新"</span>);</span><br><span class="line">            <span class="keyword">return</span> sb.toString();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">remove</span><span class="params">(DeListNode&lt;Key, Value&gt; node)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 假设node 一定存在</span></span><br><span class="line">        node.getPrev().setNext(node.getNext());</span><br><span class="line">        node.getNext().setPrev(node.getPrev());</span><br><span class="line">        size -- ;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 队头移除元素</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> DeListNode&lt;Key, Value&gt; <span class="title">removeFirst</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 没有元素不操作</span></span><br><span class="line">        <span class="keyword">if</span> (head.getNext() == tail) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        DeListNode&lt;Key, Value&gt; trueHead = head.getNext();</span><br><span class="line">        head.setNext(trueHead.getNext());</span><br><span class="line">        trueHead.getNext().setPrev(head);</span><br><span class="line">        size--;</span><br><span class="line">        <span class="keyword">return</span> trueHead;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>实现LRUCache<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> 实现<span class="title">LRU</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 简单双端队列</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> &lt;Key&gt;</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> &lt;Value&gt;</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span>  <span class="title">LRUCache</span> &lt;<span class="title">Key</span>, <span class="title">Value</span>&gt;</span>&#123;</span><br><span class="line">        <span class="comment">// 容量</span></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">int</span> cap;</span><br><span class="line">        <span class="comment">// hash表</span></span><br><span class="line">        <span class="keyword">private</span> HashMap&lt;Key, DeListNode&lt;Key, Value&gt;&gt; map;</span><br><span class="line">        <span class="comment">// 双向链表缓存</span></span><br><span class="line">        <span class="keyword">private</span> DeLinkedList&lt;Key, Value&gt; cache;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 初始化函数</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">LRUCache</span><span class="params">(<span class="keyword">int</span> cap)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">this</span>.cap = cap;</span><br><span class="line">            map = <span class="keyword">new</span> HashMap&lt;&gt;(cap);</span><br><span class="line">            cache = <span class="keyword">new</span> DeLinkedList&lt;&gt;();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 根据key获取value</span></span><br><span class="line"><span class="comment">         * 逻辑：</span></span><br><span class="line"><span class="comment">         *      1. 如果缓存中不存在 则返回null</span></span><br><span class="line"><span class="comment">         *      2. 如果存在，将命中的元素移动到队头（LRU的逻辑） 返回元素</span></span><br><span class="line"><span class="comment">         * <span class="doctag">@param</span> key</span></span><br><span class="line"><span class="comment">         * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> Value <span class="title">get</span><span class="params">(Key key)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (!map.containsKey(key)) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">//  移动元素到队尾 采用先删除再插入的方式</span></span><br><span class="line">                DeListNode&lt;Key, Value&gt; keyValueDeListNode = map.get(key);</span><br><span class="line">                cache.remove(keyValueDeListNode);</span><br><span class="line">                cache.addLast(keyValueDeListNode);</span><br><span class="line">                <span class="keyword">return</span> keyValueDeListNode.getValue();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 添加一个元素到LRU缓存中</span></span><br><span class="line"><span class="comment">         * 逻辑：</span></span><br><span class="line"><span class="comment">         *      1. LRUCache中是否存在key 如果存在替换对应的node 即map.put 然后维护双向链表（插入再删除）</span></span><br><span class="line"><span class="comment">         *      2. 如果不存在 需要根基cap判断是否需要淘汰队头元素。 队列尾部添加节点 map中添加然后删除淘汰的key</span></span><br><span class="line"><span class="comment">         *</span></span><br><span class="line"><span class="comment">         * <span class="doctag">@param</span> key</span></span><br><span class="line"><span class="comment">         * <span class="doctag">@param</span> value</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">put</span><span class="params">(Key key, Value value)</span> </span>&#123;</span><br><span class="line">            <span class="comment">// 构造新节点</span></span><br><span class="line">            DeListNode&lt;Key, Value&gt; node = <span class="keyword">new</span> DeListNode&lt;&gt;(key, value);</span><br><span class="line">            <span class="keyword">if</span> (map.containsKey(key))&#123;</span><br><span class="line">                <span class="comment">// 存在key 则去替换map中的节点 且维护双端队列（删除再添加）</span></span><br><span class="line">                cache.remove(map.get(key));</span><br><span class="line">                cache.addLast(node);</span><br><span class="line">                map.put(key, node);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">// 不存在要去判断是否触发淘汰</span></span><br><span class="line">                <span class="keyword">if</span> (cap == cache.size()) &#123;</span><br><span class="line">                    <span class="comment">// 双端队列队头淘汰（LRU逻辑）</span></span><br><span class="line">                    DeListNode&lt;Key, Value&gt; first = cache.removeFirst();</span><br><span class="line">                    <span class="comment">// map中remove</span></span><br><span class="line">                    map.remove(first.getKey());</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment">// 直接添加到尾部即可</span></span><br><span class="line">                cache.addLast(node);</span><br><span class="line">                <span class="comment">// map中添加</span></span><br><span class="line">                map.put(key, node);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">printf</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            System.out.println(<span class="string">"cachhe 队列"</span> + cache.toString());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 初始化为2的lruCache</span></span><br><span class="line">        LRUCache&lt;Integer, Integer&gt; lruCache = <span class="keyword">new</span> LRUCache&lt;&gt;(<span class="number">2</span>);</span><br><span class="line">        lruCache.put(<span class="number">1</span>, <span class="number">1</span>);</span><br><span class="line">        lruCache.put(<span class="number">2</span>, <span class="number">2</span>);  <span class="comment">// 新 [(2,2), (1,1)] 旧</span></span><br><span class="line">        lruCache.printf();</span><br><span class="line"></span><br><span class="line">        Integer integer = lruCache.get(<span class="number">1</span>); <span class="comment">// 新 [(1,1), (2,2)] 旧</span></span><br><span class="line">        lruCache.printf();</span><br><span class="line"></span><br><span class="line">        lruCache.put(<span class="number">2</span>,<span class="number">3</span>); <span class="comment">//   新 [(2,3), (1,1)] 旧</span></span><br><span class="line">        lruCache.printf();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 再添加 淘汰的是1</span></span><br><span class="line">        lruCache.put(<span class="number">4</span>, <span class="number">4</span>); <span class="comment">// 新 [(4,4), (2,3)] 旧</span></span><br><span class="line">        lruCache.printf();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/09/18/RR隔离级别下的gap和插入意向锁死锁分析/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2215,204 +2436,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/06/21/duubo的proxy代理/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2020/06/21/duubo的proxy代理/" itemprop="url">duubo的proxy代理</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-06-21T16:41:30+08:00">
-                2020-06-21
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/dubbo/" itemprop="url" rel="index">
-                    <span itemprop="name">dubbo</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2020/06/21/duubo的proxy代理/" class="leancloud_visitors" data-flag-title="duubo的proxy代理">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1,482
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  7
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="Proxy层"><a href="#Proxy层" class="headerlink" title="Proxy层"></a>Proxy层</h2><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701064957928.png" alt="image-20220701064957928"></p>
-<p>proxy层是dubbo中的动态代理层，主要是为了屏蔽dubbo内部Cluster、Protocol概念设计，能让业务层像调用本地方法一样去发起RPC调用。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/blog/2020/06/21/duubo的proxy代理/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2467,7 +2490,7 @@
               
                 <a href="/blog/archives/">
               
-                  <span class="site-state-item-count">108</span>
+                  <span class="site-state-item-count">109</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2478,7 +2501,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/blog/categories/index.html">
-                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-count">29</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -2489,7 +2512,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/blog/tags/index.html">
-                  <span class="site-state-item-count">115</span>
+                  <span class="site-state-item-count">116</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -2563,7 +2586,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">158.9k</span>
+    <span title="Site words total count">160.7k</span>
   
 </div>
 
@@ -2585,7 +2608,7 @@
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共158.9k字</span>
+  <span class="post-count">博客全站共160.7k字</span>
 </div>
 
 <br />
