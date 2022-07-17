@@ -4,6 +4,28 @@
 
     
   <url>
+    <loc>https://zhanglijun1217.github.io/blog/2020/12/18/mybatis-spring-boot-starter%E8%87%AA%E5%8A%A8%E8%A3%85%E9%85%8D%E5%AE%9E%E7%8E%B0/</loc>
+    <lastmod>2022-07-17T18:43:25.409Z</lastmod>
+    <data>
+        <display>
+        <title>mybatis-spring-boot-starter自动装配实现</title>
+        <pubTime>2020-12-17T18:35:25.000Z</pubTime>
+        
+        <tag>mybatis</tag>
+         
+        <tag>spring boot starter</tag>
+         
+         
+           
+             
+              <breadCrumb title="spring boot" url="https://zhanglijun1217.github.io/blog/categories/spring-boot/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>https://zhanglijun1217.github.io/blog/2021/01/17/%E5%AE%9E%E7%8E%B0LRU%E7%AE%97%E6%B3%95/</loc>
     <lastmod>2022-07-17T11:20:02.153Z</lastmod>
     <data>
@@ -989,71 +1011,6 @@
 
     
   <url>
-    <loc>https://zhanglijun1217.github.io/blog/2020/03/22/%E6%A0%88%E4%B8%8E%E9%98%9F%E5%88%97%E7%9B%B8%E4%BA%92%E5%AE%9E%E7%8E%B0/</loc>
-    <lastmod>2022-06-30T22:04:39.210Z</lastmod>
-    <data>
-        <display>
-        <title>栈与队列相互实现</title>
-        <pubTime>2020-03-22T14:04:56.000Z</pubTime>
-        
-        <tag>栈、队列</tag>
-         
-         
-           
-             
-              <breadCrumb title="数据结构" url="https://zhanglijun1217.github.io/blog/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>https://zhanglijun1217.github.io/blog/2020/05/24/orika%E7%BA%BF%E7%A8%8B%E6%AD%BB%E5%BE%AA%E7%8E%AF%E8%AE%B0%E5%BD%95/</loc>
-    <lastmod>2022-06-30T22:04:39.210Z</lastmod>
-    <data>
-        <display>
-        <title>orika线程死循环记录</title>
-        <pubTime>2020-05-24T15:15:08.000Z</pubTime>
-        
-        <tag>orika</tag>
-         
-        <tag>map死循环</tag>
-         
-         
-           
-             
-              <breadCrumb title="bug记录" url="https://zhanglijun1217.github.io/blog/categories/bug%E8%AE%B0%E5%BD%95/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>https://zhanglijun1217.github.io/blog/2020/04/12/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E7%B3%BB%E5%88%97%E4%B9%8B%E7%90%86%E8%A7%A3%E7%B1%BB%E5%8A%A0%E8%BD%BD/</loc>
-    <lastmod>2022-06-30T22:04:39.210Z</lastmod>
-    <data>
-        <display>
-        <title>类加载系列之理解类加载</title>
-        <pubTime>2020-04-12T15:27:14.000Z</pubTime>
-        
-        <tag>类加载</tag>
-         
-         
-           
-             
-              <breadCrumb title="Java基础" url="https://zhanglijun1217.github.io/blog/categories/Java%E5%9F%BA%E7%A1%80/"/>
-          
-             
-              <breadCrumb title="JVM" url="https://zhanglijun1217.github.io/blog/categories/Java%E5%9F%BA%E7%A1%80/JVM/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
     <loc>https://zhanglijun1217.github.io/blog/2019/12/09/%E6%96%B9%E6%B3%95%E5%BC%95%E7%94%A8%E6%8B%BE%E9%81%97/</loc>
     <lastmod>2022-06-30T22:04:39.210Z</lastmod>
     <data>
@@ -1094,6 +1051,71 @@
            
              
               <breadCrumb title="日常工具" url="https://zhanglijun1217.github.io/blog/categories/%E6%97%A5%E5%B8%B8%E5%B7%A5%E5%85%B7/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://zhanglijun1217.github.io/blog/2020/04/12/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E7%B3%BB%E5%88%97%E4%B9%8B%E7%90%86%E8%A7%A3%E7%B1%BB%E5%8A%A0%E8%BD%BD/</loc>
+    <lastmod>2022-06-30T22:04:39.210Z</lastmod>
+    <data>
+        <display>
+        <title>类加载系列之理解类加载</title>
+        <pubTime>2020-04-12T15:27:14.000Z</pubTime>
+        
+        <tag>类加载</tag>
+         
+         
+           
+             
+              <breadCrumb title="Java基础" url="https://zhanglijun1217.github.io/blog/categories/Java%E5%9F%BA%E7%A1%80/"/>
+          
+             
+              <breadCrumb title="JVM" url="https://zhanglijun1217.github.io/blog/categories/Java%E5%9F%BA%E7%A1%80/JVM/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://zhanglijun1217.github.io/blog/2020/03/22/%E6%A0%88%E4%B8%8E%E9%98%9F%E5%88%97%E7%9B%B8%E4%BA%92%E5%AE%9E%E7%8E%B0/</loc>
+    <lastmod>2022-06-30T22:04:39.210Z</lastmod>
+    <data>
+        <display>
+        <title>栈与队列相互实现</title>
+        <pubTime>2020-03-22T14:04:56.000Z</pubTime>
+        
+        <tag>栈、队列</tag>
+         
+         
+           
+             
+              <breadCrumb title="数据结构" url="https://zhanglijun1217.github.io/blog/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://zhanglijun1217.github.io/blog/2020/05/24/orika%E7%BA%BF%E7%A8%8B%E6%AD%BB%E5%BE%AA%E7%8E%AF%E8%AE%B0%E5%BD%95/</loc>
+    <lastmod>2022-06-30T22:04:39.210Z</lastmod>
+    <data>
+        <display>
+        <title>orika线程死循环记录</title>
+        <pubTime>2020-05-24T15:15:08.000Z</pubTime>
+        
+        <tag>orika</tag>
+         
+        <tag>map死循环</tag>
+         
+         
+           
+             
+              <breadCrumb title="bug记录" url="https://zhanglijun1217.github.io/blog/categories/bug%E8%AE%B0%E5%BD%95/"/>
           
         </display>
     </data>
@@ -1144,6 +1166,26 @@
 
     
   <url>
+    <loc>https://zhanglijun1217.github.io/blog/2020/05/20/dubbo%E7%9A%84spi%E5%AE%9E%E7%8E%B0/</loc>
+    <lastmod>2022-06-30T22:04:39.209Z</lastmod>
+    <data>
+        <display>
+        <title>dubboSPI的实现</title>
+        <pubTime>2020-05-19T16:17:24.000Z</pubTime>
+        
+        <tag>dubbo SPI</tag>
+         
+         
+           
+             
+              <breadCrumb title="dubbo" url="https://zhanglijun1217.github.io/blog/categories/dubbo/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>https://zhanglijun1217.github.io/blog/2021/03/22/mybatis%E8%BF%9E%E6%8E%A5%E6%B1%A0%E7%9A%84%E5%AE%9E%E7%8E%B0/</loc>
     <lastmod>2022-06-30T22:04:39.209Z</lastmod>
     <data>
@@ -1159,26 +1201,6 @@
            
              
               <breadCrumb title="mybatis" url="https://zhanglijun1217.github.io/blog/categories/mybatis/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>https://zhanglijun1217.github.io/blog/2020/05/20/dubbo%E7%9A%84spi%E5%AE%9E%E7%8E%B0/</loc>
-    <lastmod>2022-06-30T22:04:39.209Z</lastmod>
-    <data>
-        <display>
-        <title>dubboSPI的实现</title>
-        <pubTime>2020-05-19T16:17:24.000Z</pubTime>
-        
-        <tag>dubbo SPI</tag>
-         
-         
-           
-             
-              <breadCrumb title="dubbo" url="https://zhanglijun1217.github.io/blog/categories/dubbo/"/>
           
         </display>
     </data>
@@ -1231,19 +1253,22 @@
 
     
   <url>
-    <loc>https://zhanglijun1217.github.io/blog/2020/03/29/ArrayList%E6%8B%BE%E9%81%97/</loc>
+    <loc>https://zhanglijun1217.github.io/blog/2020/03/22/Comparator%E6%8E%A5%E5%8F%A3%E5%9C%A8java8%E4%B8%AD%E7%9A%84%E4%BC%98%E5%8C%96/</loc>
     <lastmod>2022-06-30T22:04:39.205Z</lastmod>
     <data>
         <display>
-        <title>ArrayList拾遗</title>
-        <pubTime>2020-03-28T17:00:44.000Z</pubTime>
+        <title>Comparator接口在java8中的优化</title>
+        <pubTime>2020-03-22T14:33:02.000Z</pubTime>
         
-        <tag>ArrayList</tag>
+        <tag>Comparator接口</tag>
          
          
            
              
-              <breadCrumb title="Java基础" url="https://zhanglijun1217.github.io/blog/categories/Java%E5%9F%BA%E7%A1%80/"/>
+              <breadCrumb title="Java语法" url="https://zhanglijun1217.github.io/blog/categories/Java%E8%AF%AD%E6%B3%95/"/>
+          
+             
+              <breadCrumb title="Java8" url="https://zhanglijun1217.github.io/blog/categories/Java%E8%AF%AD%E6%B3%95/Java8/"/>
           
         </display>
     </data>
@@ -1276,22 +1301,19 @@
 
     
   <url>
-    <loc>https://zhanglijun1217.github.io/blog/2020/03/22/Comparator%E6%8E%A5%E5%8F%A3%E5%9C%A8java8%E4%B8%AD%E7%9A%84%E4%BC%98%E5%8C%96/</loc>
+    <loc>https://zhanglijun1217.github.io/blog/2020/03/29/ArrayList%E6%8B%BE%E9%81%97/</loc>
     <lastmod>2022-06-30T22:04:39.205Z</lastmod>
     <data>
         <display>
-        <title>Comparator接口在java8中的优化</title>
-        <pubTime>2020-03-22T14:33:02.000Z</pubTime>
+        <title>ArrayList拾遗</title>
+        <pubTime>2020-03-28T17:00:44.000Z</pubTime>
         
-        <tag>Comparator接口</tag>
+        <tag>ArrayList</tag>
          
          
            
              
-              <breadCrumb title="Java语法" url="https://zhanglijun1217.github.io/blog/categories/Java%E8%AF%AD%E6%B3%95/"/>
-          
-             
-              <breadCrumb title="Java8" url="https://zhanglijun1217.github.io/blog/categories/Java%E8%AF%AD%E6%B3%95/Java8/"/>
+              <breadCrumb title="Java基础" url="https://zhanglijun1217.github.io/blog/categories/Java%E5%9F%BA%E7%A1%80/"/>
           
         </display>
     </data>
@@ -1302,19 +1324,19 @@
     
     
   <url>
-    <loc>https://zhanglijun1217.github.io/blog/2019/03/03/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E2%80%94%E2%80%94%E8%A3%85%E9%A5%B0%E8%80%85%E6%A8%A1%E5%BC%8F/</loc>
+    <loc>https://zhanglijun1217.github.io/blog/2018/12/19/%E9%9B%86%E5%90%88%E4%B8%AD%E7%9A%84%E6%B7%B1%E6%8B%B7%E8%B4%9D/</loc>
     <lastmod>2022-06-30T21:12:04.045Z</lastmod>
     <data>
         <display>
-        <title>设计模式——装饰者模式</title>
-        <pubTime>2019-03-03T11:04:28.000Z</pubTime>
+        <title>集合中的深拷贝</title>
+        <pubTime>2018-12-19T14:11:18.000Z</pubTime>
         
-        <tag>装饰者模式</tag>
+        <tag>深拷贝</tag>
          
          
            
              
-              <breadCrumb title="设计模式" url="https://zhanglijun1217.github.io/blog/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+              <breadCrumb title="Java基础" url="https://zhanglijun1217.github.io/blog/categories/Java%E5%9F%BA%E7%A1%80/"/>
           
         </display>
     </data>
@@ -1342,54 +1364,14 @@
 
     
   <url>
-    <loc>https://zhanglijun1217.github.io/blog/2018/12/19/%E9%9B%86%E5%90%88%E4%B8%AD%E7%9A%84%E6%B7%B1%E6%8B%B7%E8%B4%9D/</loc>
+    <loc>https://zhanglijun1217.github.io/blog/2019/03/03/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E2%80%94%E2%80%94%E8%A3%85%E9%A5%B0%E8%80%85%E6%A8%A1%E5%BC%8F/</loc>
     <lastmod>2022-06-30T21:12:04.045Z</lastmod>
     <data>
         <display>
-        <title>集合中的深拷贝</title>
-        <pubTime>2018-12-19T14:11:18.000Z</pubTime>
+        <title>设计模式——装饰者模式</title>
+        <pubTime>2019-03-03T11:04:28.000Z</pubTime>
         
-        <tag>深拷贝</tag>
-         
-         
-           
-             
-              <breadCrumb title="Java基础" url="https://zhanglijun1217.github.io/blog/categories/Java%E5%9F%BA%E7%A1%80/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>https://zhanglijun1217.github.io/blog/2018/08/02/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E2%80%94%E2%80%94%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/</loc>
-    <lastmod>2022-06-30T21:12:04.044Z</lastmod>
-    <data>
-        <display>
-        <title>设计模式——策略模式</title>
-        <pubTime>2018-08-02T06:34:53.000Z</pubTime>
-        
-        <tag>策略模式</tag>
-         
-         
-           
-             
-              <breadCrumb title="设计模式" url="https://zhanglijun1217.github.io/blog/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>https://zhanglijun1217.github.io/blog/2019/02/01/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E2%80%94%E2%80%94%E6%A8%A1%E6%9D%BF%E6%96%B9%E6%B3%95%E7%9A%84%E5%BA%94%E7%94%A8/</loc>
-    <lastmod>2022-06-30T21:12:04.044Z</lastmod>
-    <data>
-        <display>
-        <title>设计模式——模板方法的应用</title>
-        <pubTime>2019-02-01T08:07:57.000Z</pubTime>
-        
-        <tag>设计模式</tag>
+        <tag>装饰者模式</tag>
          
          
            
@@ -1422,6 +1404,46 @@
 
     
   <url>
+    <loc>https://zhanglijun1217.github.io/blog/2019/02/01/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E2%80%94%E2%80%94%E6%A8%A1%E6%9D%BF%E6%96%B9%E6%B3%95%E7%9A%84%E5%BA%94%E7%94%A8/</loc>
+    <lastmod>2022-06-30T21:12:04.044Z</lastmod>
+    <data>
+        <display>
+        <title>设计模式——模板方法的应用</title>
+        <pubTime>2019-02-01T08:07:57.000Z</pubTime>
+        
+        <tag>设计模式</tag>
+         
+         
+           
+             
+              <breadCrumb title="设计模式" url="https://zhanglijun1217.github.io/blog/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://zhanglijun1217.github.io/blog/2018/08/02/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E2%80%94%E2%80%94%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/</loc>
+    <lastmod>2022-06-30T21:12:04.044Z</lastmod>
+    <data>
+        <display>
+        <title>设计模式——策略模式</title>
+        <pubTime>2018-08-02T06:34:53.000Z</pubTime>
+        
+        <tag>策略模式</tag>
+         
+         
+           
+             
+              <breadCrumb title="设计模式" url="https://zhanglijun1217.github.io/blog/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>https://zhanglijun1217.github.io/blog/2019/02/24/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E2%80%94%E2%80%94%E7%BA%BF%E7%A8%8B%E7%8A%B6%E6%80%81%EF%BC%882%EF%BC%89/</loc>
     <lastmod>2022-06-30T21:12:04.043Z</lastmod>
     <data>
@@ -1430,6 +1452,31 @@
         <pubTime>2019-02-24T06:13:27.000Z</pubTime>
         
         <tag>线程状态</tag>
+         
+         
+           
+             
+              <breadCrumb title="并发编程" url="https://zhanglijun1217.github.io/blog/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
+          
+             
+              <breadCrumb title="并发基础" url="https://zhanglijun1217.github.io/blog/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/%E5%B9%B6%E5%8F%91%E5%9F%BA%E7%A1%80/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://zhanglijun1217.github.io/blog/2018/12/31/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E2%80%94%E2%80%94%E5%9F%BA%E7%A1%80%E6%8B%BE%E9%81%97/</loc>
+    <lastmod>2022-06-30T21:12:04.042Z</lastmod>
+    <data>
+        <display>
+        <title>并发编程——基础拾遗</title>
+        <pubTime>2018-12-31T09:11:05.000Z</pubTime>
+        
+        <tag>并发编程</tag>
+         
+        <tag>多线程</tag>
          
          
            
@@ -1495,16 +1542,37 @@
 
     
   <url>
-    <loc>https://zhanglijun1217.github.io/blog/2018/12/31/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E2%80%94%E2%80%94%E5%9F%BA%E7%A1%80%E6%8B%BE%E9%81%97/</loc>
-    <lastmod>2022-06-30T21:12:04.042Z</lastmod>
+    <loc>https://zhanglijun1217.github.io/blog/2018/08/04/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E2%80%94%E2%80%94CopyOnWrite%E5%AE%B9%E5%99%A8/</loc>
+    <lastmod>2022-06-30T21:12:04.041Z</lastmod>
     <data>
         <display>
-        <title>并发编程——基础拾遗</title>
-        <pubTime>2018-12-31T09:11:05.000Z</pubTime>
+        <title>并发编程——CopyOnWrite容器</title>
+        <pubTime>2018-08-04T07:03:36.000Z</pubTime>
         
-        <tag>并发编程</tag>
+        <tag>copyOnWrite</tag>
          
-        <tag>多线程</tag>
+         
+           
+             
+              <breadCrumb title="并发编程" url="https://zhanglijun1217.github.io/blog/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
+          
+             
+              <breadCrumb title="并发工具" url="https://zhanglijun1217.github.io/blog/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/%E5%B9%B6%E5%8F%91%E5%B7%A5%E5%85%B7/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://zhanglijun1217.github.io/blog/2019/02/21/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E2%80%94%E2%80%94Thread-API/</loc>
+    <lastmod>2022-06-30T21:12:04.041Z</lastmod>
+    <data>
+        <display>
+        <title>并发编程——Thread API</title>
+        <pubTime>2019-02-21T15:19:21.000Z</pubTime>
+        
+        <tag>Thread API</tag>
          
          
            
@@ -1545,29 +1613,6 @@
 
     
   <url>
-    <loc>https://zhanglijun1217.github.io/blog/2019/02/21/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E2%80%94%E2%80%94Thread-API/</loc>
-    <lastmod>2022-06-30T21:12:04.041Z</lastmod>
-    <data>
-        <display>
-        <title>并发编程——Thread API</title>
-        <pubTime>2019-02-21T15:19:21.000Z</pubTime>
-        
-        <tag>Thread API</tag>
-         
-         
-           
-             
-              <breadCrumb title="并发编程" url="https://zhanglijun1217.github.io/blog/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
-          
-             
-              <breadCrumb title="并发基础" url="https://zhanglijun1217.github.io/blog/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/%E5%B9%B6%E5%8F%91%E5%9F%BA%E7%A1%80/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
     <loc>https://zhanglijun1217.github.io/blog/2018/08/16/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E2%80%94%E2%80%94ThreadLocal%E6%80%BB%E7%BB%93/</loc>
     <lastmod>2022-06-30T21:12:04.041Z</lastmod>
     <data>
@@ -1576,29 +1621,6 @@
         <pubTime>2018-08-16T03:06:09.000Z</pubTime>
         
         <tag>ThreadLcoal</tag>
-         
-         
-           
-             
-              <breadCrumb title="并发编程" url="https://zhanglijun1217.github.io/blog/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
-          
-             
-              <breadCrumb title="并发工具" url="https://zhanglijun1217.github.io/blog/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/%E5%B9%B6%E5%8F%91%E5%B7%A5%E5%85%B7/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>https://zhanglijun1217.github.io/blog/2018/08/04/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E2%80%94%E2%80%94CopyOnWrite%E5%AE%B9%E5%99%A8/</loc>
-    <lastmod>2022-06-30T21:12:04.041Z</lastmod>
-    <data>
-        <display>
-        <title>并发编程——CopyOnWrite容器</title>
-        <pubTime>2018-08-04T07:03:36.000Z</pubTime>
-        
-        <tag>copyOnWrite</tag>
          
          
            
@@ -1657,24 +1679,21 @@
 
     
   <url>
-    <loc>https://zhanglijun1217.github.io/blog/2018/09/21/%E4%B8%A4%E4%B8%AA%E5%88%87%E9%9D%A2%E9%85%8D%E7%BD%AE%E7%9A%84%E8%AE%B0%E5%BD%95/</loc>
+    <loc>https://zhanglijun1217.github.io/blog/2019/03/10/%E4%B8%80%E6%AC%A1%E6%8E%92%E6%9F%A5-jacocoData%E7%9A%84%E8%BF%87%E7%A8%8B/</loc>
     <lastmod>2022-06-30T21:12:04.039Z</lastmod>
     <data>
         <display>
-        <title>两个切面配置的记录</title>
-        <pubTime>2018-09-20T16:02:57.000Z</pubTime>
+        <title>一次排查$jacocoData的过程</title>
+        <pubTime>2019-03-10T13:58:02.000Z</pubTime>
         
-        <tag>validate注解</tag>
+        <tag>反射</tag>
          
-        <tag>aop</tag>
+        <tag>字节码</tag>
          
          
            
              
-              <breadCrumb title="spring" url="https://zhanglijun1217.github.io/blog/categories/spring/"/>
-          
-             
-              <breadCrumb title="spring boot" url="https://zhanglijun1217.github.io/blog/categories/spring/spring-boot/"/>
+              <breadCrumb title="bug记录" url="https://zhanglijun1217.github.io/blog/categories/bug%E8%AE%B0%E5%BD%95/"/>
           
         </display>
     </data>
@@ -1704,41 +1723,24 @@
 
     
   <url>
-    <loc>https://zhanglijun1217.github.io/blog/2019/03/10/%E4%B8%80%E6%AC%A1%E6%8E%92%E6%9F%A5-jacocoData%E7%9A%84%E8%BF%87%E7%A8%8B/</loc>
+    <loc>https://zhanglijun1217.github.io/blog/2018/09/21/%E4%B8%A4%E4%B8%AA%E5%88%87%E9%9D%A2%E9%85%8D%E7%BD%AE%E7%9A%84%E8%AE%B0%E5%BD%95/</loc>
     <lastmod>2022-06-30T21:12:04.039Z</lastmod>
     <data>
         <display>
-        <title>一次排查$jacocoData的过程</title>
-        <pubTime>2019-03-10T13:58:02.000Z</pubTime>
+        <title>两个切面配置的记录</title>
+        <pubTime>2018-09-20T16:02:57.000Z</pubTime>
         
-        <tag>反射</tag>
+        <tag>validate注解</tag>
          
-        <tag>字节码</tag>
+        <tag>aop</tag>
          
          
            
              
-              <breadCrumb title="bug记录" url="https://zhanglijun1217.github.io/blog/categories/bug%E8%AE%B0%E5%BD%95/"/>
+              <breadCrumb title="spring" url="https://zhanglijun1217.github.io/blog/categories/spring/"/>
           
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>https://zhanglijun1217.github.io/blog/2018/09/09/vi%E5%91%BD%E4%BB%A4%E5%B0%8F%E6%80%BB%E7%BB%93/</loc>
-    <lastmod>2022-06-30T21:12:04.038Z</lastmod>
-    <data>
-        <display>
-        <title>vi命令小总结</title>
-        <pubTime>2018-09-09T14:04:52.000Z</pubTime>
-        
-        <tag>vi命令</tag>
-         
-         
-           
              
-              <breadCrumb title="linux" url="https://zhanglijun1217.github.io/blog/categories/linux/"/>
+              <breadCrumb title="spring boot" url="https://zhanglijun1217.github.io/blog/categories/spring/spring-boot/"/>
           
         </display>
     </data>
@@ -1789,19 +1791,19 @@
 
     
   <url>
-    <loc>https://zhanglijun1217.github.io/blog/2018/11/23/url%E6%8B%BC%E6%8E%A5%E5%8F%82%E6%95%B0%E9%97%AE%E9%A2%98/</loc>
-    <lastmod>2022-06-30T21:12:04.037Z</lastmod>
+    <loc>https://zhanglijun1217.github.io/blog/2018/09/09/vi%E5%91%BD%E4%BB%A4%E5%B0%8F%E6%80%BB%E7%BB%93/</loc>
+    <lastmod>2022-06-30T21:12:04.038Z</lastmod>
     <data>
         <display>
-        <title>url拼接参数问题</title>
-        <pubTime>2018-11-22T17:07:57.000Z</pubTime>
+        <title>vi命令小总结</title>
+        <pubTime>2018-09-09T14:04:52.000Z</pubTime>
         
-        <tag>url拼接参数</tag>
+        <tag>vi命令</tag>
          
          
            
              
-              <breadCrumb title="bug记录" url="https://zhanglijun1217.github.io/blog/categories/bug%E8%AE%B0%E5%BD%95/"/>
+              <breadCrumb title="linux" url="https://zhanglijun1217.github.io/blog/categories/linux/"/>
           
         </display>
     </data>
@@ -1851,6 +1853,26 @@
 
     
   <url>
+    <loc>https://zhanglijun1217.github.io/blog/2018/11/23/url%E6%8B%BC%E6%8E%A5%E5%8F%82%E6%95%B0%E9%97%AE%E9%A2%98/</loc>
+    <lastmod>2022-06-30T21:12:04.037Z</lastmod>
+    <data>
+        <display>
+        <title>url拼接参数问题</title>
+        <pubTime>2018-11-22T17:07:57.000Z</pubTime>
+        
+        <tag>url拼接参数</tag>
+         
+         
+           
+             
+              <breadCrumb title="bug记录" url="https://zhanglijun1217.github.io/blog/categories/bug%E8%AE%B0%E5%BD%95/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>https://zhanglijun1217.github.io/blog/2018/09/05/springboot%E5%BA%94%E7%94%A8%E6%8B%A6%E6%88%AA%E5%99%A8/</loc>
     <lastmod>2022-06-30T21:12:04.036Z</lastmod>
     <data>
@@ -1867,6 +1889,29 @@
           
              
               <breadCrumb title="spring boot" url="https://zhanglijun1217.github.io/blog/categories/spring/spring-boot/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://zhanglijun1217.github.io/blog/2018/08/12/spring%E4%B8%AD%E6%A0%B9%E6%8D%AEApplication%E8%8E%B7%E5%8F%96BEAN%E7%9A%84%E5%B7%A5%E5%85%B7%E7%B1%BB/</loc>
+    <lastmod>2022-06-30T21:12:04.036Z</lastmod>
+    <data>
+        <display>
+        <title>spring中根据Application获取BEAN的工具类</title>
+        <pubTime>2018-08-12T14:16:44.000Z</pubTime>
+        
+        <tag>spring</tag>
+         
+         
+           
+             
+              <breadCrumb title="spring" url="https://zhanglijun1217.github.io/blog/categories/spring/"/>
+          
+             
+              <breadCrumb title="框架应用" url="https://zhanglijun1217.github.io/blog/categories/spring/%E6%A1%86%E6%9E%B6%E5%BA%94%E7%94%A8/"/>
           
         </display>
     </data>
@@ -1922,49 +1967,6 @@
 
     
   <url>
-    <loc>https://zhanglijun1217.github.io/blog/2018/08/12/spring%E4%B8%AD%E6%A0%B9%E6%8D%AEApplication%E8%8E%B7%E5%8F%96BEAN%E7%9A%84%E5%B7%A5%E5%85%B7%E7%B1%BB/</loc>
-    <lastmod>2022-06-30T21:12:04.036Z</lastmod>
-    <data>
-        <display>
-        <title>spring中根据Application获取BEAN的工具类</title>
-        <pubTime>2018-08-12T14:16:44.000Z</pubTime>
-        
-        <tag>spring</tag>
-         
-         
-           
-             
-              <breadCrumb title="spring" url="https://zhanglijun1217.github.io/blog/categories/spring/"/>
-          
-             
-              <breadCrumb title="框架应用" url="https://zhanglijun1217.github.io/blog/categories/spring/%E6%A1%86%E6%9E%B6%E5%BA%94%E7%94%A8/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>https://zhanglijun1217.github.io/blog/2019/05/21/redis%E5%91%BD%E4%BB%A4%E6%8B%BE%E9%81%97-%E5%93%88%E5%B8%8C%E8%A1%A8/</loc>
-    <lastmod>2022-06-30T21:12:04.035Z</lastmod>
-    <data>
-        <display>
-        <title>redis命令拾遗(哈希表)</title>
-        <pubTime>2019-05-21T05:48:48.000Z</pubTime>
-        
-        <tag>redis哈希表命令</tag>
-         
-         
-           
-             
-              <breadCrumb title="redis" url="https://zhanglijun1217.github.io/blog/categories/redis/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
     <loc>https://zhanglijun1217.github.io/blog/2018/08/25/spring-boot-actutor/</loc>
     <lastmod>2022-06-30T21:12:04.035Z</lastmod>
     <data>
@@ -2010,21 +2012,19 @@
 
     
   <url>
-    <loc>https://zhanglijun1217.github.io/blog/2018/08/02/orika%E8%BD%AC%E6%8D%A2bean%E7%9A%84%E5%AD%97%E6%AE%B5%E4%B8%A2%E5%A4%B1/</loc>
-    <lastmod>2022-06-30T21:12:04.034Z</lastmod>
+    <loc>https://zhanglijun1217.github.io/blog/2019/05/21/redis%E5%91%BD%E4%BB%A4%E6%8B%BE%E9%81%97-%E5%93%88%E5%B8%8C%E8%A1%A8/</loc>
+    <lastmod>2022-06-30T21:12:04.035Z</lastmod>
     <data>
         <display>
-        <title>orika转换bean的字段丢失</title>
-        <pubTime>2018-08-02T02:33:08.000Z</pubTime>
+        <title>redis命令拾遗(哈希表)</title>
+        <pubTime>2019-05-21T05:48:48.000Z</pubTime>
         
-        <tag>orika</tag>
-         
-        <tag>bug</tag>
+        <tag>redis哈希表命令</tag>
          
          
            
              
-              <breadCrumb title="bug记录" url="https://zhanglijun1217.github.io/blog/categories/bug%E8%AE%B0%E5%BD%95/"/>
+              <breadCrumb title="redis" url="https://zhanglijun1217.github.io/blog/categories/redis/"/>
           
         </display>
     </data>
@@ -2047,6 +2047,53 @@
            
              
               <breadCrumb title="Java基础" url="https://zhanglijun1217.github.io/blog/categories/Java%E5%9F%BA%E7%A1%80/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://zhanglijun1217.github.io/blog/2018/08/02/orika%E8%BD%AC%E6%8D%A2bean%E7%9A%84%E5%AD%97%E6%AE%B5%E4%B8%A2%E5%A4%B1/</loc>
+    <lastmod>2022-06-30T21:12:04.034Z</lastmod>
+    <data>
+        <display>
+        <title>orika转换bean的字段丢失</title>
+        <pubTime>2018-08-02T02:33:08.000Z</pubTime>
+        
+        <tag>orika</tag>
+         
+        <tag>bug</tag>
+         
+         
+           
+             
+              <breadCrumb title="bug记录" url="https://zhanglijun1217.github.io/blog/categories/bug%E8%AE%B0%E5%BD%95/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://zhanglijun1217.github.io/blog/2018/10/10/java8%E5%A2%9E%E5%8A%A0%E7%9A%84%E6%8E%A5%E5%8F%A3%E4%B8%AD%E9%BB%98%E8%AE%A4%E6%96%B9%E6%B3%95/</loc>
+    <lastmod>2022-06-30T21:12:04.033Z</lastmod>
+    <data>
+        <display>
+        <title>java8增加的接口中默认方法</title>
+        <pubTime>2018-10-10T09:06:06.000Z</pubTime>
+        
+        <tag>Java8</tag>
+         
+        <tag>接口默认方法</tag>
+         
+         
+           
+             
+              <breadCrumb title="Java语法" url="https://zhanglijun1217.github.io/blog/categories/Java%E8%AF%AD%E6%B3%95/"/>
+          
+             
+              <breadCrumb title="Java8" url="https://zhanglijun1217.github.io/blog/categories/Java%E8%AF%AD%E6%B3%95/Java8/"/>
           
         </display>
     </data>
@@ -2096,16 +2143,14 @@
 
     
   <url>
-    <loc>https://zhanglijun1217.github.io/blog/2018/10/10/java8%E5%A2%9E%E5%8A%A0%E7%9A%84%E6%8E%A5%E5%8F%A3%E4%B8%AD%E9%BB%98%E8%AE%A4%E6%96%B9%E6%B3%95/</loc>
-    <lastmod>2022-06-30T21:12:04.033Z</lastmod>
+    <loc>https://zhanglijun1217.github.io/blog/2018/11/11/java8%E4%B8%AD%E7%9A%84LocalDateTime/</loc>
+    <lastmod>2022-06-30T21:12:04.032Z</lastmod>
     <data>
         <display>
-        <title>java8增加的接口中默认方法</title>
-        <pubTime>2018-10-10T09:06:06.000Z</pubTime>
+        <title>java8中的LocalDateTime</title>
+        <pubTime>2018-11-11T13:51:44.000Z</pubTime>
         
         <tag>Java8</tag>
-         
-        <tag>接口默认方法</tag>
          
          
            
@@ -2141,29 +2186,6 @@
 
     
   <url>
-    <loc>https://zhanglijun1217.github.io/blog/2018/11/11/java8%E4%B8%AD%E7%9A%84LocalDateTime/</loc>
-    <lastmod>2022-06-30T21:12:04.032Z</lastmod>
-    <data>
-        <display>
-        <title>java8中的LocalDateTime</title>
-        <pubTime>2018-11-11T13:51:44.000Z</pubTime>
-        
-        <tag>Java8</tag>
-         
-         
-           
-             
-              <breadCrumb title="Java语法" url="https://zhanglijun1217.github.io/blog/categories/Java%E8%AF%AD%E6%B3%95/"/>
-          
-             
-              <breadCrumb title="Java8" url="https://zhanglijun1217.github.io/blog/categories/Java%E8%AF%AD%E6%B3%95/Java8/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
     <loc>https://zhanglijun1217.github.io/blog/2019/03/31/dubbo%E5%9F%BA%E7%A1%80%EF%BC%88%E4%BA%94%EF%BC%89%E2%80%94%E2%80%94dubbo%E6%8E%A5%E5%8F%A3%E7%9A%84%E7%89%B9%E6%80%A7%E8%AE%BE%E7%BD%AE/</loc>
     <lastmod>2022-06-30T21:12:04.032Z</lastmod>
     <data>
@@ -2172,6 +2194,26 @@
         <pubTime>2019-03-31T08:53:39.000Z</pubTime>
         
         <tag>dubbo接口属性</tag>
+         
+         
+           
+             
+              <breadCrumb title="dubbo" url="https://zhanglijun1217.github.io/blog/categories/dubbo/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://zhanglijun1217.github.io/blog/2019/03/18/dubbo%E5%9F%BA%E7%A1%80%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%E2%80%94%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E8%B0%83%E7%94%A8demo/</loc>
+    <lastmod>2022-06-30T21:12:04.031Z</lastmod>
+    <data>
+        <display>
+        <title>dubbo基础（二）——一个简单调用demo</title>
+        <pubTime>2019-03-18T14:51:21.000Z</pubTime>
+        
+        <tag>dubbo基础</tag>
          
          
            
@@ -2194,26 +2236,6 @@
         <tag>dubbo基础</tag>
          
         <tag>spring boot</tag>
-         
-         
-           
-             
-              <breadCrumb title="dubbo" url="https://zhanglijun1217.github.io/blog/categories/dubbo/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>https://zhanglijun1217.github.io/blog/2019/03/18/dubbo%E5%9F%BA%E7%A1%80%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%E2%80%94%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E8%B0%83%E7%94%A8demo/</loc>
-    <lastmod>2022-06-30T21:12:04.031Z</lastmod>
-    <data>
-        <display>
-        <title>dubbo基础（二）——一个简单调用demo</title>
-        <pubTime>2019-03-18T14:51:21.000Z</pubTime>
-        
-        <tag>dubbo基础</tag>
          
          
            

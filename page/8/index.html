@@ -297,6 +297,253 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/03/11/redolog的两提交过程/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2019/03/11/redolog的两提交过程/" itemprop="url">redolog的两提交过程</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-11T10:20:49+08:00">
+                2019-03-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/mysql/" itemprop="url" rel="index">
+                    <span itemprop="name">mysql</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2019/03/11/redolog的两提交过程/" class="leancloud_visitors" data-flag-title="redolog的两提交过程">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,250
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  5
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="为什么redo-log具有数据恢复能力"><a href="#为什么redo-log具有数据恢复能力" class="headerlink" title="为什么redo log具有数据恢复能力"></a>为什么redo log具有数据恢复能力</h2><p>Mysql的binlog只能用于归档，不足以实现崩溃恢复（Crash-Safe），需要借助引擎层的redo-log才能拥有崩溃恢复的能力。  所谓崩溃恢复，即指在数据库宕机恢复之后，也要保证事务的完整性，不能做一半操作，同时也要注意主从同步的一致性。</p>
+<p>简单看下binlog和redo log的区别：</p>
+<ol>
+<li>适用对象不同<ul>
+<li>redo log是针对innodb引擎特有的。</li>
+<li>binlog是server层实现的，所有存储引擎可以使用</li>
+</ul>
+</li>
+<li>写入内容不同<ul>
+<li>binlog是逻辑日志，是语句的原始语义，比如“给id为1的记录的age字段+1”。</li>
+<li>redo log是物理日志，记录的是“表空间号 + 数据页 +  偏移量 + 修改内容”</li>
+</ul>
+</li>
+<li>写入方式不同<ul>
+<li>binlog是追加写入的，在写入一定大小的文件之后会切换下一个文件进行写，不会覆盖和删除之前的文件。</li>
+<li>redo log是循环写入的，空间固定会被用完。当redo log两阶段提交落盘之后，会在有限的空间删除这些redo log，是一种循环写。</li>
+</ul>
+</li>
+</ol>
+<p>其中第三点写入方式不同决定了redo log拥有恢复能力，因为追加写没办法看出binlog日志何时写入磁盘的，不能去做区分；而在宕机之后，可以根据redo log中的日志恢复到内存即可，也就是知道要恢复哪些数据。</p>
+<h2 id="redo-log的两阶段提交"><a href="#redo-log的两阶段提交" class="headerlink" title="redo log的两阶段提交"></a>redo log的两阶段提交</h2><h3 id="一条sql执行的过程"><a href="#一条sql执行的过程" class="headerlink" title="一条sql执行的过程"></a>一条sql执行的过程</h3><ol>
+<li>MySql客户端和服务端建立连接，客户端发送一条语句到服务端。</li>
+<li>服务端查询缓存，如果命中缓存，返回结果，否则进入下一步</li>
+<li>服务端进行SQL解析、预处理、生成合法的语句树。</li>
+<li>再由优化器生成对应的执行计划</li>
+<li>执行器根据优化器生成的执行计划，调用存储引擎的API进行执行，把结果返回给客户端。</li>
+</ol>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701102138424.png" alt="image-20220701102138424"></p>
+<p>对于一条update的SQL，也是大致上边的步骤，但是在执行器和存储引擎中要多写redo log和binlog的过程。比如对于SQL：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">update</span> <span class="keyword">table</span> <span class="keyword">set</span> age = age + <span class="number">1</span> <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">1</span>;</span><br></pre></td></tr></table></figure></p>
+<ol>
+<li>执行器：找到存储引擎取id=1的这条记录</li>
+<li>存储引擎：在id聚簇索引上找到id=1的这行，加载其数据页到缓冲池。返回给执行器。</li>
+<li>执行器：拿到记录之后，把age字段值+1，得到一个新的记录，调用存储引擎的接口写入这行新纪录。</li>
+<li>存储引擎：将这行新纪录更新到内存，将这个更新操作写入redo log中，此时redo log为prepare状态。然后告诉执行器执行完成，可以提交事务。</li>
+<li>执行器：生成binlog，将binlog写入磁盘。</li>
+<li>执行器：调用存储引擎的接口提交事务。</li>
+<li>存储引擎：将redo log状态置为commit，更新操作完成</li>
+</ol>
+<p>流程图如下：</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701102151455.png" alt="image-20220701102151455"></p>
+<p>这里根据两阶段提交的流程，在Crash之后做崩溃恢复流程是这样的：</p>
+<ul>
+<li>如果恢复时，redo log事务是完整的，即commit阶段，则直接提交。</li>
+<li>如果恢复时，redo log事务是prepare阶段的，这时需要判断binlog的完整性。<ul>
+<li>a. 如果binlog存在且是完整的，则进行提交事务的操作，再写binlog到磁盘，redo log置为commit。</li>
+<li>b. 如果binlog是不完整的，则需要回滚事务。</li>
+</ul>
+</li>
+</ul>
+<p>这里主要是考虑了主备同步的问题，从库都是通过binlog进行主备同步。这里的binlog的完整取决于其自身的格式，比如row模式和statement模式下或者mixed模式下各自的校验，或者各自的checkSum之类的，这里不去纠结。</p>
+<p>如果redo log在prepare阶段Crash，但是binlog不完整，那么此时如果去继续提交事务，那么因为崩溃之前的binlog没有生成或者不完整，所以从库是没有这条SQL结果的数据的。所以此时去回滚这个redo log。</p>
+<p>反过来，如果是在写入binlog成功之后数据库Crash，那么此时因为 binlog已经写入成功，从库有了这条数据，那么处于prepare阶段的redo log要去commit操作，进行事务的提交来保证主从数据一致性。</p>
+<p><strong>所以，处于prepare阶段的redo log和完整的binlog就能保证数据库Crash-Safe了</strong></p>
+<h2 id="redo-log不用两阶段行不行？"><a href="#redo-log不用两阶段行不行？" class="headerlink" title="redo log不用两阶段行不行？"></a>redo log不用两阶段行不行？</h2><p>假设也是先写redo log，再写binlog，但是redo log是直接commit的，数据已经修改，这时如果写binlog crash了，那么redo log已经提交，主库中有数据但从库此时无法同步数据，就造成数据不一致。</p>
+<h2 id="先写binlog到磁盘-后写-redo-log行不行"><a href="#先写binlog到磁盘-后写-redo-log行不行" class="headerlink" title="先写binlog到磁盘 后写 redo log行不行"></a>先写binlog到磁盘 后写 redo log行不行</h2><p>主从的架构下，binlog到磁盘，从库同步数据，如果在写redo log时Crash，就会造成主从不一致。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/03/10/一次排查-jacocoData的过程/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2170,203 +2417,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2018/12/24/设计模式——观察者模式/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2018/12/24/设计模式——观察者模式/" itemprop="url">设计模式——观察者模式</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-24T23:48:39+08:00">
-                2018-12-24
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/设计模式/" itemprop="url" rel="index">
-                    <span itemprop="name">设计模式</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2018/12/24/设计模式——观察者模式/" class="leancloud_visitors" data-flag-title="设计模式——观察者模式">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  3,653
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  17
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="观察者模式"><a href="#观察者模式" class="headerlink" title="观察者模式"></a>观察者模式</h2><p>观察者模式也是我们经常会用到的设计模式之一，这里用一个气象站的一些数据变化通知气象板为例去记录一下观察者设计模式，值得一提的是java中提供了观察者模式的接口和类。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/blog/2018/12/24/设计模式——观察者模式/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2421,7 +2471,7 @@
               
                 <a href="/blog/archives/">
               
-                  <span class="site-state-item-count">109</span>
+                  <span class="site-state-item-count">110</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2432,7 +2482,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/blog/categories/index.html">
-                  <span class="site-state-item-count">29</span>
+                  <span class="site-state-item-count">30</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -2443,7 +2493,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/blog/tags/index.html">
-                  <span class="site-state-item-count">116</span>
+                  <span class="site-state-item-count">117</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -2517,7 +2567,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">160.7k</span>
+    <span title="Site words total count">162.0k</span>
   
 </div>
 
@@ -2539,7 +2589,7 @@
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共160.7k字</span>
+  <span class="post-count">博客全站共162.0k字</span>
 </div>
 
 <br />
