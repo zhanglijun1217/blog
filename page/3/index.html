@@ -1767,6 +1767,204 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2021/02/23/Redisson分布式限流组件RRateLimiter使用/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2021/02/23/Redisson分布式限流组件RRateLimiter使用/" itemprop="url">Redisson分布式限流组件RRateLimiter使用</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-23T13:50:39+08:00">
+                2021-02-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Redis/" itemprop="url" rel="index">
+                    <span itemprop="name">Redis</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2021/02/23/Redisson分布式限流组件RRateLimiter使用/" class="leancloud_visitors" data-flag-title="Redisson分布式限流组件RRateLimiter使用">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,051
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  9
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="RRateLimiter的使用Demo"><a href="#RRateLimiter的使用Demo" class="headerlink" title="RRateLimiter的使用Demo"></a>RRateLimiter的使用Demo</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RRateLimiterDemo</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        <span class="comment">// 输出日志info级别</span></span><br><span class="line">        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();</span><br><span class="line">        List&lt;Logger&gt; loggerList = loggerContext.getLoggerList();</span><br><span class="line">        loggerList.forEach(logger -&gt; &#123;</span><br><span class="line">            logger.setLevel(Level.INFO);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        Config config = <span class="keyword">new</span> Config();</span><br><span class="line">        config.useSingleServer()</span><br><span class="line">                .setTimeout(<span class="number">1000000</span>)</span><br><span class="line">                .setAddress(<span class="string">"redis://127.0.0.1:6379"</span>);</span><br><span class="line"></span><br><span class="line">        RedissonClient redisson = Redisson.create(config);</span><br><span class="line">        RRateLimiter rateLimiter = redisson.getRateLimiter(<span class="string">"myRateLimiter"</span>);</span><br><span class="line">        <span class="comment">// 初始化</span></span><br><span class="line">        <span class="comment">// 最大流速 = 每1秒钟产生N个令牌</span></span><br><span class="line">        <span class="keyword">boolean</span> b1 = rateLimiter.trySetRate(RateType.OVERALL, <span class="number">5</span>, <span class="number">1</span>, RateIntervalUnit.SECONDS);</span><br><span class="line">        <span class="keyword">if</span> (b1) &#123;</span><br><span class="line">            System.out.println(<span class="string">"限流器初始化完成"</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> allThreadNum = <span class="number">20</span>;</span><br><span class="line"></span><br><span class="line">        CountDownLatch latch = <span class="keyword">new</span> CountDownLatch(allThreadNum);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">long</span> startTime = System.currentTimeMillis();</span><br><span class="line">        AtomicInteger fail = <span class="keyword">new</span> AtomicInteger(<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; allThreadNum; i++) &#123;</span><br><span class="line">            <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">                <span class="keyword">boolean</span> b = rateLimiter.tryAcquire(<span class="number">1</span>);</span><br><span class="line">                <span class="keyword">if</span> (!b) &#123;</span><br><span class="line">                    System.out.println(Thread.currentThread().getName() + <span class="string">"被拒绝"</span>);</span><br><span class="line">                    fail.incrementAndGet();</span><br><span class="line">                &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">                    System.out.println(Thread.currentThread().getName());</span><br><span class="line">                &#125;</span><br><span class="line">                latch.countDown();</span><br><span class="line">            &#125;).start();</span><br><span class="line">        &#125;</span><br><span class="line">        latch.await();</span><br><span class="line">        System.out.println(<span class="string">"Elapsed "</span> + (System.currentTimeMillis() - startTime) + <span class="string">", 被限流fail: "</span> + fail.get());</span><br><span class="line">        rateLimiter.delete();</span><br><span class="line">        redisson.shutdown();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="RRateLimiter的基本原理"><a href="#RRateLimiter的基本原理" class="headerlink" title="RRateLimiter的基本原理"></a>RRateLimiter的基本原理</h2><h3 id="setRate设置速率"><a href="#setRate设置速率" class="headerlink" title="setRate设置速率"></a>setRate设置速率</h3><p>会向Redis中设计速率、时间间隔、和对应的模式。整个为hash结构，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">redis.call(&apos;hsetnx&apos;, KEYS[1], &apos;rate&apos;, ARGV[1]); -- 速率 比如1s产生2个令牌 速率就是2</span><br><span class="line">redis.call(&apos;hsetnx&apos;, KEYS[1], &apos;interval&apos;, ARGV[2]); --  时间间隔为1s</span><br><span class="line">return redis.call(&apos;hsetnx&apos;, KEYS[1], &apos;type&apos;, ARGV[3]); -- 模式这里忽略 分布式环境下都是集群</span><br></pre></td></tr></table></figure></p>
+<h3 id="尝试获取一个许可"><a href="#尝试获取一个许可" class="headerlink" title="尝试获取一个许可"></a>尝试获取一个许可</h3><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 速率</span></span><br><span class="line"><span class="keyword">local</span> rate = redis.call(<span class="string">"hget"</span>, KEYS[<span class="number">1</span>], <span class="string">"rate"</span>)</span><br><span class="line"><span class="comment">-- 时间区间(ms)</span></span><br><span class="line"><span class="keyword">local</span> interval = redis.call(<span class="string">"hget"</span>, KEYS[<span class="number">1</span>], <span class="string">"interval"</span>)</span><br><span class="line"><span class="keyword">local</span> <span class="built_in">type</span> = redis.call(<span class="string">"hget"</span>, KEYS[<span class="number">1</span>], <span class="string">"type"</span>)</span><br><span class="line"><span class="built_in">assert</span>(rate ~= <span class="literal">false</span> <span class="keyword">and</span> interval ~= <span class="literal">false</span> <span class="keyword">and</span> <span class="built_in">type</span> ~= <span class="literal">false</span>, <span class="string">"RateLimiter is not initialized"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">-- &#123;name&#125;:value 分析后面的代码，这个key记录的是当前令牌桶中的令牌数</span></span><br><span class="line"><span class="keyword">local</span> valueName = KEYS[<span class="number">2</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment">-- &#123;name&#125;:permits 这个key是一个zset，记录了请求的令牌数，score则为请求的时间戳</span></span><br><span class="line"><span class="keyword">local</span> permitsName = KEYS[<span class="number">4</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 单机限流才会用到，集群模式不用关注</span></span><br><span class="line"><span class="keyword">if</span> <span class="built_in">type</span> == <span class="string">"1"</span> <span class="keyword">then</span></span><br><span class="line">    valueName = KEYS[<span class="number">3</span>]</span><br><span class="line">    permitsName = KEYS[<span class="number">5</span>]</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 原版本有bug(https://github.com/redisson/redisson/issues/3197)，最新版将这行代码提前了</span></span><br><span class="line"><span class="comment">-- rate为1 arg1这里是 请求的令牌数量(默认是1)。rate必须比请求的令牌数大</span></span><br><span class="line"><span class="built_in">assert</span>(<span class="built_in">tonumber</span>(rate) &gt;= <span class="built_in">tonumber</span>(ARGV[<span class="number">1</span>]), <span class="string">"Requested permits amount could not exceed defined rate"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 第一次执行这里应该是null，会进到else分支</span></span><br><span class="line"><span class="comment">-- 第二次执行到这里由于else分支中已经放了valueName的值进去，所以第二次会进if分支</span></span><br><span class="line"><span class="keyword">local</span> currentValue = redis.call(<span class="string">"get"</span>, valueName)</span><br><span class="line"><span class="keyword">if</span> currentValue ~= <span class="literal">false</span> <span class="keyword">then</span></span><br><span class="line">    <span class="comment">-- 从第一次设的zset中取数据，范围是0 ~ (第二次请求时间戳 - 令牌生产的时间)</span></span><br><span class="line">    <span class="comment">-- 可以看到，如果第二次请求时间距离第一次请求时间很短(小于令牌产生的时间)，那么这个差值将小于上一次请求的时间，取出来的将会是空列表。反之，能取出之前的请求信息</span></span><br><span class="line">    <span class="comment">-- 这里作者将这个取出来的数据命名为expiredValues，可认为指的是过期的数据</span></span><br><span class="line">    <span class="keyword">local</span> expiredValues = redis.call(<span class="string">"zrangebyscore"</span>, permitsName, <span class="number">0</span>, <span class="built_in">tonumber</span>(ARGV[<span class="number">2</span>]) - interval)</span><br><span class="line">    <span class="keyword">local</span> released = <span class="number">0</span></span><br><span class="line">    <span class="comment">-- lua迭代器，遍历expiredValues，如果有值，那么released等于之前所有请求的令牌数之和，表示应该释放多少令牌</span></span><br><span class="line">    <span class="keyword">for</span> i, v <span class="keyword">in</span> <span class="built_in">ipairs</span>(expiredValues) <span class="keyword">do</span></span><br><span class="line">        <span class="keyword">local</span> <span class="built_in">random</span>, permits = struct.<span class="built_in">unpack</span>(<span class="string">"fI"</span>, v)</span><br><span class="line">        released = released + permits</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">-- 没有过期请求的话，released还是0，这个if不会进，有过期请求才会进</span></span><br><span class="line">    <span class="keyword">if</span> released &gt; <span class="number">0</span> <span class="keyword">then</span></span><br><span class="line">        <span class="comment">-- 移除zset中所有元素，重置周期</span></span><br><span class="line">        redis.call(<span class="string">"zrem"</span>, permitsName, <span class="built_in">unpack</span>(expiredValues))</span><br><span class="line">        currentValue = <span class="built_in">tonumber</span>(currentValue) + released</span><br><span class="line">        redis.call(<span class="string">"set"</span>, valueName, currentValue)</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">-- 这里简单分析下上面这段代码:</span></span><br><span class="line">    <span class="comment">-- 1. 只有超过了1个令牌生产周期后的请求，expiredValues才会有值。</span></span><br><span class="line">    <span class="comment">-- 2. 以rate为3举例，如果之前发生了两个请求那么现在released为2，currentValue为1 + 2 = 3</span></span><br><span class="line">    <span class="comment">-- 以此可以看到，redisson的令牌桶放令牌操作是通过请求时间窗来做的，如果距离上一个请求的时间已经超过了一个令牌生产周期时间，那么令牌桶中的令牌应该得到重置，表示生产rate数量的令牌。</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">-- 如果当前令牌数 ＜ 请求的令牌数</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">tonumber</span>(currentValue) &lt; <span class="built_in">tonumber</span>(ARGV[<span class="number">1</span>]) <span class="keyword">then</span></span><br><span class="line">        <span class="comment">-- 从zset中找到距离当前时间最近的那个请求，也就是上一次放进去的请求信息</span></span><br><span class="line">        <span class="keyword">local</span> nearest = redis.call(<span class="string">'zrangebyscore'</span>, permitsName, <span class="string">'('</span> .. (<span class="built_in">tonumber</span>(ARGV[<span class="number">2</span>]) - interval), <span class="built_in">tonumber</span>(ARGV[<span class="number">2</span>]), <span class="string">'withscores'</span>, <span class="string">'limit'</span>, <span class="number">0</span>, <span class="number">1</span>); </span><br><span class="line">        <span class="keyword">local</span> <span class="built_in">random</span>, permits = struct.<span class="built_in">unpack</span>(<span class="string">"fI"</span>, nearest[<span class="number">1</span>])</span><br><span class="line">        <span class="comment">-- 返回 上一次请求的时间戳 - (当前时间戳 - 令牌生成的时间间隔) 这个值表示还需要多久才能生产出足够的令牌</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">tonumber</span>(nearest[<span class="number">2</span>]) - (<span class="built_in">tonumber</span>(ARGV[<span class="number">2</span>]) - interval)</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="comment">-- 如果当前令牌数 ≥ 请求的令牌数，表示令牌够多，更新zset</span></span><br><span class="line">        redis.call(<span class="string">"zadd"</span>, permitsName, ARGV[<span class="number">2</span>], struct.pack(<span class="string">"fI"</span>, ARGV[<span class="number">3</span>], ARGV[<span class="number">1</span>]))</span><br><span class="line">        <span class="comment">-- valueName存的是当前总令牌数，-1表示取走一个</span></span><br><span class="line">        redis.call(<span class="string">"decrby"</span>, valueName, ARGV[<span class="number">1</span>])</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    <span class="comment">-- set一个key-value数据 记录当前限流器的令牌数</span></span><br><span class="line">    redis.call(<span class="string">"set"</span>, valueName, rate)</span><br><span class="line">    <span class="comment">-- 建了一个以当前限流器名称相关的zset，并存入 以score为当前时间戳，以lua格式化字符串&#123;当前时间戳为种子的随机数、请求的令牌数&#125;为value的值。</span></span><br><span class="line">    <span class="comment">-- struct.pack第一个参数表示格式字符串，f是浮点数、I是长整数。所以这个格式字符串表示的是把一个浮点数和长整数拼起来的结构体。我的理解就是往zset里记录了最后一次请求的时间戳和请求的令牌数</span></span><br><span class="line">    redis.call(<span class="string">"zadd"</span>, permitsName, ARGV[<span class="number">2</span>], struct.pack(<span class="string">"fI"</span>, ARGV[<span class="number">3</span>], ARGV[<span class="number">1</span>]))</span><br><span class="line">    <span class="comment">-- 从总共的令牌数 减去 请求的令牌数。</span></span><br><span class="line">    redis.call(<span class="string">"decrby"</span>, valueName, ARGV[<span class="number">1</span>])</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<p>总结一下，redisson用了zset来记录请求的信息，这样可以非常巧妙的通过比较score，也就是请求的时间戳，来判断当前请求距离上一个请求有没有超过一个令牌生产周期。如果超过了，则说明令牌桶中的令牌需要生产，之前用掉了多少个就生产多少个，而之前用掉了多少个令牌的信息也在zset中保存了。</p>
+<h3 id="LUA脚本返回后的处理"><a href="#LUA脚本返回后的处理" class="headerlink" title="LUA脚本返回后的处理"></a>LUA脚本返回后的处理</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">tryAcquireAsync</span><span class="params">(<span class="keyword">long</span> permits, RPromise&lt;Boolean&gt; promise, <span class="keyword">long</span> timeoutInMillis)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">long</span> s = System.currentTimeMillis();</span><br><span class="line">    RFuture&lt;Long&gt; future = tryAcquireAsync(RedisCommands.EVAL_LONG, permits);</span><br><span class="line">    future.onComplete((delay, e) -&gt; &#123;</span><br><span class="line">        <span class="keyword">if</span> (e != <span class="keyword">null</span>) &#123;</span><br><span class="line">            promise.tryFailure(e);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> (delay == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">//delay就是lua返回的 还需要多久才会有令牌</span></span><br><span class="line">            promise.trySuccess(<span class="keyword">true</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//没有手动设置超时时间的逻辑</span></span><br><span class="line">        <span class="keyword">if</span> (timeoutInMillis == -<span class="number">1</span>) &#123;</span><br><span class="line">            <span class="comment">//延迟delay时间后重新执行一次拿令牌的动作</span></span><br><span class="line">            commandExecutor.getConnectionManager().getGroup().schedule(() -&gt; &#123;</span><br><span class="line">                tryAcquireAsync(permits, promise, timeoutInMillis);</span><br><span class="line">            &#125;, delay, TimeUnit.MILLISECONDS);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//el 请求redis拿令牌的耗时</span></span><br><span class="line">        <span class="keyword">long</span> el = System.currentTimeMillis() - s;</span><br><span class="line">        <span class="comment">//如果设置了超时时间，那么应该减去拿令牌的耗时</span></span><br><span class="line">        <span class="keyword">long</span> remains = timeoutInMillis - el;</span><br><span class="line">        <span class="keyword">if</span> (remains &lt;= <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="comment">//如果那令牌的时间比设置的超时时间还要大的话直接就false了</span></span><br><span class="line">            promise.trySuccess(<span class="keyword">false</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//比如设置的的超时时间为1s，delay为1500ms，那么1s后告知失败</span></span><br><span class="line">        <span class="keyword">if</span> (remains &lt; delay) &#123;</span><br><span class="line">            commandExecutor.getConnectionManager().getGroup().schedule(() -&gt; &#123;</span><br><span class="line">                promise.trySuccess(<span class="keyword">false</span>);</span><br><span class="line">            &#125;, remains, TimeUnit.MILLISECONDS);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">long</span> start = System.currentTimeMillis();</span><br><span class="line">            commandExecutor.getConnectionManager().getGroup().schedule(() -&gt; &#123;</span><br><span class="line">                <span class="comment">//因为这里是异步的，所以真正再次拿令牌之前再检查一下过去了多久时间。如果过去的时间比设置的超时时∂间大的话，直接false</span></span><br><span class="line">                <span class="keyword">long</span> elapsed = System.currentTimeMillis() - start;</span><br><span class="line">                <span class="keyword">if</span> (remains &lt;= elapsed) &#123;</span><br><span class="line">                    promise.trySuccess(<span class="keyword">false</span>);</span><br><span class="line">                    <span class="keyword">return</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">//再次拿令牌</span></span><br><span class="line">                tryAcquireAsync(permits, promise, remains - elapsed);</span><br><span class="line">            &#125;, delay, TimeUnit.MILLISECONDS);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>再次总结一下，Java客户端拿到redis返回的下一个令牌生产完成还需要多少时间，也就是delay字段。如果这个delay为null，则表示成功获得令牌，如果没拿到，则过delay时间后通过异步线程再次发起拿令牌的动作。这里也可以看到，redisson的RateLimiter是非公平的，多个线程同时拿不到令牌的话并不保证先请求的会先拿到令牌。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2021/01/17/实现LRU算法/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2180,214 +2378,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/11/22/库存设计的场景原则/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2020/11/22/库存设计的场景原则/" itemprop="url">库存设计的场景原则</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-11-22T16:26:02+08:00">
-                2020-11-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/系统设计/" itemprop="url" rel="index">
-                    <span itemprop="name">系统设计</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2020/11/22/库存设计的场景原则/" class="leancloud_visitors" data-flag-title="库存设计的场景原则">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1,025
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  3
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="基本原则"><a href="#基本原则" class="headerlink" title="基本原则"></a>基本原则</h2><p>对于秒杀商品的库存设计应该遵守的几个原则：</p>
-<ul>
-<li>渠道隔离：秒杀活动中使用的库存应当按照渠道进行隔离，这样既能保证不对正常售卖渠道产生影响，又有利于精细化运作库存管理。比如，根据用户群体或平台支持的力度不同，我们可能需要在不同渠道透出不同的库存数量，并且它们与正常售卖渠道分离，这种场景下就需要渠道隔离；</li>
-<li>防止超卖：业务来说，超卖可能意味着资损；对技术来说，超卖意味着架构的失败。试想，原价999元商品的秒杀价为599，库存100件却卖出了10000件，那么我们就会面临严重的客诉或资损；</li>
-<li>防止重复扣减：与超卖相对的是没有卖出去，其同样不可小觑。比如，10000件的库存仅有10人成单，库存明明还在却显示已经售罄，活动未到达预期，前期准备和推广的资金投入都打了水漂，而由系统设计缺陷造成的重复扣减 就会导致这种糟糕的情况发生；也就是同时也防止少卖。</li>
-<li>高性能：在前面的文章我们谈到了如何通过缓存提高秒杀架构中的”读“性能，殊不知”写“性能也是秒杀架构的重要指标之一。举例来说，10000比订单，每秒写入300单和每秒写入3000单在用户体验上有着显著的差异。</li>
-</ul>
-<h3 id="常用库存扣减方案"><a href="#常用库存扣减方案" class="headerlink" title="常用库存扣减方案"></a>常用库存扣减方案</h3><h4 id="基于数据库的库存扣减方案"><a href="#基于数据库的库存扣减方案" class="headerlink" title="基于数据库的库存扣减方案"></a>基于数据库的库存扣减方案</h4><p>顾名思义，基于数据库的库存扣减方案指的是利用数据库的特性在数据库层面完成库存扣减。这种方式实现起来比较简单，对于并发量低或库存低的场景，推荐使用这种方案。所谓库存低，指的是当库存很少时，我们只要把大流量拦截在应用之外或数据库之外即可，确保数据库的并发量处于低位。否则，在高并发写入的场景下，这种方案是不合适的</p>
-<h4 id="基于缓存的库存扣减方案"><a href="#基于缓存的库存扣减方案" class="headerlink" title="基于缓存的库存扣减方案"></a>基于缓存的库存扣减方案</h4><p>既然数据库方案无法满足高并发写入场景，那么缓存是否可以呢？答案是看情况。对于Redis这种缓存，虽然速度较快，但是存在数据丢失的可能，这是我们无法接受的。所以，当我们决定使用基于缓存的扣减方案时，我们就必须考虑如何保证缓存不丢失的稳定，比如使用LevelDB等。另外，相较于数据库方案，缓存方案需要更高的实现复杂度。</p>
-<h4 id="分库分表库存扣减方案"><a href="#分库分表库存扣减方案" class="headerlink" title="分库分表库存扣减方案"></a>分库分表库存扣减方案</h4><p>解决数据库高并发的写入问题，除了使用缓存方案外，还可以采用分库分表的库存扣减方案，将库存分散到不同的库中。比如，单台数据库每秒能支撑300的库存更新，那么10台数据库即可支撑3000的并发写入。</p>
-<p>当然，相较于前两种方案，虽然分库分表的优势明显，但具有更高的复杂性和实现成本。</p>
-<h4 id="常用库存扣减方式"><a href="#常用库存扣减方式" class="headerlink" title="常用库存扣减方式"></a>常用库存扣减方式</h4><ul>
-<li>下单扣库存：优势在于简单，链路短，性能好，缺点在于容易被恶意下单。活动刚开始，可能即被恶意下单清空库存；</li>
-<li>支付扣库存：优势在于可以控制恶意下单，最后得到库存的都是有效订单。当然，其缺点也较为明显，无法控制下单人数，用户需要在支付时再次确认库存；</li>
-<li>下单预扣库存，超时取消：相较于前两种方式，这种方式较为折中且有效，对于正常下单的用户来说抢单即是得到，对于恶意下单的来说，占据的库存会超时自动释放。</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2442,7 +2432,7 @@
               
                 <a href="/blog/archives/">
               
-                  <span class="site-state-item-count">113</span>
+                  <span class="site-state-item-count">114</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2453,7 +2443,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/blog/categories/index.html">
-                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-count">32</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -2464,7 +2454,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/blog/tags/index.html">
-                  <span class="site-state-item-count">120</span>
+                  <span class="site-state-item-count">121</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -2538,7 +2528,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">166.9k</span>
+    <span title="Site words total count">168.9k</span>
   
 </div>
 
@@ -2560,7 +2550,7 @@
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共166.9k字</span>
+  <span class="post-count">博客全站共168.9k字</span>
 </div>
 
 <br />
