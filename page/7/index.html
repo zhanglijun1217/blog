@@ -297,6 +297,554 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/06/12/java枚举拾遗/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2019/06/12/java枚举拾遗/" itemprop="url">java枚举拾遗</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-12T11:52:14+08:00">
+                2019-06-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java基础/" itemprop="url" rel="index">
+                    <span itemprop="name">Java基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2019/06/12/java枚举拾遗/" class="leancloud_visitors" data-flag-title="java枚举拾遗">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,814
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  8
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>java枚举是在开发过程中用的最多的类，这里对java之前的枚举常量类和枚举做了一个分析，并且对枚举相关知识拾遗。</p>
+<h2 id="枚举类"><a href="#枚举类" class="headerlink" title="枚举类"></a>枚举类</h2><p>在出现枚举之前，通常是一个final类去表示”可枚举”这个概念，比如下面这个列举数字的枚举类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 模拟枚举类 (枚举类：在enum出现之前的表达 可枚举的含义的类)</span></span><br><span class="line"><span class="comment"> * 通常 private 构造函数</span></span><br><span class="line"><span class="comment"> * final class</span></span><br><span class="line"><span class="comment"> * private static final 本类型 成员</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">EnumClass</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> EnumClass ONE = <span class="keyword">new</span> EnumClass(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> EnumClass TWO = <span class="keyword">new</span> EnumClass(<span class="number">2</span>);</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> EnumClass THREE = <span class="keyword">new</span> EnumClass(<span class="number">3</span>);</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> EnumClass FOUR = <span class="keyword">new</span> EnumClass(<span class="number">4</span>);</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Getter</span></span><br><span class="line">    <span class="meta">@Setter</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> value;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">EnumClass</span><span class="params">(<span class="keyword">int</span> value)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.value = value;</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">  	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">print</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="keyword">this</span>.toString());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到枚举类的特点：</p>
+<ul>
+<li>成员用常量来表示，并且类型为当前类型(当前类型)</li>
+<li>常被设置为final类</li>
+<li>非public构造器(自己内部来创建实例)</li>
+</ul>
+<p>这样有些缺点，比如：</p>
+<ul>
+<li>枚举的输出打印的时候要怎么做？每个成员是第几个定义的？要想达到这些操作就必须要写一些方法，而每个枚举类去这样写这样的方法是比较蛋疼的，因为他不具有枚举的values方法。</li>
+</ul>
+<h2 id="枚举"><a href="#枚举" class="headerlink" title="枚举"></a>枚举</h2><p>这里写出对应的java枚举</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> CountingEnum &#123;</span><br><span class="line">    ONE(<span class="number">1</span>),</span><br><span class="line">    TWO(<span class="number">2</span>),</span><br><span class="line">    THREE(<span class="number">3</span>),</span><br><span class="line">    FOUR(<span class="number">4</span>)</span><br><span class="line">    ;</span><br><span class="line">    <span class="meta">@Getter</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> value;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** private */</span> CountingEnum (<span class="keyword">int</span> value) &#123;</span><br><span class="line">        <span class="keyword">this</span>.value =  value;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里如果想要输出对应的名字和顺序，那么就十分方便了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 输出 枚举 中的名字、位置、输出所有枚举</span></span><br><span class="line">       Arrays.stream(CountingEnum.values()).forEach(e -&gt; &#123;</span><br><span class="line">           System.out.println(<span class="string">"输出枚举中的顺序: "</span> + e.ordinal() + <span class="string">"名字："</span> + e.name() + <span class="string">"value："</span> + e.getValue());</span><br><span class="line">       &#125;);</span><br></pre></td></tr></table></figure>
+<p>可以看到输出：</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/WX20190614-153052%402x.png" alt=""></p>
+<p>这是因为java所有的枚举都是继承Enum抽象类的，而valueOf()方法、ordinal()方法、name()方法都是定义在其中的，可以看下Eunm抽象类。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Enum</span>&lt;<span class="title">E</span> <span class="keyword">extends</span> <span class="title">Enum</span>&lt;<span class="title">E</span>&gt;&gt;</span></span><br><span class="line"><span class="class">        <span class="keyword">implements</span> <span class="title">Comparable</span>&lt;<span class="title">E</span>&gt;, <span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> String <span class="title">name</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> ordinal;</span><br><span class="line"></span><br><span class="line">   </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">ordinal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> ordinal;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">   </span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="title">Enum</span><span class="params">(String name, <span class="keyword">int</span> ordinal)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">        <span class="keyword">this</span>.ordinal = ordinal;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(Object other)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>==other;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">   </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">super</span>.hashCode();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">final</span> Object <span class="title">clone</span><span class="params">()</span> <span class="keyword">throws</span> CloneNotSupportedException </span>&#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> CloneNotSupportedException();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">   </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(E o)</span> </span>&#123;</span><br><span class="line">        Enum&lt;?&gt; other = (Enum&lt;?&gt;)o;</span><br><span class="line">        Enum&lt;E&gt; self = <span class="keyword">this</span>;</span><br><span class="line">        <span class="keyword">if</span> (self.getClass() != other.getClass() &amp;&amp; <span class="comment">// optimization</span></span><br><span class="line">            self.getDeclaringClass() != other.getDeclaringClass())</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> ClassCastException();</span><br><span class="line">        <span class="keyword">return</span> self.ordinal - other.ordinal;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> Class&lt;E&gt; <span class="title">getDeclaringClass</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Class&lt;?&gt; clazz = getClass();</span><br><span class="line">        Class&lt;?&gt; zuper = clazz.getSuperclass();</span><br><span class="line">        <span class="keyword">return</span> (zuper == Enum.class) ? (Class&lt;E&gt;)clazz : (Class&lt;E&gt;)zuper;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;T extends Enum&lt;T&gt;&gt; <span class="function">T <span class="title">valueOf</span><span class="params">(Class&lt;T&gt; enumType,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                String name)</span> </span>&#123;</span><br><span class="line">        T result = enumType.enumConstantDirectory().get(name);</span><br><span class="line">        <span class="keyword">if</span> (result != <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">return</span> result;</span><br><span class="line">        <span class="keyword">if</span> (name == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException(<span class="string">"Name is null"</span>);</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(</span><br><span class="line">            <span class="string">"No enum constant "</span> + enumType.getCanonicalName() + <span class="string">"."</span> + name);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * enum classes cannot have finalize methods.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">finalize</span><span class="params">()</span> </span>&#123; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * prevent default deserialization</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">readObject</span><span class="params">(ObjectInputStream in)</span> <span class="keyword">throws</span> IOException,</span></span><br><span class="line"><span class="function">        ClassNotFoundException </span>&#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> InvalidObjectException(<span class="string">"can't deserialize enum"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">readObjectNoData</span><span class="params">()</span> <span class="keyword">throws</span> ObjectStreamException </span>&#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> InvalidObjectException(<span class="string">"can't deserialize enum"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>仔细看也许你会有两个疑问：</p>
+<ul>
+<li>没看到显示的定义CountingEnum时继承Enum类的？</li>
+<li>values方法也没有看到在父类中定义？</li>
+</ul>
+<p>对这两个疑问我们可以去看这个类对应的字节码：<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/%E6%9E%9A%E4%B8%BEclass.png" alt=""></p>
+<p>可以看到：</p>
+<ul>
+<li>enum其实也是final class， 虽然没有显示继承，但是其实是继承了<code>Enum&lt;T&gt;</code>类的，所以可以访问到对应的name，ordinal字段，这个设计让我们输出枚举一些信息的时候很便捷。也提供了valueOf方法，也可以在动态判断枚举的时候使用。</li>
+</ul>
+<p>在来看下边的字节码：</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/%E6%9E%9A%E4%B8%BE2.png" alt=""></p>
+<p>可以看到是有values方法，其实这个是jvm通过字节码提升的方式去为枚举做的优化。所以使用枚举可以快速遍历并且一些输出之类的操作。</p>
+<p>可以总结下枚举的特点：</p>
+<ul>
+<li>枚举其实就是final class，并且继承java.lang.Enum抽象类。</li>
+<li>枚举可以实现接口。</li>
+<li>枚举不能显示的继承和被继承</li>
+<li>留个坑：既然是final class，那么枚举里可以定义抽象方法吗？</li>
+</ul>
+<h2 id="枚举中抽象方法的设计"><a href="#枚举中抽象方法的设计" class="headerlink" title="枚举中抽象方法的设计"></a>枚举中抽象方法的设计</h2><p>我们在看基础语法的时候，总是说final 和 abstract是互斥的，所以想当然的认为枚举中不能定义抽象方法，但结论其实是可以的。</p>
+<p>我们先看一个枚举来实现加减操作的例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> Opration &#123;</span><br><span class="line">    PLUS,</span><br><span class="line">    DIVIDE</span><br><span class="line">    ;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">double</span> <span class="title">apply</span><span class="params">(<span class="keyword">double</span> x, <span class="keyword">double</span> y)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">switch</span> (<span class="keyword">this</span>) &#123;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">case</span> PLUS:</span><br><span class="line">                <span class="keyword">return</span> x + y;</span><br><span class="line">            <span class="keyword">case</span> DIVIDE:</span><br><span class="line">                <span class="keyword">return</span> x - y;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> AssertionError(<span class="string">"unknown"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个实现其实是通过在枚举中加入了非枚举含义的方法和域来实现的操作的一个类型枚举。但是有个问题，当拓展新的操作符时，需要破坏switch中的逻辑，这个不太符合开闭原则，这时候就可以通过把apply作为抽象方法，使得拓展时只需要实现符合自己的抽象逻辑。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 通过抽象方法， 来实现加入新的操作的时候 能符合开闭原则，只关心自己操作符抽象的实现</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">enum</span> OperationOptimize &#123;</span><br><span class="line">    PLUS(<span class="string">"+"</span>)&#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">apply</span><span class="params">(<span class="keyword">int</span> x, <span class="keyword">int</span> y)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> x + y;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    DIVIDE(<span class="string">"-"</span>) &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">apply</span><span class="params">(<span class="keyword">int</span> x, <span class="keyword">int</span> y)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> x - y;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Getter</span></span><br><span class="line">    <span class="keyword">private</span> String str;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">OperationOptimize</span><span class="params">(String str)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.str = str;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 抽象方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">int</span> <span class="title">apply</span><span class="params">(<span class="keyword">int</span> x, <span class="keyword">int</span> y)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>所以枚举是可以定义抽象方法的。</p>
+<p>jdk中其实也有对应的例子，可以看下TimeUnit这个时间单位枚举，枚举类型都是通过实现抽象方法(其实是返回异常的普通方法，思想是一样的)来实现不同时间单位的转化。</p>
+<h2 id="彩蛋"><a href="#彩蛋" class="headerlink" title="彩蛋"></a>彩蛋</h2><p>如何给上边的枚举类实现一个values方法？</p>
+<p>因为需要遍历所有的字段，所以很自然的想到了反射去实现。这里需要注意，因为枚举类定义的枚举都是public static final，而作为val变量是int的一个修饰符，需要将除了枚举外的val变量排除~</p>
+<p>示例代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">EnumClass</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> EnumClass ONE = <span class="keyword">new</span> EnumClass(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> EnumClass TWO = <span class="keyword">new</span> EnumClass(<span class="number">2</span>);</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> EnumClass THREE = <span class="keyword">new</span> EnumClass(<span class="number">3</span>);</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> EnumClass FOUR = <span class="keyword">new</span> EnumClass(<span class="number">4</span>);</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Getter</span></span><br><span class="line">    <span class="meta">@Setter</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> value;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">EnumClass</span><span class="params">(<span class="keyword">int</span> value)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.value = value;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"EnumClass&#123;"</span> +</span><br><span class="line">                <span class="string">"value="</span> + value +</span><br><span class="line">                <span class="string">'&#125;'</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">print</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="keyword">this</span>.toString());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 为枚举类实现一个values方法</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> EnumClass[] values() &#123;</span><br><span class="line">        <span class="comment">// 获取枚举类中所有字段</span></span><br><span class="line">        <span class="keyword">return</span> Stream.of(EnumClass.class.getDeclaredFields())</span><br><span class="line">                <span class="comment">// 过滤出 public static final的</span></span><br><span class="line">                .filter(field -&gt; &#123;</span><br><span class="line">                    <span class="comment">// 修饰符</span></span><br><span class="line">                    <span class="keyword">int</span> modifiers = field.getModifiers();</span><br><span class="line">                    <span class="keyword">return</span> Modifier.isPublic(modifiers)</span><br><span class="line">                            &amp;&amp; Modifier.isStatic(modifiers)</span><br><span class="line">                            &amp;&amp; Modifier.isFinal(modifiers);</span><br><span class="line">                &#125;)</span><br><span class="line">                <span class="comment">// 取出对应的字段值</span></span><br><span class="line">                .map(field -&gt; &#123;</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        <span class="keyword">return</span> field.get(<span class="keyword">null</span>);</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (IllegalAccessException e) &#123;</span><br><span class="line">                        <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(e);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;).toArray(EnumClass[]::<span class="keyword">new</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/05/30/JVM调优工具及优化原则/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2019/05/30/JVM调优工具及优化原则/" itemprop="url">JVM调优工具及优化原则</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-30T00:17:24+08:00">
+                2019-05-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java基础/" itemprop="url" rel="index">
+                    <span itemprop="name">Java基础</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java基础/JVM/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2019/05/30/JVM调优工具及优化原则/" class="leancloud_visitors" data-flag-title="JVM调优工具及优化原则">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,046
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  7
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="一些调优工具"><a href="#一些调优工具" class="headerlink" title="一些调优工具"></a>一些调优工具</h2><h3 id="jmap"><a href="#jmap" class="headerlink" title="jmap"></a>jmap</h3><p>jmap可以查看内存信息、对象实例个数和占用内存大小。</p>
+<p>比如下面命令可以查看堆内存中存活的对象实例个数和占用内存大小<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jmap  -histo:live pid &gt; ./log.txt</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701105039703.png" alt="image-20220701105039703"></p>
+<p>还可以通过命令dump JVM的内存<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jmap -dump:format=b,file=CMSdemo.hprof pid</span><br></pre></td></tr></table></figure></p>
+<h3 id="jstack"><a href="#jstack" class="headerlink" title="jstack"></a>jstack</h3><p>jstack可以查看线程堆栈，比如命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstack -e pid</span><br></pre></td></tr></table></figure></p>
+<p>jstack能自动输出存在线程死锁的详细信息。（线程状态，互相等待的线程，等待的对象等）<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701105054869.png" alt="image-20220701105054869"></p>
+<p>另外在机器CPU飙高之后，可以使用jstack来排查占用cpu时间最多的线程。</p>
+<ol>
+<li>top -p pid：此命令是显示pid对应java进程的CPU统计情况。</li>
+<li>按H输出当前进程的线程情况（也可以直接top -H -p pid)</li>
+<li>找到内存和CPU占用最高的线程tid，转为16进制（在jstack线程堆栈中线程id都是16进制的）</li>
+<li>执行jstack -e pid |grep -A 10 16进制线程id即可查看对应的线程堆栈。</li>
+</ol>
+<p>当然用Arthas更方便的排查CPU利用率高的线程。</p>
+<h3 id="Jinfo"><a href="#Jinfo" class="headerlink" title="Jinfo"></a>Jinfo</h3><p>查看正在运行的Java程序的扩展参数。</p>
+<p>比如查看jvm参数，可以用命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jinfo -flags pid</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701105111453.png" alt="image-20220701105111453"></p>
+<p>可以用命令，查看jvm的系统参数<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">info -sysprops 75453</span><br></pre></td></tr></table></figure></p>
+<h3 id="jstat"><a href="#jstat" class="headerlink" title="jstat"></a>jstat</h3><p>jstast可以看JVM堆内存各部分的使用量，以及加载类的数量。</p>
+<h4 id="垃圾回收对象统计（最常用）"><a href="#垃圾回收对象统计（最常用）" class="headerlink" title="垃圾回收对象统计（最常用）"></a>垃圾回收对象统计（最常用）</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstat -gc pid 2000 100 -- 代表输出进程=pid的java堆gc信息，每2000ms打印一次，打印100次</span><br></pre></td></tr></table></figure>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701105119527.png" alt="image-20220701105119527"></p>
+<ul>
+<li>S0C：Survivor0的大小，单位kb</li>
+<li>S1C：S1区的大小</li>
+<li>S0U：S0的使用大小</li>
+<li>S1U：S1的使用大小</li>
+<li>EC：Eden区的大小</li>
+<li>EU：Eden使用大小</li>
+<li>OC：Old区当前空间大小</li>
+<li>OU：Old区使用空间大小</li>
+<li>CCSC：压缩指针类当前空间大小</li>
+<li>CCSU：压缩指针类空间使用大小</li>
+<li>YGC：年轻代GC次数</li>
+<li>YGCT：年轻代GC消耗时间，单位S</li>
+<li>FGC：FullGC次数</li>
+<li>FGCT：FullGC时间</li>
+<li>GCT：垃圾回收消耗的总时间</li>
+</ul>
+<h4 id="堆内存统计"><a href="#堆内存统计" class="headerlink" title="堆内存统计"></a>堆内存统计</h4><p>下面的命令可以查看堆内存统计<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstat -gccapacity pid</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701105136683.png" alt="image-20220701105136683"></p>
+<h4 id="新生代垃圾回收统计"><a href="#新生代垃圾回收统计" class="headerlink" title="新生代垃圾回收统计"></a>新生代垃圾回收统计</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstat -gcnew 75453 1000 10</span><br></pre></td></tr></table></figure>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701105152448.png" alt="image-20220701105152448"></p>
+<h4 id="新生代内存空间"><a href="#新生代内存空间" class="headerlink" title="新生代内存空间"></a>新生代内存空间</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstat -gcnewcapacity 75453 1000 10</span><br></pre></td></tr></table></figure>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701105203998.png" alt="image-20220701105203998"></p>
+<h4 id="老年代内存统计"><a href="#老年代内存统计" class="headerlink" title="老年代内存统计"></a>老年代内存统计</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstat -gcoldcapacity 75453 1000 10</span><br></pre></td></tr></table></figure>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701105212831.png" alt="image-20220701105212831"></p>
+<h4 id="老年代垃圾回收统计"><a href="#老年代垃圾回收统计" class="headerlink" title="老年代垃圾回收统计"></a>老年代垃圾回收统计</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstat -gcold 75453 1000 10</span><br></pre></td></tr></table></figure>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701105226962.png" alt="image-20220701105226962"></p>
+<h4 id="元空间统计"><a href="#元空间统计" class="headerlink" title="元空间统计"></a>元空间统计</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstat -gcmetacapacity <span class="number">75453</span>  <span class="number">1000</span> <span class="number">10</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701105248283.png" alt="image-20220701105248283"></p>
+<h3 id="JVM运行情况预估"><a href="#JVM运行情况预估" class="headerlink" title="JVM运行情况预估"></a>JVM运行情况预估</h3><p>jstat -gc pid命令可以观察到堆内存使用情况和GC情况，则可以通过jstast观测的结果来了解和预估JVM的运行情况。</p>
+<h4 id="年轻代对象增长的速率"><a href="#年轻代对象增长的速率" class="headerlink" title="年轻代对象增长的速率"></a>年轻代对象增长的速率</h4><p>观察EU（Eden区的使用）来估算每秒eden大概新增多少对象，可以根据负载去调整观察频率。注意系统的高峰期和日长期，在不同时间去观测对象增长速率。</p>
+<h4 id="YoungGC触发频率和每次耗时"><a href="#YoungGC触发频率和每次耗时" class="headerlink" title="YoungGC触发频率和每次耗时"></a>YoungGC触发频率和每次耗时</h4><p>知道了年轻代对象增长速率，再根据Eden区的大小就可以知道YoungGC的触发频率，还可以根据YGC / YGCT 来计算出YoungGC每次的耗时。</p>
+<h4 id="每次YoungGC后有多少对象存活进入到老年代"><a href="#每次YoungGC后有多少对象存活进入到老年代" class="headerlink" title="每次YoungGC后有多少对象存活进入到老年代"></a>每次YoungGC后有多少对象存活进入到老年代</h4><p>如果知道了YoungGC没过多久触发了一次，比如1s触发一次，可以用命令<br>jstat -gc pid 1000 10 来打印最近10次的内存和GC情况，观察SU和OU的增长，因为每次YoungGC之后，存活对象会移动到Survivor区或者晋升到老年代中，所以可以看到每次多少对象进入到老年代。</p>
+<h4 id="FullGC触发频率和每次耗时"><a href="#FullGC触发频率和每次耗时" class="headerlink" title="FullGC触发频率和每次耗时"></a>FullGC触发频率和每次耗时</h4><p>FullGC的触发频率可以根据每次YoungGC多少对象进入老年代和老年代的大小来大致估算下。（当然老年代有很多参数，比如CMS垃圾回收器中触发CMS回收的阈值；比如元空间不足、手动调用System.gc()也都会触发FullGC）</p>
+<p>FullGC的每次耗时可以根据FGCT / FGC来计算得出。</p>
+<h4 id="整体优化思路"><a href="#整体优化思路" class="headerlink" title="整体优化思路"></a>整体优化思路</h4><p>优化思路主要是根据JVM内存分配和对象流转策略的几个点来的，主要是去优化FullGC的频率。同时要对JVM的内存有一个划分：<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701105257526.png" alt="image-20220701105257526"></p>
+<p>优化的原则比如：</p>
+<ul>
+<li>选择合适的垃圾回收器<ul>
+<li>CPU单核：Serial可能是最好的选择，单线程进行回收</li>
+<li>CPU多核：关注吞吐量，那么要选择Parallal Scavenge和Parallel Old的组合</li>
+<li>CPU多核：关注用户停顿时间，内存不大时可以选择CMS+ParNew</li>
+<li>CPU多核：关注用户停顿时间，内存大于6G时可以选择G1。</li>
+</ul>
+</li>
+<li><p>增加内存大小</p>
+<ul>
+<li>可能是最有效的减少GC频次的方法，但要注意副作用<ul>
+<li>内存变大，意味着每次GC都要清除更多的对象，要关注GC时间，且选择停顿时间低的垃圾回收器，比如CMS。</li>
+<li>在GC之后回收的很少，且占用率逐步上升，可能是存在内存泄漏，这里要进行排查，不能无脑加内存。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>设置合理的内存区域大小和分代晋升年龄</p>
+<ul>
+<li>如果Eden区太小，可能会频发触发MinorGC，大多数对象都是在年轻代被GC掉，Eden区域不要太小。</li>
+<li>如果Survivor太小，可能会提早晋升到老年代。</li>
+<li>分代晋升年龄太小，也会导致本应在年轻代被GC的对象晋升到老年代。</li>
+</ul>
+</li>
+<li><p>根据对象的动态年龄判定来优化<br>对象的动态年龄判定是指的年轻代的对象不一定要在GC分代年龄到达设置阈值才晋升到老年代，如果Survivor空间中相同年龄的所有对象大小总和大于Survivor空间的一半，年龄大于此年龄的对象可以直接老年代，不需要等待达到晋升老年代的阈值。</p>
+</li>
+</ul>
+<p>这里尽量减少YoungGC之后对象在Survivor区占用的比例，可以适当调大Survivor区的大小，避免生命周期短的对象对象提前晋升到老年代，来增加老年代的压力和FullGC的频率。</p>
+<ul>
+<li><p>大对象直接进入到老年代<br>新生代采用复制算法来GC，所以大于阈值的对象会为了避免复制则直接晋升到老年代中。应该尽量避免大对象的产生，因为大多数都是要在年轻代GC掉的对象，进入老年代可能会增加FullGC的频率。（比如未淘汰的缓存对象、未分页查询的SQL结果对象等）</p>
+</li>
+<li><p>老年代空间分配担保机制<br>可能出现的现象：频繁FullGC、FullGC次数比YoungGC次数都多</p>
+</li>
+</ul>
+<p>在MinorGC之前，只要老年代的连续空间小于新生代对象总和或历次晋升的对象平均大小，就会进行一次FullGC。这时如果可预测有生命周期长的对象，那么可以设置较小的晋升阈值或者较小的晋升年龄提前进入老年代；如果对象都是快速被GC的，可以设置较大的老年代空间。都是为了避免因为空间担保机制频繁FullGC。</p>
+<ul>
+<li>元空间不足触发FullGC<br>可能出现的现象：启动过程频繁fullGC，启动时间变长。</li>
+</ul>
+<p>如果不设置元空间的JVM相关参数，那么MetaSpace默认大小21m，在启动过程中会不断FullGC，（自动扩大元空间大小，再次触发FullGC的一个过程）</p>
+<ul>
+<li>CMS垃圾收集器的concurrent mode failure<br>如果在CMS GC的并发标记或者并发清理阶段，再次因为大对象晋升、老年代空间担保机制等原因触发了FullGC，那么会触发Concurrent mode failure，会退化为单线程的Serial Old进行GC，效率低且整个系统会STW。</li>
+</ul>
+<p>在确定了大体原因之后，如果要定位有问题的代码，可以使用jmap去看存活对象或者导出内存快照，也可以jstack看占用CPU比较高的线程（一般不断的创建对象代表线程的活跃）区定位具体的问题代码。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/05/29/innodb的bufferPool/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1129,6 +1677,264 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/04/08/mybatis中Mapper接口的代理逻辑/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2019/04/08/mybatis中Mapper接口的代理逻辑/" itemprop="url">mybatis中Mapper接口的代理逻辑</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-08T17:07:15+08:00">
+                2019-04-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/mybatis/" itemprop="url" rel="index">
+                    <span itemprop="name">mybatis</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2019/04/08/mybatis中Mapper接口的代理逻辑/" class="leancloud_visitors" data-flag-title="mybatis中Mapper接口的代理逻辑">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3,575
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  16
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><strong>特点</strong></p>
+<p>（1）Mapper文件中有Mapper接口映射关系的唯一标识，比如findById在接口中定义此方法，那么在mapper.xml肯定也有findById标签对应的sql模板，如果写错会在Mybatis启动的时候报错，达到提前校验的目的。</p>
+<p>（2）Mapper接口在使用时不用为其实现接口，就可以自动绑定映射其对应的sql模板执行方法。在spring环境中也可以接口注入直接使用。这里注入的是Mapper接口的代理类。</p>
+<p>这些功能就在mybatis框架的binding包下。</p>
+<p>binging的核心组件及关系如下：</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220718170805045.png" alt="image-20220718170805045"></p>
+<p><strong>MapperRegistry</strong></p>
+<p>MapperRegistry是Mybatis初始化过程中构造的一个对象，主要作用是维护Mapper接口和其对应的MapperProxyFactory。</p>
+<p><strong>核心字段：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MapperRegistry</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 全局唯一的configuration对象，存放解析之后的全部Mybatis配置信息</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> Configuration config;</span><br><span class="line">  <span class="comment">// 已知的所有映射</span></span><br><span class="line">  <span class="comment">// key:mapperInterface,即dao的数据库接口</span></span><br><span class="line">  <span class="comment">// value:MapperProxyFactory,即映射器代理工厂</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> Map&lt;Class&lt;?&gt;, MapperProxyFactory&lt;?&gt;&gt; knownMappers = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>​             </p>
+<p><strong>addMapper和getMapper方法</strong></p>
+<p>addMapper是为Mapper接口添加对应的代理工厂到kownsMapper中。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> &lt;T&gt; <span class="function"><span class="keyword">void</span> <span class="title">addMapper</span><span class="params">(Class&lt;T&gt; type)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 要加入的肯定是接口，否则不添加</span></span><br><span class="line">  <span class="keyword">if</span> (type.isInterface()) &#123;</span><br><span class="line">    <span class="comment">// 加入的是接口</span></span><br><span class="line">    <span class="keyword">if</span> (hasMapper(type)) &#123;</span><br><span class="line">      <span class="comment">// 如果添加重复</span></span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> BindingException(<span class="string">"Type "</span> + type + <span class="string">" is already known to the MapperRegistry."</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">boolean</span> loadCompleted = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      knownMappers.put(type, <span class="keyword">new</span> MapperProxyFactory&lt;&gt;(type));</span><br><span class="line">      <span class="comment">// It's important that the type is added before the parser is run</span></span><br><span class="line">      <span class="comment">// otherwise the binding may automatically be attempted by the</span></span><br><span class="line">      <span class="comment">// mapper parser. If the type is already known, it won't try.</span></span><br><span class="line">      MapperAnnotationBuilder parser = <span class="keyword">new</span> MapperAnnotationBuilder(config, type);</span><br><span class="line">      parser.parse();</span><br><span class="line">      loadCompleted = <span class="keyword">true</span>;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (!loadCompleted) &#123;</span><br><span class="line">        knownMappers.remove(type);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>​      </p>
+<p>getMapper是获取Mapper接口的一个代理对象，也是通过获取到knownMappers map中的MapperFactoryProxy，然后通过newInstance方法来获取新的代理对象</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> &lt;T&gt; <span class="function">T <span class="title">getMapper</span><span class="params">(Class&lt;T&gt; type, SqlSession sqlSession)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 找出指定映射接口的代理工厂</span></span><br><span class="line">  <span class="keyword">final</span> MapperProxyFactory&lt;T&gt; mapperProxyFactory = (MapperProxyFactory&lt;T&gt;) knownMappers.get(type);</span><br><span class="line">  <span class="keyword">if</span> (mapperProxyFactory == <span class="keyword">null</span>) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> BindingException(<span class="string">"Type "</span> + type + <span class="string">" is not known to the MapperRegistry."</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// 通过mapperProxyFactory给出对应代理器的实例</span></span><br><span class="line">    <span class="keyword">return</span> mapperProxyFactory.newInstance(sqlSession);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> BindingException(<span class="string">"Error getting mapper instance. Cause: "</span> + e, e);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>MapperProxyFactory</strong></p>
+<p>MapperProxyFactory逻辑很简单，就是生成代理类的工厂。</p>
+<p>其中核心字段为：</p>
+<ul>
+<li>mapperInterface 即要代理的 Mapper接口</li>
+<li>methodCache 用来存放Method和MapperMethod对象的键值对。 这里MapperMethod就是最终在MethodProxy中用于执行sql的地方。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MapperProxyFactory</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 对应SQL的java接口类</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> Class&lt;T&gt; mapperInterface;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> Map&lt;Method, MapperMethod&gt; methodCache = <span class="keyword">new</span> ConcurrentHashMap&lt;&gt;();</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * MapperProxyFactory构造方法</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> mapperInterface 映射接口</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">MapperProxyFactory</span><span class="params">(Class&lt;T&gt; mapperInterface)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.mapperInterface = mapperInterface;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Class&lt;T&gt; <span class="title">getMapperInterface</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> mapperInterface;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Map&lt;Method, MapperMethod&gt; <span class="title">getMethodCache</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> methodCache;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">  <span class="function"><span class="keyword">protected</span> T <span class="title">newInstance</span><span class="params">(MapperProxy&lt;T&gt; mapperProxy)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 三个参数分别是：</span></span><br><span class="line">    <span class="comment">// 创建代理对象的类加载器、要代理的接口、代理类的处理器（即具体的实现）。</span></span><br><span class="line">    <span class="keyword">return</span> (T) Proxy.newProxyInstance(mapperInterface.getClassLoader(), <span class="keyword">new</span> Class[] &#123; mapperInterface &#125;, mapperProxy);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> T <span class="title">newInstance</span><span class="params">(SqlSession sqlSession)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> MapperProxy&lt;T&gt; mapperProxy = <span class="keyword">new</span> MapperProxy&lt;&gt;(sqlSession, mapperInterface, methodCache);</span><br><span class="line">    <span class="keyword">return</span> newInstance(mapperProxy);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>MapperProxy</strong></p>
+<p>MapperProxy实现了InvocationHandler接口，用于拦截生成代理类。</p>
+<p>代理逻辑是利用Method对应的MapperMethod去执行对应execut方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MapperProxy</span>&lt;<span class="title">T</span>&gt; <span class="keyword">implements</span> <span class="title">InvocationHandler</span>, <span class="title">Serializable</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> serialVersionUID = -<span class="number">6424540398559729838L</span>;</span><br><span class="line">  <span class="comment">// 与当前mapperProxy关联的sqlSession对象 用于访问数据库</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> SqlSession sqlSession;</span><br><span class="line">  <span class="comment">// 被代理的mapper接口</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> Class&lt;T&gt; mapperInterface;</span><br><span class="line">  <span class="comment">// 该Map的键为方法，值为MapperMethod对象。通过该属性，完成了MapperProxy内（即映射接口内）方法和MapperMethod的绑定</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> Map&lt;Method, MapperMethod&gt; methodCache;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">MapperProxy</span><span class="params">(SqlSession sqlSession, Class&lt;T&gt; mapperInterface, Map&lt;Method, MapperMethod&gt; methodCache)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.sqlSession = sqlSession;</span><br><span class="line">    <span class="keyword">this</span>.mapperInterface = mapperInterface;</span><br><span class="line">    <span class="keyword">this</span>.methodCache = methodCache;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (Object.class.equals(method.getDeclaringClass())) &#123; <span class="comment">// 继承自Object的方法</span></span><br><span class="line">        <span class="comment">// 直接执行原有方法</span></span><br><span class="line">        <span class="keyword">return</span> method.invoke(<span class="keyword">this</span>, args);</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (method.isDefault()) &#123; <span class="comment">// 默认方法</span></span><br><span class="line">        <span class="comment">// 执行默认方法</span></span><br><span class="line">        <span class="keyword">return</span> invokeDefaultMethod(proxy, method, args);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">      <span class="keyword">throw</span> ExceptionUtil.unwrapThrowable(t);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 找对对应的MapperMethod对象 去执行</span></span><br><span class="line">    <span class="keyword">final</span> MapperMethod mapperMethod = cachedMapperMethod(method);</span><br><span class="line">    <span class="comment">// 调用MapperMethod中的execute方法</span></span><br><span class="line">    <span class="keyword">return</span> mapperMethod.execute(sqlSession, args);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">private</span> MapperMethod <span class="title">cachedMapperMethod</span><span class="params">(Method method)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> methodCache.computeIfAbsent(method, k -&gt; <span class="keyword">new</span> MapperMethod(mapperInterface, method, sqlSession.getConfiguration()));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>MapperMethod</strong></p>
+<p>MapperMethod是最终执行sql的地方，也是存储了当前执行Mapper接口方法的Method对象。其中包含两个核心字段 sqlCommond、methodSignature。这两个都是其中的静态内部类。</p>
+<p><strong>SqlCommand</strong></p>
+<p>sqlCommand变量维护了关联sql语句的相关信息。</p>
+<ul>
+<li>name 即唯一标识</li>
+<li>type 标识是哪种类型的sql语句</li>
+</ul>
+<p>其在构造函数中根据传入的Mapper接口和method方法来初始化SqlCommond。逻辑其实就是从传入接口或其父类中解析出MapperStatement对象，其能标识mapper.xml中的完整的一个sql模板。再从中解析出name和commandType。</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">SqlCommand</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// SQL语句的名称 即唯一标识</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> String name;</span><br><span class="line">  <span class="comment">// SQL语句的种类，一共分为以下六种：增、删、改、查、清缓存、未知</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> SqlCommandType type;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 根据传入接口和方法封装sql信息</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> configuration</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> mapperInterface</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> method</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">SqlCommand</span><span class="params">(Configuration configuration, Class&lt;?&gt; mapperInterface, Method method)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 方法名称</span></span><br><span class="line">    <span class="keyword">final</span> String methodName = method.getName();</span><br><span class="line">    <span class="comment">// 方法所在的类。可能是mapperInterface，也可能是mapperInterface的子类</span></span><br><span class="line">    <span class="keyword">final</span> Class&lt;?&gt; declaringClass = method.getDeclaringClass();</span><br><span class="line">    <span class="comment">// mapper接口名称、方法名称拼起来做唯一标识</span></span><br><span class="line">    <span class="comment">// 到configuration全局配置对象中查找sql语句</span></span><br><span class="line">    <span class="comment">// mappedStatement就是Mapper.xml配置文件中一条SQL解析之后得到的对象</span></span><br><span class="line">    MappedStatement ms = resolveMappedStatement(mapperInterface, methodName, declaringClass,</span><br><span class="line">        configuration);</span><br><span class="line">    <span class="keyword">if</span> (ms == <span class="keyword">null</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> (method.getAnnotation(Flush.class) != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">// 标记flush注解</span></span><br><span class="line">        name = <span class="keyword">null</span>;</span><br><span class="line">        type = SqlCommandType.FLUSH;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> BindingException(<span class="string">"Invalid bound statement (not found): "</span></span><br><span class="line">            + mapperInterface.getName() + <span class="string">"."</span> + methodName);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      name = ms.getId();</span><br><span class="line">      type = ms.getSqlCommandType();</span><br><span class="line">      <span class="keyword">if</span> (type == SqlCommandType.UNKNOWN) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> BindingException(<span class="string">"Unknown execution method for: "</span> + name);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> name;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> SqlCommandType <span class="title">getType</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> type;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 找出指定接口指定方法对应的MappedStatement对象</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> mapperInterface 映射接口</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> methodName 映射接口中具体操作方法名</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> declaringClass 操作方法所在的类。一般是映射接口本身，也可能是映射接口的子类</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> configuration 配置信息</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@return</span> MappedStatement对象</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="function"><span class="keyword">private</span> MappedStatement <span class="title">resolveMappedStatement</span><span class="params">(Class&lt;?&gt; mapperInterface, String methodName,</span></span></span><br><span class="line"><span class="function"><span class="params">      Class&lt;?&gt; declaringClass, Configuration configuration)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 数据库操作语句的编号是：接口名.方法名</span></span><br><span class="line">    String statementId = mapperInterface.getName() + <span class="string">"."</span> + methodName;</span><br><span class="line">    <span class="comment">// configuration保存了解析后的所有操作语句，去查找该语句</span></span><br><span class="line">    <span class="keyword">if</span> (configuration.hasStatement(statementId)) &#123;</span><br><span class="line">      <span class="comment">// 从configuration中找到了对应的语句，返回</span></span><br><span class="line">      <span class="keyword">return</span> configuration.getMappedStatement(statementId);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (mapperInterface.equals(declaringClass)) &#123;</span><br><span class="line">      <span class="comment">// 说明递归调用已经到终点，但是仍然没有找到匹配的结果</span></span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 从方法的定义类开始，沿着父类向上寻找。找到接口类时停止</span></span><br><span class="line">    <span class="keyword">for</span> (Class&lt;?&gt; superInterface : mapperInterface.getInterfaces()) &#123;</span><br><span class="line">      <span class="keyword">if</span> (declaringClass.isAssignableFrom(superInterface)) &#123;</span><br><span class="line">        <span class="comment">// 递归查找父类</span></span><br><span class="line">        MappedStatement ms = resolveMappedStatement(superInterface, methodName,</span><br><span class="line">            declaringClass, configuration);</span><br><span class="line">        <span class="keyword">if</span> (ms != <span class="keyword">null</span>) &#123;</span><br><span class="line">          <span class="keyword">return</span> ms;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>​           </p>
+<p><strong>MethodSignature</strong></p>
+<p>MethodSignature主要维护了当前接口方法的信息，如返回值类型、参数和实际入参的绑定关系（运用了ParamNameResolver工具类）等。</p>
+<p>在methodSignature.convertArgsToSqlCommandParam方法中，也是处理了@Param注解与sql模板中的参数绑定关系。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">MethodSignature</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 返回类型是否为集合类型</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">boolean</span> returnsMany;</span><br><span class="line">  <span class="comment">// 返回类型是否是map</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">boolean</span> returnsMap;</span><br><span class="line">  <span class="comment">// 返回类型是否是空</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">boolean</span> returnsVoid;</span><br><span class="line">  <span class="comment">// 返回类型是否是cursor类型</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">boolean</span> returnsCursor;</span><br><span class="line">  <span class="comment">// 返回类型是否是optional类型</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">boolean</span> returnsOptional;</span><br><span class="line">  <span class="comment">// 返回类型</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> Class&lt;?&gt; returnType;</span><br><span class="line">  <span class="comment">// 如果返回为map,这里记录所有的map的key @MapKey注解</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> String mapKey;</span><br><span class="line">  <span class="comment">// resultHandler参数的位置</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> Integer resultHandlerIndex;</span><br><span class="line">  <span class="comment">// rowBounds参数的位置</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> Integer rowBoundsIndex;</span><br><span class="line">  <span class="comment">// 引用参数名称解析器</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> ParamNameResolver paramNameResolver;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">MethodSignature</span><span class="params">(Configuration configuration, Class&lt;?&gt; mapperInterface, Method method)</span> </span>&#123;</span><br><span class="line">    Type resolvedReturnType = TypeParameterResolver.resolveReturnType(method, mapperInterface);</span><br><span class="line">    <span class="keyword">if</span> (resolvedReturnType <span class="keyword">instanceof</span> Class&lt;?&gt;) &#123;</span><br><span class="line">      <span class="keyword">this</span>.returnType = (Class&lt;?&gt;) resolvedReturnType;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (resolvedReturnType <span class="keyword">instanceof</span> ParameterizedType) &#123;</span><br><span class="line">      <span class="keyword">this</span>.returnType = (Class&lt;?&gt;) ((ParameterizedType) resolvedReturnType).getRawType();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">this</span>.returnType = method.getReturnType();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">this</span>.returnsVoid = <span class="keyword">void</span>.class.equals(<span class="keyword">this</span>.returnType);</span><br><span class="line">    <span class="keyword">this</span>.returnsMany = configuration.getObjectFactory().isCollection(<span class="keyword">this</span>.returnType) || <span class="keyword">this</span>.returnType.isArray();</span><br><span class="line">    <span class="keyword">this</span>.returnsCursor = Cursor.class.equals(<span class="keyword">this</span>.returnType);</span><br><span class="line">    <span class="keyword">this</span>.returnsOptional = Optional.class.equals(<span class="keyword">this</span>.returnType);</span><br><span class="line">    <span class="keyword">this</span>.mapKey = getMapKey(method);</span><br><span class="line">    <span class="keyword">this</span>.returnsMap = <span class="keyword">this</span>.mapKey != <span class="keyword">null</span>;</span><br><span class="line">    <span class="comment">// rowBoundsIndex和resultHandlerIndex</span></span><br><span class="line">    <span class="keyword">this</span>.rowBoundsIndex = getUniqueParamIndex(method, RowBounds.class);</span><br><span class="line">    <span class="keyword">this</span>.resultHandlerIndex = getUniqueParamIndex(method, ResultHandler.class);</span><br><span class="line">    <span class="comment">// 解析参数名称的工具类</span></span><br><span class="line">    <span class="keyword">this</span>.paramNameResolver = <span class="keyword">new</span> ParamNameResolver(configuration, method);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Object <span class="title">convertArgsToSqlCommandParam</span><span class="params">(Object[] args)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 通过传入实参获取 实参和参数名称的映射表</span></span><br><span class="line">    <span class="keyword">return</span> paramNameResolver.getNamedParams(args);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">hasRowBounds</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> rowBoundsIndex != <span class="keyword">null</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> RowBounds <span class="title">extractRowBounds</span><span class="params">(Object[] args)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> hasRowBounds() ? (RowBounds) args[rowBoundsIndex] : <span class="keyword">null</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">hasResultHandler</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> resultHandlerIndex != <span class="keyword">null</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> ResultHandler <span class="title">extractResultHandler</span><span class="params">(Object[] args)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> hasResultHandler() ? (ResultHandler) args[resultHandlerIndex] : <span class="keyword">null</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> String <span class="title">getMapKey</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> mapKey;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> Class&lt;?&gt; getReturnType() &#123;</span><br><span class="line">    <span class="keyword">return</span> returnType;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">returnsMany</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> returnsMany;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">returnsMap</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> returnsMap;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">returnsVoid</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> returnsVoid;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">returnsCursor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> returnsCursor;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * return whether return type is &#123;<span class="doctag">@code</span> java.util.Optional&#125;.</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@return</span> return &#123;<span class="doctag">@code</span> true&#125;, if return type is &#123;<span class="doctag">@code</span> java.util.Optional&#125;</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@since</span> 3.5.0</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">returnsOptional</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> returnsOptional;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 返回指定参数的index</span></span><br><span class="line">  <span class="function"><span class="keyword">private</span> Integer <span class="title">getUniqueParamIndex</span><span class="params">(Method method, Class&lt;?&gt; paramType)</span> </span>&#123;</span><br><span class="line">    Integer index = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">final</span> Class&lt;?&gt;[] argTypes = method.getParameterTypes();</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; argTypes.length; i++) &#123;</span><br><span class="line">      <span class="keyword">if</span> (paramType.isAssignableFrom(argTypes[i])) &#123;</span><br><span class="line">        <span class="keyword">if</span> (index == <span class="keyword">null</span>) &#123;</span><br><span class="line">          index = i;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          <span class="keyword">throw</span> <span class="keyword">new</span> BindingException(method.getName() + <span class="string">" cannot have multiple "</span> + paramType.getSimpleName() + <span class="string">" parameters"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> index;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">private</span> String <span class="title">getMapKey</span><span class="params">(Method method)</span> </span>&#123;</span><br><span class="line">    String mapKey = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">if</span> (Map.class.isAssignableFrom(method.getReturnType())) &#123;</span><br><span class="line">      <span class="keyword">final</span> MapKey mapKeyAnnotation = method.getAnnotation(MapKey.class);</span><br><span class="line">      <span class="keyword">if</span> (mapKeyAnnotation != <span class="keyword">null</span>) &#123;</span><br><span class="line">        mapKey = mapKeyAnnotation.value();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> mapKey;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>execute方法</strong></p>
+<p>最终sql的执行都是通过MapperMethod的execute方法执行，这里依赖了其中的sqlCommond和methodSignature两个变量。</p>
+<p>execute核心逻辑就是根据具体的sqlCommondType来选择执行具体的方法。其中也处理了不同的返回值</p>
+<ul>
+<li>对于Insert、Update、delete类型的sql执行，返回值回采用rowCountResult方法来处理，内部做了对影响行数的处理（可以直接返回boolean类型）</li>
+<li><p>对应Select类型，</p>
+<ul>
+<li>如果有executeWithResultHandler类型的参数，会按照resultHandler的回调来处理返回值。</li>
+<li>如果方法返回值为集合类型或是数组类型，则会调用 executeForMany() 方法，底层依赖 SqlSession.selectList() 方法进行查询，并将得到的 List 转换成目标集合类型。</li>
+<li>如果方法返回值为 Map 类型，则会调用 executeForMap() 方法，底层依赖 SqlSession.selectMap() 方法完成查询，并将结果集映射成 Map 集合。</li>
+<li>针对 Cursor 以及 Optional返回值的处理，也是依赖的 SqlSession 的相关方法完成查询的，这里不再展开。</li>
+<li>针对单条数据，也会依赖sqlSession.selectOne方法完成查询。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 执行映射接口中的方法 MapperMethod的核心方法</span></span><br><span class="line"><span class="comment"> * execute方法会根据要执行的sql语句的具体类型执行sqlsession的具体方法完成数据库操作</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> sqlSession sqlSession接口的实例，通过它可以进行数据库的操作</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> args 执行接口方法时传入的参数</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> 数据库操作结果</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">execute</span><span class="params">(SqlSession sqlSession, Object[] args)</span> </span>&#123;</span><br><span class="line">  Object result;</span><br><span class="line">  <span class="keyword">switch</span> (command.getType()) &#123; <span class="comment">// 根据SQL语句类型，执行不同操作</span></span><br><span class="line">    <span class="keyword">case</span> INSERT: &#123; <span class="comment">// 如果是插入语句</span></span><br><span class="line">      <span class="comment">// 将参数顺序与实参对应好</span></span><br><span class="line">      Object param = method.convertArgsToSqlCommandParam(args);</span><br><span class="line">      <span class="comment">// 执行操作并返回结果</span></span><br><span class="line">      <span class="comment">// rowCounntResult方法会根据方法的返回值类型对结果进行转换</span></span><br><span class="line">      result = rowCountResult(sqlSession.insert(command.getName(), param));</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">case</span> UPDATE: &#123; <span class="comment">// 如果是更新语句</span></span><br><span class="line">      <span class="comment">// 将参数顺序与实参对应好</span></span><br><span class="line">      Object param = method.convertArgsToSqlCommandParam(args);</span><br><span class="line">      <span class="comment">// 执行操作并返回结果</span></span><br><span class="line">      result = rowCountResult(sqlSession.update(command.getName(), param));</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">case</span> DELETE: &#123; <span class="comment">// 如果是删除语句MappedStatement</span></span><br><span class="line">      <span class="comment">// 将参数顺序与实参对应好</span></span><br><span class="line">      Object param = method.convertArgsToSqlCommandParam(args);</span><br><span class="line">      <span class="comment">// 执行操作并返回结果</span></span><br><span class="line">      result = rowCountResult(sqlSession.delete(command.getName(), param));</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">case</span> SELECT: <span class="comment">// 如果是查询语句</span></span><br><span class="line">      <span class="comment">/**</span></span><br><span class="line"><span class="comment">       * 如果在方法参数列表中有 ResultHandler 类型的参数存在，则会使用 executeWithResultHandler() 方法完成查询，底层依赖的是 SqlSession.select() 方法，结果集将会交由传入的 ResultHandler 对象进行处理。</span></span><br><span class="line"><span class="comment">       * 如果方法返回值为集合类型或是数组类型，则会调用 executeForMany() 方法，底层依赖 SqlSession.selectList() 方法进行查询，并将得到的 List 转换成目标集合类型。</span></span><br><span class="line"><span class="comment">       * 如果方法返回值为 Map 类型，则会调用 executeForMap() 方法，底层依赖 SqlSession.selectMap() 方法完成查询，并将结果集映射成 Map 集合。</span></span><br><span class="line"><span class="comment">       * 针对 Cursor 以及 Optional返回值的处理，也是依赖的 SqlSession 的相关方法完成查询的，这里不再展开。</span></span><br><span class="line"><span class="comment">       */</span></span><br><span class="line">      <span class="keyword">if</span> (method.returnsVoid() &amp;&amp; method.hasResultHandler()) &#123; <span class="comment">// 方法返回值为void，且有结果处理器</span></span><br><span class="line">        <span class="comment">// 使用结果处理器执行查询</span></span><br><span class="line">        executeWithResultHandler(sqlSession, args);</span><br><span class="line">        result = <span class="keyword">null</span>;</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (method.returnsMany()) &#123; <span class="comment">// 多条结果查询</span></span><br><span class="line">        result = executeForMany(sqlSession, args);</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (method.returnsMap()) &#123; <span class="comment">// Map结果查询</span></span><br><span class="line">        result = executeForMap(sqlSession, args);</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (method.returnsCursor()) &#123; <span class="comment">// 游标类型结果查询</span></span><br><span class="line">        result = executeForCursor(sqlSession, args);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123; <span class="comment">// 单条结果查询</span></span><br><span class="line">        Object param = method.convertArgsToSqlCommandParam(args);</span><br><span class="line">        result = sqlSession.selectOne(command.getName(), param);</span><br><span class="line">        <span class="keyword">if</span> (method.returnsOptional()</span><br><span class="line">            &amp;&amp; (result == <span class="keyword">null</span> || !method.getReturnType().equals(result.getClass()))) &#123;</span><br><span class="line">          result = Optional.ofNullable(result);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> FLUSH: <span class="comment">// 清空缓存语句</span></span><br><span class="line">      result = sqlSession.flushStatements();</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">default</span>: <span class="comment">// 未知语句类型，抛出异常</span></span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> BindingException(<span class="string">"Unknown execution method for: "</span> + command.getName());</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (result == <span class="keyword">null</span> &amp;&amp; method.getReturnType().isPrimitive() &amp;&amp; !method.returnsVoid()) &#123;</span><br><span class="line">    <span class="comment">// 查询结果为null,但返回类型为基本类型。因此返回变量无法接收查询结果，抛出异常。</span></span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> BindingException(<span class="string">"Mapper method '"</span> + command.getName()</span><br><span class="line">        + <span class="string">" attempted to return null from a method with a primitive return type ("</span> + method.getReturnType() + <span class="string">")."</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>​          </p>
+<p><strong>总结</strong></p>
+<p>重点介绍了 MyBatis 中的 binding 模块，正是该模块实现了 Mapper 接口与 Mapper.xml 配置文件的映射功能。</p>
+<p>首先，介绍了 MapperRegistry 这个注册中心，其中维护了 Mapper 接口与代理工厂对象之间的映射关系。</p>
+<p>然后，分析了 MapperProxy 和 MapperProxyFactory，其中 MapperProxyFactory 使用 JDK 动态代理方式为相应的 Mapper 接口创建了代理对象，MapperProxy 则封装了核心的代理逻辑，将拦截到的目标方法委托给对应的 MapperMethod 处理。</p>
+<p>最后，详细讲解了 MapperMethod，分析了它是如何根据方法签名执行相应的 SQL 语句。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/03/31/dubbo基础（五）——dubbo接口的特性设置/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1750,646 +2556,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/03/20/dubbo基础（三）——spring-boot调用dubbo/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2019/03/20/dubbo基础（三）——spring-boot调用dubbo/" itemprop="url">dubbo基础（三）——spring boot调用dubbo</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-20T22:11:35+08:00">
-                2019-03-20
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/dubbo/" itemprop="url" rel="index">
-                    <span itemprop="name">dubbo</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2019/03/20/dubbo基础（三）——spring-boot调用dubbo/" class="leancloud_visitors" data-flag-title="dubbo基础（三）——spring boot调用dubbo">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1,065
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  5
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="dubbo集成spring-boot"><a href="#dubbo集成spring-boot" class="headerlink" title="dubbo集成spring boot"></a>dubbo集成spring boot</h2><p>spring boot肯定是现在用的做多的开发框架，而dubbo框架是最流行的rpc框架之一，整合springboot和dubbo的使用很有必要。本篇博客还是根据上一篇中的dubbo简单demo的简单示例来整合spring boot。(上一篇传送门：<a href="https://zhanglijun1217.github.io/blog/2019/03/18/dubbo%E5%9F%BA%E7%A1%80%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%E2%80%94%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E8%B0%83%E7%94%A8demo/">dubbo-demo</a>)</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/blog/2019/03/20/dubbo基础（三）——spring-boot调用dubbo/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/03/18/dubbo基础（二）——一个简单调用demo/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2019/03/18/dubbo基础（二）——一个简单调用demo/" itemprop="url">dubbo基础（二）——一个简单调用demo</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-18T22:51:21+08:00">
-                2019-03-18
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/dubbo/" itemprop="url" rel="index">
-                    <span itemprop="name">dubbo</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2019/03/18/dubbo基础（二）——一个简单调用demo/" class="leancloud_visitors" data-flag-title="dubbo基础（二）——一个简单调用demo">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1,570
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  7
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="get-start"><a href="#get-start" class="headerlink" title="get start"></a>get start</h2><p>在上一篇中介绍了dubbo诞生的背景和框架的特性：<a href="https://zhanglijun1217.github.io/blog/2019/03/06/dubbo%E5%9F%BA%E7%A1%80%EF%BC%88%E4%B8%80%EF%BC%89%E2%80%94%E2%80%94%E6%A6%82%E5%BF%B5%E5%8F%8A%E5%9F%BA%E6%9C%AC%E6%A1%86%E6%9E%B6/">dubbo概念和基本概念</a>，这里就来一个dubbo的简单使用小体验。</p>
-<h3 id="dubbo注册中心安装"><a href="#dubbo注册中心安装" class="headerlink" title="dubbo注册中心安装"></a>dubbo注册中心安装</h3><p>dubbo中的官方文档的快速启动使用的是multicast广播注册中心暴露服务地址，这里选择的是使用zk作为注册中心，因为zk是很多公司作为dubbo注册中心，并且zk也是dubbo官方文档中推荐使用的注册中心。</p>
-<p>本次是使用的mac上安装的zk，安装步骤：<a href="https://www.jianshu.com/p/5491d16e6abd" target="_blank" rel="noopener">mac下安装zk</a></p>
-<h3 id="dubbo-demo建立"><a href="#dubbo-demo建立" class="headerlink" title="dubbo-demo建立"></a>dubbo-demo建立</h3><p>此次是采用maven构建整个项目。整个项目中的module结构如下：</p>
-<p><img src="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/WX20190318-230924.png" alt=""></p>
-<p>其中：</p>
-<ul>
-<li>common-interface是抽离出的公用接口，其实这里就是将provider中的接口和consumer中的接口抽离出来</li>
-<li>order-service-consumer是此次设置的dubbo-consumer，模拟的是一个订单服务，里面有一个初始化订单的方法。</li>
-<li>user-service-provider是此次设置的dubbo服务提供者，模拟的是一个用户服务，在初始化订单时肯定要查询用户服务的接口。</li>
-</ul>
-<h4 id="maven依赖"><a href="#maven依赖" class="headerlink" title="maven依赖"></a>maven依赖</h4><p>此次在项目中的依赖用到了dubbo的依赖，因为使用的是zk注册中心，所以这里要引入zk的客户端依赖，这里要注意的是<strong>dubbo2.6版本之后是要引入zk的curator客户端</strong>。</p>
-<p>dubbo依赖：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- https:<span class="comment">//mvnrepository.com/artifact/com.alibaba/dubbo  这个dubbo版本是集成了spring的 --&gt;</span></span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;com.alibaba&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;dubbo&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;2.6.2&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
-<p>zk client依赖</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- curator-framework --&gt;</span><br><span class="line">&lt;!-- dubbo2.6 以上版本要引入curator 的 zk客户端 --&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.apache.curator&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;curator-framework&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;2.12.0&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
-<h4 id="provider"><a href="#provider" class="headerlink" title="provider"></a>provider</h4><p>由dubbo的架构图可知</p>
-<p><img src="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/dubbo-architecture.jpg" alt="dubbo整体结构"></p>
-<p>provider提供的服务要先注册在注册中心上，这里就要去配置provider相关的配置。</p>
-<p>可以看到provider要提供的接口服务：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function">List&lt;UserAddress&gt; <span class="title">getUserAddressList</span><span class="params">(String userId)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这里可以给一个简单实现：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserServiceImpl</span> <span class="keyword">implements</span> <span class="title">UserService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;UserAddress&gt; <span class="title">getUserAddressList</span><span class="params">(String userId)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">"调用到了消费者"</span>);</span><br><span class="line">        <span class="keyword">final</span> UserAddress userAddress1 = <span class="keyword">new</span> UserAddress()</span><br><span class="line">                .setUserId(<span class="number">1L</span>)</span><br><span class="line">                .setAddressId(<span class="number">1L</span>)</span><br><span class="line">                .setAddressNo(<span class="string">"123"</span>)</span><br><span class="line">                .setAddressStr(<span class="string">"庆丰大街"</span>)</span><br><span class="line">                .setUserName(<span class="string">"小张"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">final</span> UserAddress userAddress2  = <span class="keyword">new</span> UserAddress()</span><br><span class="line">                .setUserId(<span class="number">1L</span>)</span><br><span class="line">                .setAddressId(<span class="number">2L</span>)</span><br><span class="line">                .setAddressNo(<span class="string">"456"</span>)</span><br><span class="line">                .setAddressStr(<span class="string">"西湖"</span>)</span><br><span class="line">                .setUserName(<span class="string">"小王"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ArrayList&lt;UserAddress&gt;()&#123;&#123;</span><br><span class="line">            add(userAddress1);</span><br><span class="line">            add(userAddress2);</span><br><span class="line">        &#125;&#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这里的关键是provider的xml配置：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span>?&gt;</span><br><span class="line">&lt;beans xmlns=<span class="string">"http://www.springframework.org/schema/beans"</span></span><br><span class="line">       xmlns:xsi=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span><br><span class="line">       xmlns:dubbo=<span class="string">"http://dubbo.apache.org/schema/dubbo"</span></span><br><span class="line">       xsi:schemaLocation=<span class="string">"http://www.springframework.org/schema/beans</span></span><br><span class="line"><span class="string">        http://www.springframework.org/schema/beans/spring-beans-4.3.xsd</span></span><br><span class="line"><span class="string">         http://dubbo.apache.org/schema/dubbo</span></span><br><span class="line"><span class="string">         http://dubbo.apache.org/schema/dubbo/dubbo.xsd"</span>&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!-- 提供方应用信息，用于计算依赖关系 --&gt;</span><br><span class="line">    &lt;dubbo:application name=<span class="string">"dubbo-demo"</span>  /&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!-- 注册的地址 --&gt;</span><br><span class="line">    &lt;dubbo:registry address=<span class="string">"zookeeper://127.0.0.1:2181"</span> /&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!-- 使用dubbo协议在<span class="number">20880</span>端口暴露服务 --&gt;</span><br><span class="line">    &lt;dubbo:protocol name=<span class="string">"dubbo"</span> port=<span class="string">"20880"</span> /&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!-- 生命要暴露的服务接口 --&gt;</span><br><span class="line">    &lt;dubbo:service <span class="class"><span class="keyword">interface</span></span>=<span class="string">"service.user.UserService"</span> ref=<span class="string">"userService"</span> /&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!-- 实现服务 --&gt;</span><br><span class="line">    &lt;bean id=<span class="string">"userService"</span> <span class="class"><span class="keyword">class</span></span>=<span class="string">"service.impl.UserServiceImpl"</span> /&gt;</span><br><span class="line"></span><br><span class="line">&lt;/beans&gt;</span><br></pre></td></tr></table></figure>
-<p>其中的配置：</p>
-<ul>
-<li>application标签，提供了服务提供方应用信息，用于计算依赖关系和dubbo-admin中的界面信息</li>
-<li>registry标签，这个标签标明了注册中心和注册中心的地址，这里可以支持多种协议和多种写法，具体见官方文档。</li>
-<li>protocol标签，这里是暴露在20880端口的服务，这里的端口可以修改。</li>
-<li>service标签，这里是声明要暴露的用户服务接口，ref为spring环境中的bean的id。</li>
-<li>bean标签，这里是spring的操作，将实现作为spring bean管理。</li>
-</ul>
-<p>这里可以简单的测试一下服务是否注册成功：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestProvider</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">// 加载spring配置</span></span><br><span class="line">        ClassPathXmlApplicationContext applicationContext = <span class="keyword">new</span> ClassPathXmlApplicationContext(<span class="string">"provider.xml"</span>);</span><br><span class="line">        <span class="comment">// 启动spring环境</span></span><br><span class="line">        applicationContext.start();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 使程序hang住  不退出</span></span><br><span class="line">        System.in.read();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>启动这个测试程序后可以用telnet测试一下服务是否在本地的zk上注册上去</p>
-<p><img src="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/dubbo%E6%9C%AC%E5%9C%B0telnet.png" alt=""></p>
-<p>zk也可以看到多了一个dubbo节点：<br><img src="http://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/zk-dubbo.png" alt=""></p>
-<h4 id="consumer"><a href="#consumer" class="headerlink" title="consumer"></a>consumer</h4><p>同样consumer也要先实现order服务的接口</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OrderServiceImpl</span> <span class="keyword">implements</span> <span class="title">OrderService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> UserService userService;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 生成订单过程：</span></span><br><span class="line"><span class="comment">     *  调用远程接口 查询用户信息</span></span><br><span class="line"><span class="comment">     *  将用户信息去生成订单</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">initOrder</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        List&lt;UserAddress&gt; userAddressList = userService.getUserAddressList(<span class="string">"1"</span>);</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">null</span> != userAddressList &amp;&amp; userAddressList.size() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            System.out.println(<span class="string">"调用远程接口完成"</span>);</span><br><span class="line"></span><br><span class="line">            Optional.of(userAddressList).ifPresent(System.out::println);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>配置对应的consumer.xml文件</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span>?&gt;</span><br><span class="line">&lt;beans xmlns=<span class="string">"http://www.springframework.org/schema/beans"</span></span><br><span class="line">       xmlns:xsi=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span><br><span class="line">       xmlns:dubbo=<span class="string">"http://dubbo.apache.org/schema/dubbo"</span> xmlns:context=<span class="string">"http://www.springframework.org/schema/context"</span></span><br><span class="line">       xsi:schemaLocation=<span class="string">"http://www.springframework.org/schema/beans</span></span><br><span class="line"><span class="string">        http://www.springframework.org/schema/beans/spring-beans-4.3.xsd</span></span><br><span class="line"><span class="string">         http://dubbo.apache.org/schema/dubbo</span></span><br><span class="line"><span class="string">         http://dubbo.apache.org/schema/dubbo/dubbo.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd"</span>&gt;</span><br><span class="line"></span><br><span class="line">    &lt;dubbo:application name=<span class="string">"dubbo-demo"</span> /&gt;</span><br><span class="line"></span><br><span class="line">    &lt;dubbo:registry address=<span class="string">"zookeeper://127.0.0.1:2181"</span> /&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!-- 引用远程接口 --&gt;</span><br><span class="line">    &lt;dubbo:reference id=<span class="string">"userService"</span> <span class="class"><span class="keyword">interface</span></span>=<span class="string">"service.user.UserService"</span> /&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!-- 启动包扫描 --&gt;</span><br><span class="line">    &lt;context:component-scan base-<span class="keyword">package</span>=<span class="string">"service.impl"</span> /&gt;</span><br><span class="line"></span><br><span class="line">&lt;/beans&gt;</span><br></pre></td></tr></table></figure>
-<p>这里多了一个dubbo的reference标签，这里就是要引用刚才暴露的接口。</p>
-<p>在实现里看到了将实现类作为spring bean管理，这里在xml中开启了包扫描。</p>
-<p>这里去写一个简单的test程序去测试写的consumer程序：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestConsumer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SneakyThrows</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        ClassPathXmlApplicationContext applicationContext = <span class="keyword">new</span> ClassPathXmlApplicationContext(<span class="string">"consumer.xml"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 启动spring环境</span></span><br><span class="line">        applicationContext.start();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 拿到orderService这个bean</span></span><br><span class="line">        OrderService bean = applicationContext.getBean(OrderService.class);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 调用 测试是否调用了远程接口</span></span><br><span class="line">        bean.initOrder();</span><br><span class="line"></span><br><span class="line">        System.in.read();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>同时这里也启动这个test类，看控制台中的输出观察是否调用了远程接口。</p>
-<p>可以看到在TestConsumer控制台输出</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">调用远程接口完成</span><br><span class="line">[UserAddress(addressId=1, addressNo=123, addressStr=庆丰大街, userName=小张, userId=1), UserAddress(addressId=2, addressNo=456, addressStr=西湖, userName=小王, userId=1)]</span><br></pre></td></tr></table></figure>
-<p>在TestProvider控制台输出</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">调用到了消费者</span><br></pre></td></tr></table></figure>
-<p>可以看到调用成功。</p>
-<h2 id="github"><a href="#github" class="headerlink" title="github"></a>github</h2><p>此次的代码已上传至github: <a href="https://github.com/zhanglijun1217/dubbo-demo" target="_blank" rel="noopener">github</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2019/03/18/synchronized锁对应的内存模型知识/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2019/03/18/synchronized锁对应的内存模型知识/" itemprop="url">synchronized锁对应的内存模型知识</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-18T00:18:46+08:00">
-                2019-03-18
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/并发编程/" itemprop="url" rel="index">
-                    <span itemprop="name">并发编程</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2019/03/18/synchronized锁对应的内存模型知识/" class="leancloud_visitors" data-flag-title="synchronized锁对应的内存模型知识">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  29
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  1
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>synchronized锁在并发编程的学习和面试中都占有着比较重要的地位，而且</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/blog/page/6/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/blog/">1</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/blog/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/11/">11</a><a class="extend next" rel="next" href="/blog/page/8/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/blog/page/6/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/blog/">1</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/blog/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/12/">12</a><a class="extend next" rel="next" href="/blog/page/8/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2439,7 +2610,7 @@
               
                 <a href="/blog/archives/">
               
-                  <span class="site-state-item-count">110</span>
+                  <span class="site-state-item-count">113</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2450,7 +2621,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/blog/categories/index.html">
-                  <span class="site-state-item-count">30</span>
+                  <span class="site-state-item-count">31</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -2461,7 +2632,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/blog/tags/index.html">
-                  <span class="site-state-item-count">117</span>
+                  <span class="site-state-item-count">120</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -2535,7 +2706,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">162.0k</span>
+    <span title="Site words total count">166.9k</span>
   
 </div>
 
@@ -2557,7 +2728,7 @@
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共162.0k字</span>
+  <span class="post-count">博客全站共166.9k字</span>
 </div>
 
 <br />

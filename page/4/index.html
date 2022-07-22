@@ -297,6 +297,258 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/09/18/RR隔离级别下的gap和插入意向锁死锁分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2020/09/18/RR隔离级别下的gap和插入意向锁死锁分析/" itemprop="url">RR隔离级别下的gap和插入意向锁死锁分析</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-09-18T10:26:48+08:00">
+                2020-09-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/mysql/" itemprop="url" rel="index">
+                    <span itemprop="name">mysql</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2020/09/18/RR隔离级别下的gap和插入意向锁死锁分析/" class="leancloud_visitors" data-flag-title="RR隔离级别下的gap和插入意向锁死锁分析">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,116
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  5
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="死锁日志的查看"><a href="#死锁日志的查看" class="headerlink" title="死锁日志的查看"></a>死锁日志的查看</h2><p><a href="https://segmentfault.com/a/1190000018730103" target="_blank" rel="noopener">https://segmentfault.com/a/1190000018730103</a></p>
+<h3 id="sql"><a href="#sql" class="headerlink" title="sql"></a>sql</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="keyword">engine</span> <span class="keyword">innodb</span> <span class="keyword">status</span>;</span><br></pre></td></tr></table></figure>
+<h3 id="记录锁，间隙锁，Next-key-锁和插入意向锁。这四种锁对应的死锁如下："><a href="#记录锁，间隙锁，Next-key-锁和插入意向锁。这四种锁对应的死锁如下：" class="headerlink" title="记录锁，间隙锁，Next-key 锁和插入意向锁。这四种锁对应的死锁如下："></a>记录锁，间隙锁，Next-key 锁和插入意向锁。这四种锁对应的死锁如下：</h3><p>记录锁（LOCK_REC_NOT_GAP）: lock_mode X locks rec but not gap<br>间隙锁（LOCK_GAP）: lock_mode X locks gap before rec<br>Next-key 锁（LOCK_ORNIDARY）: lock_mode X<br>插入意向锁（LOCK_INSERT_INTENTION）: lock_mode X locks gap before rec insert intention</p>
+<h2 id="死锁案例"><a href="#死锁案例" class="headerlink" title="死锁案例"></a>死锁案例</h2><p><a href="https://my.oschina.net/hebaodan/blog/1835966" target="_blank" rel="noopener">https://my.oschina.net/hebaodan/blog/1835966</a><br><a href="https://my.oschina.net/hebaodan/blog/3033276" target="_blank" rel="noopener">https://my.oschina.net/hebaodan/blog/3033276</a></p>
+<h3 id="gap锁-并发insert死锁"><a href="#gap锁-并发insert死锁" class="headerlink" title="gap锁 + 并发insert死锁"></a>gap锁 + 并发insert死锁</h3><h4 id="表及Sql"><a href="#表及Sql" class="headerlink" title="表及Sql"></a>表及Sql</h4><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701102753626.png" alt="image-20220701102753626"></p>
+<h4 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h4><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701102803796.png" alt="image-20220701102803796"></p>
+<h4 id="锁冲突矩阵"><a href="#锁冲突矩阵" class="headerlink" title="锁冲突矩阵"></a>锁冲突矩阵</h4><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701102814013.png" alt="image-20220701102814013"></p>
+<h3 id="并发delete-insert唯一键冲突死锁"><a href="#并发delete-insert唯一键冲突死锁" class="headerlink" title="并发delete + insert唯一键冲突死锁"></a>并发delete + insert唯一键冲突死锁</h3><h4 id="表及场景sql："><a href="#表及场景sql：" class="headerlink" title="表及场景sql："></a>表及场景sql：</h4><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701102823672.png" alt="image-20220701102823672"></p>
+<h4 id="分析-1"><a href="#分析-1" class="headerlink" title="分析"></a>分析</h4><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701102834314.png" alt="image-20220701102834314"></p>
+<h4 id="死锁日志"><a href="#死锁日志" class="headerlink" title="死锁日志"></a>死锁日志</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">*** (1) TRANSACTION:</span><br><span class="line">TRANSACTION 11074, ACTIVE 11 sec starting index read</span><br><span class="line">mysql tables in use 1, locked 1</span><br><span class="line">LOCK WAIT 2 lock struct(s), heap size 1136, 1 row lock(s)</span><br><span class="line">MySQL thread id 10, OS thread handle 123145442168832, query id 160 localhost 127.0.0.1 root updating</span><br><span class="line">// T2的SQL</span><br><span class="line">delete from t4 where a = 1</span><br><span class="line">*** (1) WAITING FOR THIS LOCK TO BE GRANTED: // 等待的锁</span><br><span class="line">RECORD LOCKS space id 68 page no 3 n bits 72 index PRIMARY of table</span><br><span class="line">// 可以看到这里是阻塞等待X行锁</span><br><span class="line">`aliyun`.`t4` trx id 11074 lock_mode X locks rec but not gap waiting</span><br><span class="line">Record lock, heap no 2 PHYSICAL RECORD: n_fields 3; compact format; info bits 32</span><br><span class="line"> 0: len 4; hex 80000001; asc     ;;</span><br><span class="line"> 1: len 6; hex 000000002b41; asc     +A;;</span><br><span class="line"> 2: len 7; hex 2e000001dc13c4; asc .      ;;</span><br><span class="line"></span><br><span class="line">*** (2) TRANSACTION:</span><br><span class="line">TRANSACTION 11073, ACTIVE 40 sec inserting</span><br><span class="line">mysql tables in use 1, locked 1</span><br><span class="line">3 lock struct(s), heap size 1136, 2 row lock(s), undo log entries 1</span><br><span class="line">MySQL thread id 9, OS thread handle 123145442725888, query id 161 localhost 127.0.0.1 root update</span><br><span class="line">// 事务T1的SQL</span><br><span class="line">insert into t4 values(1)</span><br><span class="line">*** (2) HOLDS THE LOCK(S):// 持有的锁</span><br><span class="line">RECORD LOCKS space id 68 page no 3 n bits 72 index PRIMARY of table</span><br><span class="line">`aliyun`.`t4` trx id 11073 lock_mode X locks rec but not gap</span><br><span class="line">Record lock, heap no 2 PHYSICAL RECORD: n_fields 3; compact format; info bits 32</span><br><span class="line"> 0: len 4; hex 80000001; asc     ;;</span><br><span class="line"> 1: len 6; hex 000000002b41; asc     +A;;</span><br><span class="line"> 2: len 7; hex 2e000001dc13c4; asc .      ;;</span><br><span class="line"></span><br><span class="line">*** (2) WAITING FOR THIS LOCK TO BE GRANTED: // 等待的锁</span><br><span class="line">RECORD LOCKS space id 68 page no 3 n bits 72 index PRIMARY of table</span><br><span class="line">// 这里看到事务T1 S-Next锁 等待行锁</span><br><span class="line">`aliyun`.`t4` trx id 11073 lock mode S waiting</span><br><span class="line">Record lock, heap no 2 PHYSICAL RECORD: n_fields 3; compact format; info bits 32</span><br><span class="line"> 0: len 4; hex 80000001; asc     ;;</span><br><span class="line"> 1: len 6; hex 000000002b41; asc     +A;;</span><br><span class="line"> 2: len 7; hex 2e000001dc13c4; asc .      ;;</span><br><span class="line"></span><br><span class="line">*** WE ROLL BACK TRANSACTION (1)</span><br></pre></td></tr></table></figure>
+<h2 id="sql加锁分析"><a href="#sql加锁分析" class="headerlink" title="sql加锁分析"></a>sql加锁分析</h2><p><a href="https://www.aneasystone.com/archives/2017/12/solving-dead-locks-three.html" target="_blank" rel="noopener">https://www.aneasystone.com/archives/2017/12/solving-dead-locks-three.html</a>  (这是一个系列)</p>
+<h3 id="基本加锁规则"><a href="#基本加锁规则" class="headerlink" title="基本加锁规则"></a>基本加锁规则</h3><ul>
+<li>常见语句的加锁<ul>
+<li>select 快照读，在RC和RR下不加锁</li>
+<li>select … lock in share mode为当前读，加S锁</li>
+<li>select … for update为当前读，加X锁</li>
+<li>dml语句，当前读，加X锁</li>
+<li>ddl语句，加标记所，隐式提交，不能回滚。</li>
+</ul>
+</li>
+<li>表锁<ul>
+<li>表锁（S和X锁）</li>
+<li>意向锁（IS锁和IX锁）</li>
+<li>自增锁（一般看不见 只有在innodb_autoinc_lock_mode=0或者bulk inserts时才可能有）</li>
+</ul>
+</li>
+<li>行锁<ul>
+<li>记录锁（S和X锁）</li>
+<li>间隙锁（S和X锁）</li>
+<li>Next-Key锁（S和X锁）</li>
+<li>插入意向锁</li>
+</ul>
+</li>
+<li>行锁分析<ul>
+<li>行锁是加在索引上的，最终都会落在聚簇索引上。</li>
+<li>加行锁是一行行加的</li>
+</ul>
+</li>
+<li><p>锁冲突<br>  <img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701102847454.png" alt="image-20220701102847454"></p>
+</li>
+<li><p>不同隔离级别下的锁</p>
+<ul>
+<li>select快照读在Serializable隔离级别下为当前读，加S锁。</li>
+<li>RC下没有间隙锁和Next-Key锁（唯一索引情况下有特殊，purge线程+记录有锁唯一索引，会加S Next-Key锁）</li>
+</ul>
+</li>
+</ul>
+<h3 id="对于insert操作"><a href="#对于insert操作" class="headerlink" title="对于insert操作"></a>对于insert操作</h3><p>如果没有这两个问题<br>（1）为了防止幻读，如果记录之间加有 GAP 锁，此时不能 INSERT；（插入意向锁解决）<br>（2）如果 INSERT 的记录和已有记录造成唯一键冲突，此时不能 INSERT；（对已存在唯一记录加S Next锁）</p>
+<ul>
+<li>insert一开始只有隐式锁，除非隐式锁转换为显式锁： InnoDb 在插入记录时，是不加锁的。如果事务 A 插入记录且未提交。<br>如果这时事务 B 尝试对这条记录加锁，事务 B 会先去判断记录上保存的事务 id 是否活跃，如果活跃的话，那么就帮助事务 A 去建立一个锁对象，然后自身进入等待事务 A 状态，这就是所谓的隐式锁转换为显式锁。还比如对于辅助索引也是隐式锁。</li>
+</ul>
+<ul>
+<li>insert 对唯一索引的加锁逻辑：<ul>
+<li>1.先做UK冲突检测，如果存在目标行，先对目标行加S Next Key Lock（该记录在等待期间被其他事务删除，此锁被同时删除）</li>
+<li>2.如果1成功，对对应行加插入意向锁</li>
+<li>3.如果2成功，插入记录，并对记录加X + 行锁（有可能是隐式锁）</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701102856707.png" alt="image-20220701102856707"></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/07/16/dubbo集群容错Cluster/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2371,274 +2623,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/05/21/ParNew和CMS垃圾回收器/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2020/05/21/ParNew和CMS垃圾回收器/" itemprop="url">ParNew和CMS垃圾回收器</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-05-21T00:17:24+08:00">
-                2020-05-21
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Java基础/" itemprop="url" rel="index">
-                    <span itemprop="name">Java基础</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Java基础/JVM/" itemprop="url" rel="index">
-                    <span itemprop="name">JVM</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2020/05/21/ParNew和CMS垃圾回收器/" class="leancloud_visitors" data-flag-title="ParNew和CMS垃圾回收器">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  3,301
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  12
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="垃圾收集算法"><a href="#垃圾收集算法" class="headerlink" title="垃圾收集算法"></a>垃圾收集算法</h2><h3 id="分代收集理论"><a href="#分代收集理论" class="headerlink" title="分代收集理论"></a>分代收集理论</h3><p>JVM采用分代收集的算法，根据对象存活周期的不同将内存分为几块。堆内存分为新生代和老年代，可以根据各个年代的特点来选择合适的算法。</p>
-<p>比如在新生代中，每次收集都会大量对象被回收，所以剩余很少，可以采用标记-复制算法，只需要很少的复制成本就可以完成垃圾收集，所以新生代都是采用复制算法。优点是新生代对象大量都被回收，效率高，复制之后内存可以用指针碰撞移动指针分配新的内存，比freelist方式产生空间碎片好的多。复制算法的缺点就是空间利用率会降低，S区只能有一块区域存放存活对象，但是一般Survivor区不会设置太大；还有个缺点就是如果分代年龄阈值设置过大可能会经历多次复制才能晋升到老年代。</p>
-<p>而在老年代中，对象存活几率比较大，而且没有额外的空间可以再去晋升或者担保，所以必须选择标记-清除、标记-整理等算法进行垃圾回收。 这种算法比复制算法要慢10倍以上。</p>
-<h3 id="Remember-Set和cardtable卡表"><a href="#Remember-Set和cardtable卡表" class="headerlink" title="Remember Set和cardtable卡表"></a>Remember Set和cardtable卡表</h3><p>在新生代做GCRoots可达性扫描过程中可能碰到跨代引用，比如老年代引用了新生代的对象，而如果直接去老年代扫描效率很低，引入Remember Set来记录非回收区到收集区的指针集合，避免把整个老年代加入到扫描的范围。 在很多垃圾收集器都有这样的问题，而Remember Set这样的结构就是解决跨代引用的问题。</p>
-<p>cardtable卡表是RemembeSet的具体实现，卡表比如在新生代记录一个字节数组byte[]，再将老年代划分多个区域（卡页），字节数组记录对应老年代每个区域是否有跨代引用和地址，如果存在跨代引用，则叫做脏页，这样GC时可以通过卡表只扫描对应脏页内的对象，增加了扫描效率。</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104506482.png" alt="image-20220701104506482"></p>
-<h3 id="标记-复制算法"><a href="#标记-复制算法" class="headerlink" title="标记-复制算法"></a>标记-复制算法</h3><p>为了解决效率问题，复制算法出现。将内存划分为大小相同的两块，每次只能用其中的一块。（联想年轻代中的Survivor区）。当这一块内存使用完之后，将GC之后存活的对象复制到另一块，把使用过的空间一次性清理掉，效率高，每次可以直接对一半内存进行直接回收。但是空间利用率低。好在年轻代大多数对象生命周期很短，所以每次GC之后的存活对象很少，所以对Survivor两块区域不需要占用年轻代过大的比例。<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104515230.png" alt="image-20220701104515230"></p>
-<h3 id="标记-清除算法"><a href="#标记-清除算法" class="headerlink" title="标记-清除算法"></a>标记-清除算法</h3><p>两个阶段：标记和清除。<br>标记即为利用GCRoots可达性分析标记存活的对象，统一回收清除未标记（可回收）的对象。<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104525460.png" alt="image-20220701104525460"></p>
-<p>优点：空间利用率高，整块内存都可以使用。<br>缺点：</p>
-<ul>
-<li>效率问题（如果需要标记的对象很多，效率会受影响，且这过程如果伴随STW，对应用程序有影响）</li>
-<li>空间问题（在对回收对象清除之后，会产生大量不连续的空间碎片，对下次要求连续内存的分配可能会产生影响）</li>
-</ul>
-<h3 id="标记-整理算法"><a href="#标记-整理算法" class="headerlink" title="标记-整理算法"></a>标记-整理算法</h3><p>标记过程和标记-清除算法一样，也是标记GCRoots进行可达性分析寻找存活对象，然后在第二部不是直接清除回收垃圾对象，而是先让存活对象向一端移动，整理成连续的内存，然后清理掉剩余的内存。</p>
-<p>这个算法标记过程还是可能存在效率问题。但是避免了标记-清除算法中的空间碎片问题，留下的空闲内存都是连续的空间。</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104535754.png" alt="image-20220701104535754"></p>
-<h2 id="垃圾收集器"><a href="#垃圾收集器" class="headerlink" title="垃圾收集器"></a>垃圾收集器</h2><p>垃圾收集器是垃圾回收算法的具体实现。主流的垃圾收集器如下：<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104544488.png" alt="image-20220701104544488"></p>
-<h3 id="Serial收集器"><a href="#Serial收集器" class="headerlink" title="Serial收集器"></a>Serial收集器</h3><p>Serial（串行）收集器是单线程收集器，在GC时会单线程GC且会STW直到收集结束。</p>
-<p>Serial提供了新生代垃圾回收器，采用复制算法，如果使用需要配置参数-XX:+UseSerialGC。同时也提供了老年代的回收器，采用标记-整理算法，需要配置参数：-XX:+UseSerialOldGC。</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104554689.png" alt="image-20220701104554689"></p>
-<p>Serial虽然是单线程的，但是优点是简单且高效（对比其他收集器的单线程版本），比如在单个CPU环境下可能是比较好的选择（不会频繁的上下文切换）。同时Serial Old也会作为CMS垃圾收集器在concurrent mode failure场景下退化的fullgc老年代的垃圾收集器；也可以搭配Parallel Scavenge收集器使用。</p>
-<h3 id="ParNew收集器"><a href="#ParNew收集器" class="headerlink" title="ParNew收集器"></a>ParNew收集器</h3><p>ParNew是新生代的垃圾回收器，采用复制算法。可以用参数-XX:+UseParNewGC来控制使用ParNew作为新生代的垃圾收集器。如果设置了CMS作为老年代的垃圾收集器，那么默认新生代使用ParNew作为新生代进行搭配。</p>
-<p>ParNew就是Serial的多线程版本，有多个线程回收新生代的垃圾对象。同时也是除了Serial之外可以和CMS进行分代配合的收集器，所以很多都选择ParNew+CMS这样的垃圾回收器的组合。</p>
-<p>ParNew在进行回收时多个线程并行回收，但是这里还是会STW用户线程的，和Serial一样。可以使用+XX:ParallelGCThreads参数来设置GC线程的个数。其工作过程如下：<br><img src="/Users/zhanglijun/Library/Application%20Support/typora-user-images/image-20220701104614936.png" alt="image-20220701104614936"></p>
-<h4 id="垃圾回收器中的并发、并行"><a href="#垃圾回收器中的并发、并行" class="headerlink" title="垃圾回收器中的并发、并行"></a>垃圾回收器中的并发、并行</h4><p>在讨论垃圾收集器的上下文语境中，并行和并发如下解释：</p>
-<ul>
-<li>并行（parallel）：指多个线程并行的去GC，如ParNew新生代垃圾回收器，但是用户线程还是会被暂停STW。</li>
-<li>并发（concurrent）：指GC线程和用户线程并发执行，不会暂停用户线程的执行，都去分不同的时间片。</li>
-</ul>
-<h3 id="Parallel-Scavenge-Old收集器"><a href="#Parallel-Scavenge-Old收集器" class="headerlink" title="Parallel Scavenge/Old收集器"></a>Parallel Scavenge/Old收集器</h3><p>Parallel Scavenge是新生代垃圾回收器，可以使用-XX:+UseParallelGC参数指定使用。其也是采用复制算法、多线程进行parallel的gc。</p>
-<p>工作过程和ParNew的多线程进行GC，STW用户线程一致，但在设计上有点区别。</p>
-<p>而Parallel Old则是多线程GC的老年代垃圾回收器，采用的是标记-整理垃圾回收算法，同时也是更注重吞吐量，而不是尽力缩短GC的停顿时间。</p>
-<p>GC的停顿时间的缩短是牺牲吞吐量和新生代空间来换取的：比如新生代调整小一些，收集肯定更快发生，这样新生代的GC会更频繁。比如原来每10s回收一次新生代，每次停顿100ms，现在就变成了每5s一次新生代回收，每次停顿70ms，吞吐量降低了，但是每次停顿时间变少了。</p>
-<h4 id="Parallel-Scavenge和ParNew的区别"><a href="#Parallel-Scavenge和ParNew的区别" class="headerlink" title="Parallel Scavenge和ParNew的区别"></a>Parallel Scavenge和ParNew的区别</h4><ul>
-<li>Parallel Scavenge更追求吞吐量（即CPU运行用户线程时间 / (CPU运行用户线程时间 +  CPUGC的时间)），对后台计算和CPU敏感型的任务更友好。而ParNew等其他收集器更注重GC的停顿时间，即减少STW时间，对和用户交互的程序更友好。</li>
-<li>Paralle Scavenge只能和Serial Old或者Parallel Old老年代的回收器搭配使用，不能和CMS搭配使用。而ParNew是可以和CMS搭配使用的。</li>
-<li>Parallel Scavenge可以自适应调整新生代的Eden、Surrvivor区域的比例，参数是-XX:+UseAdaptiveSizePolicy。</li>
-</ul>
-<h3 id="CMS垃圾回收器"><a href="#CMS垃圾回收器" class="headerlink" title="CMS垃圾回收器"></a>CMS垃圾回收器</h3><p>CMS（Concurrent Mark Sweep）是老年代的垃圾回收器，其目标是获取最短停顿时间。也是HotSpot实现的真正意义上并发（Concurrent注意不是并行，意味着不会停顿用户线程）收集器，实现了在一定阶段让用户线程和GC线程一起工作。</p>
-<p>CMS采用标记-清除算法，但是内部也提供了在清除之后整理防止出现内存碎片的功能和参数。</p>
-<h4 id="CMS的步骤过程"><a href="#CMS的步骤过程" class="headerlink" title="CMS的步骤过程"></a>CMS的步骤过程</h4><p>CMS每个阶段的工作过程如下：<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104628660.png" alt="image-20220701104628660"></p>
-<h5 id="CMS一定不会STW用户线程吗？"><a href="#CMS一定不会STW用户线程吗？" class="headerlink" title="CMS一定不会STW用户线程吗？"></a>CMS一定不会STW用户线程吗？</h5><p>CMS的并发（不STW用户线程）也只是发生在某些阶段的，而不是整个CMS的过程不会STW。比如初始标记和再次重新标记的过程都是会STW的，只不过这两个阶段会占用整个CMS GC的很小一部分时间，最多的还是在并发标记和并发清理阶段。</p>
-<p>同时CMS在并发标记或者并发清理阶段，因为不会STW用户线程，可能又触发了old区的垃圾回收，即一次fullgc，那么会出现“Concurrent mode failure”，即会退化为单线程Serial Old垃圾回收器，会单线程的GC，且也会STW。</p>
-<h5 id="初始标记（会STW）"><a href="#初始标记（会STW）" class="headerlink" title="初始标记（会STW）"></a>初始标记（会STW）</h5><p>初始标记会STW，其实标记一下和GC Roots<strong>直接关联到的对象</strong>，速度很快。</p>
-<h5 id="并发标记（GC线程和用户线程并发、耗时、标记会有误差）"><a href="#并发标记（GC线程和用户线程并发、耗时、标记会有误差）" class="headerlink" title="并发标记（GC线程和用户线程并发、耗时、标记会有误差）"></a>并发标记（GC线程和用户线程并发、耗时、标记会有误差）</h5><p>初始化标记之后，会对GCRoots直接关联的对象进行Traceing，即通过可达性分析去寻找引用链上的对象进行标记，这个过程是并发的，即GC线程和用户线程可以同时执行，不会STW。</p>
-<p>当然这个阶段很耗费时间，因为是要寻找对象引用的链。</p>
-<p>还有这个阶段因为不会STW用户线程，所以标记的对象可能会多标（比如用户线程已经释放了对象关联的GCroots，可能是栈帧中的局部变量），那么这些就会在这个阶段浮动垃圾；也可能少标（用户线程在可达性分析的完成之后，对象又关联上了GCroots的引用）。这部分依赖底层三色标记的算法和后面重新标记的过程来修正或者直接当做浮动垃圾（多标的场景）</p>
-<h5 id="预清理阶段"><a href="#预清理阶段" class="headerlink" title="预清理阶段"></a>预清理阶段</h5><p>理解CMS回收器的preclean阶段：<a href="https://blog.csdn.net/enemyisgodlike/article/details/106960687。" target="_blank" rel="noopener">https://blog.csdn.net/enemyisgodlike/article/details/106960687。</a><br>主要是为了后面重新标记而提前清理cardTable(记录跨代引用)，和调整最终重新标记的时机。</p>
-<h5 id="重新标记（会STW）"><a href="#重新标记（会STW）" class="headerlink" title="重新标记（会STW）"></a>重新标记（会STW）</h5><p>重新标记就是为了修正并发标记阶段因为用户线程继续运行导致标记产生变动的对象，<strong>这个阶段的时间一般会比初始标记的时间长，但远比并发标记阶段时间短</strong>。重新标记阶段会STW（肯定的不然又多标记或者漏标），依赖底层三色标记算法的增量更新算法（JVM中的赋值写屏障）。</p>
-<h5 id="并发清理（GC清理和用户线程并发执行）"><a href="#并发清理（GC清理和用户线程并发执行）" class="headerlink" title="并发清理（GC清理和用户线程并发执行）"></a>并发清理（GC清理和用户线程并发执行）</h5><p>开启用户线程，和GC线程对未标记（垃圾对象）进行清理，如果设置了整理压缩内存的参数再去整理内存，这个过程对于三色标记法中标记黑色的对象不进行处理。</p>
-<h5 id="并发重置"><a href="#并发重置" class="headerlink" title="并发重置"></a>并发重置</h5><p>重置对象的一些信息，方便下次GC时重新标记。</p>
-<h4 id="CMS总结"><a href="#CMS总结" class="headerlink" title="CMS总结"></a>CMS总结</h4><p>优点： 分成多个阶段，其中STW的时间占用很少，最大限度的减少了STW停顿时间，多线程和GC线程进行并发标记和并发清除，加快了效率。</p>
-<p>缺点：</p>
-<ul>
-<li>对CPU资源敏感。设置GC线程不当或者CPU资源紧张时，多个GC线程切换可能会抢占用户线程资源，使得应用总吞吐量变低，负载变高。</li>
-<li>CMS在整个过程中会产生浮动垃圾，浮动垃圾即并发标记或者并发清理过程中用户线程可能产生的新的垃圾对象。这部分可以等待下一次gc再进行清理。（因为存在重新标记的过程，这部分浮动垃圾会比较少）</li>
-<li>CMS因为产生了浮动垃圾，且参数-XX:CMSInitiatingOccupancyFraction参数（老年代占用多少启动CMS GC）默认为92，假设在CMS过程中因为用户线程并发，预留的内存空间不足以容纳程序需要，则会出现<strong>Concurrent mode failure，即再进行一次full gc，此时CMS也会退化为Serial Old，即单线程回收，整个过程都STW，效率变得很低。</strong></li>
-<li>CMS本身采用“标记-清除”算法，这个算法本身可能导致大量的空间碎片，因为用户线程并发，在清理之后可能无法容纳新晋升的大对象的连续内存导致FullGC。JVM提供了清除之后压缩的两个参数：-XX:+UseCMSCompactAtFullCollection（在CMS之后开启压缩整理合并碎片）、-XX:CMSFullGCsBeforeCompaction（执行多少次CMS FullGC之后才进行压缩整理，默认为0，代表每次CMS之后都会整理碎片空间，因为碎片压缩整理也会STW，所以提供了这个值）。</li>
-</ul>
-<h4 id="CMS相关核心参数"><a href="#CMS相关核心参数" class="headerlink" title="CMS相关核心参数"></a>CMS相关核心参数</h4><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104646352.png" alt="image-20220701104646352"></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/blog/page/3/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/blog/">1</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/blog/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/11/">11</a><a class="extend next" rel="next" href="/blog/page/5/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/blog/page/3/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/blog/">1</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/blog/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/12/">12</a><a class="extend next" rel="next" href="/blog/page/5/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2688,7 +2677,7 @@
               
                 <a href="/blog/archives/">
               
-                  <span class="site-state-item-count">110</span>
+                  <span class="site-state-item-count">113</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2699,7 +2688,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/blog/categories/index.html">
-                  <span class="site-state-item-count">30</span>
+                  <span class="site-state-item-count">31</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -2710,7 +2699,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/blog/tags/index.html">
-                  <span class="site-state-item-count">117</span>
+                  <span class="site-state-item-count">120</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -2784,7 +2773,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">162.0k</span>
+    <span title="Site words total count">166.9k</span>
   
 </div>
 
@@ -2806,7 +2795,7 @@
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共162.0k字</span>
+  <span class="post-count">博客全站共166.9k字</span>
 </div>
 
 <br />

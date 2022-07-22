@@ -2193,7 +2193,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/09/18/RR隔离级别下的gap和插入意向锁死锁分析/">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/11/22/库存设计的场景原则/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="夸克">
@@ -2212,7 +2212,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/blog/2020/09/18/RR隔离级别下的gap和插入意向锁死锁分析/" itemprop="url">RR隔离级别下的gap和插入意向锁死锁分析</a></h1>
+                <a class="post-title-link" href="/blog/2020/11/22/库存设计的场景原则/" itemprop="url">库存设计的场景原则</a></h1>
         
 
         <div class="post-meta">
@@ -2224,8 +2224,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-09-18T10:26:48+08:00">
-                2020-09-18
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-11-22T16:26:02+08:00">
+                2020-11-22
               </time>
             
 
@@ -2247,8 +2247,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/mysql/" itemprop="url" rel="index">
-                    <span itemprop="name">mysql</span>
+                  <a href="/blog/categories/系统设计/" itemprop="url" rel="index">
+                    <span itemprop="name">系统设计</span>
                   </a>
                 </span>
 
@@ -2264,7 +2264,7 @@
 
           
           
-             <span id="/blog/2020/09/18/RR隔离级别下的gap和插入意向锁死锁分析/" class="leancloud_visitors" data-flag-title="RR隔离级别下的gap和插入意向锁死锁分析">
+             <span id="/blog/2020/11/22/库存设计的场景原则/" class="leancloud_visitors" data-flag-title="库存设计的场景原则">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -2290,7 +2290,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1,116
+                  1,025
                 </span>
               
 
@@ -2306,7 +2306,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  5
+                  3
                 </span>
               
             </div>
@@ -2329,66 +2329,22 @@
       
         
           
-            <h2 id="死锁日志的查看"><a href="#死锁日志的查看" class="headerlink" title="死锁日志的查看"></a>死锁日志的查看</h2><p><a href="https://segmentfault.com/a/1190000018730103" target="_blank" rel="noopener">https://segmentfault.com/a/1190000018730103</a></p>
-<h3 id="sql"><a href="#sql" class="headerlink" title="sql"></a>sql</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="keyword">engine</span> <span class="keyword">innodb</span> <span class="keyword">status</span>;</span><br></pre></td></tr></table></figure>
-<h3 id="记录锁，间隙锁，Next-key-锁和插入意向锁。这四种锁对应的死锁如下："><a href="#记录锁，间隙锁，Next-key-锁和插入意向锁。这四种锁对应的死锁如下：" class="headerlink" title="记录锁，间隙锁，Next-key 锁和插入意向锁。这四种锁对应的死锁如下："></a>记录锁，间隙锁，Next-key 锁和插入意向锁。这四种锁对应的死锁如下：</h3><p>记录锁（LOCK_REC_NOT_GAP）: lock_mode X locks rec but not gap<br>间隙锁（LOCK_GAP）: lock_mode X locks gap before rec<br>Next-key 锁（LOCK_ORNIDARY）: lock_mode X<br>插入意向锁（LOCK_INSERT_INTENTION）: lock_mode X locks gap before rec insert intention</p>
-<h2 id="死锁案例"><a href="#死锁案例" class="headerlink" title="死锁案例"></a>死锁案例</h2><p><a href="https://my.oschina.net/hebaodan/blog/1835966" target="_blank" rel="noopener">https://my.oschina.net/hebaodan/blog/1835966</a><br><a href="https://my.oschina.net/hebaodan/blog/3033276" target="_blank" rel="noopener">https://my.oschina.net/hebaodan/blog/3033276</a></p>
-<h3 id="gap锁-并发insert死锁"><a href="#gap锁-并发insert死锁" class="headerlink" title="gap锁 + 并发insert死锁"></a>gap锁 + 并发insert死锁</h3><h4 id="表及Sql"><a href="#表及Sql" class="headerlink" title="表及Sql"></a>表及Sql</h4><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701102753626.png" alt="image-20220701102753626"></p>
-<h4 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h4><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701102803796.png" alt="image-20220701102803796"></p>
-<h4 id="锁冲突矩阵"><a href="#锁冲突矩阵" class="headerlink" title="锁冲突矩阵"></a>锁冲突矩阵</h4><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701102814013.png" alt="image-20220701102814013"></p>
-<h3 id="并发delete-insert唯一键冲突死锁"><a href="#并发delete-insert唯一键冲突死锁" class="headerlink" title="并发delete + insert唯一键冲突死锁"></a>并发delete + insert唯一键冲突死锁</h3><h4 id="表及场景sql："><a href="#表及场景sql：" class="headerlink" title="表及场景sql："></a>表及场景sql：</h4><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701102823672.png" alt="image-20220701102823672"></p>
-<h4 id="分析-1"><a href="#分析-1" class="headerlink" title="分析"></a>分析</h4><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701102834314.png" alt="image-20220701102834314"></p>
-<h4 id="死锁日志"><a href="#死锁日志" class="headerlink" title="死锁日志"></a>死锁日志</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">*** (1) TRANSACTION:</span><br><span class="line">TRANSACTION 11074, ACTIVE 11 sec starting index read</span><br><span class="line">mysql tables in use 1, locked 1</span><br><span class="line">LOCK WAIT 2 lock struct(s), heap size 1136, 1 row lock(s)</span><br><span class="line">MySQL thread id 10, OS thread handle 123145442168832, query id 160 localhost 127.0.0.1 root updating</span><br><span class="line">// T2的SQL</span><br><span class="line">delete from t4 where a = 1</span><br><span class="line">*** (1) WAITING FOR THIS LOCK TO BE GRANTED: // 等待的锁</span><br><span class="line">RECORD LOCKS space id 68 page no 3 n bits 72 index PRIMARY of table</span><br><span class="line">// 可以看到这里是阻塞等待X行锁</span><br><span class="line">`aliyun`.`t4` trx id 11074 lock_mode X locks rec but not gap waiting</span><br><span class="line">Record lock, heap no 2 PHYSICAL RECORD: n_fields 3; compact format; info bits 32</span><br><span class="line"> 0: len 4; hex 80000001; asc     ;;</span><br><span class="line"> 1: len 6; hex 000000002b41; asc     +A;;</span><br><span class="line"> 2: len 7; hex 2e000001dc13c4; asc .      ;;</span><br><span class="line"></span><br><span class="line">*** (2) TRANSACTION:</span><br><span class="line">TRANSACTION 11073, ACTIVE 40 sec inserting</span><br><span class="line">mysql tables in use 1, locked 1</span><br><span class="line">3 lock struct(s), heap size 1136, 2 row lock(s), undo log entries 1</span><br><span class="line">MySQL thread id 9, OS thread handle 123145442725888, query id 161 localhost 127.0.0.1 root update</span><br><span class="line">// 事务T1的SQL</span><br><span class="line">insert into t4 values(1)</span><br><span class="line">*** (2) HOLDS THE LOCK(S):// 持有的锁</span><br><span class="line">RECORD LOCKS space id 68 page no 3 n bits 72 index PRIMARY of table</span><br><span class="line">`aliyun`.`t4` trx id 11073 lock_mode X locks rec but not gap</span><br><span class="line">Record lock, heap no 2 PHYSICAL RECORD: n_fields 3; compact format; info bits 32</span><br><span class="line"> 0: len 4; hex 80000001; asc     ;;</span><br><span class="line"> 1: len 6; hex 000000002b41; asc     +A;;</span><br><span class="line"> 2: len 7; hex 2e000001dc13c4; asc .      ;;</span><br><span class="line"></span><br><span class="line">*** (2) WAITING FOR THIS LOCK TO BE GRANTED: // 等待的锁</span><br><span class="line">RECORD LOCKS space id 68 page no 3 n bits 72 index PRIMARY of table</span><br><span class="line">// 这里看到事务T1 S-Next锁 等待行锁</span><br><span class="line">`aliyun`.`t4` trx id 11073 lock mode S waiting</span><br><span class="line">Record lock, heap no 2 PHYSICAL RECORD: n_fields 3; compact format; info bits 32</span><br><span class="line"> 0: len 4; hex 80000001; asc     ;;</span><br><span class="line"> 1: len 6; hex 000000002b41; asc     +A;;</span><br><span class="line"> 2: len 7; hex 2e000001dc13c4; asc .      ;;</span><br><span class="line"></span><br><span class="line">*** WE ROLL BACK TRANSACTION (1)</span><br></pre></td></tr></table></figure>
-<h2 id="sql加锁分析"><a href="#sql加锁分析" class="headerlink" title="sql加锁分析"></a>sql加锁分析</h2><p><a href="https://www.aneasystone.com/archives/2017/12/solving-dead-locks-three.html" target="_blank" rel="noopener">https://www.aneasystone.com/archives/2017/12/solving-dead-locks-three.html</a>  (这是一个系列)</p>
-<h3 id="基本加锁规则"><a href="#基本加锁规则" class="headerlink" title="基本加锁规则"></a>基本加锁规则</h3><ul>
-<li>常见语句的加锁<ul>
-<li>select 快照读，在RC和RR下不加锁</li>
-<li>select … lock in share mode为当前读，加S锁</li>
-<li>select … for update为当前读，加X锁</li>
-<li>dml语句，当前读，加X锁</li>
-<li>ddl语句，加标记所，隐式提交，不能回滚。</li>
-</ul>
-</li>
-<li>表锁<ul>
-<li>表锁（S和X锁）</li>
-<li>意向锁（IS锁和IX锁）</li>
-<li>自增锁（一般看不见 只有在innodb_autoinc_lock_mode=0或者bulk inserts时才可能有）</li>
-</ul>
-</li>
-<li>行锁<ul>
-<li>记录锁（S和X锁）</li>
-<li>间隙锁（S和X锁）</li>
-<li>Next-Key锁（S和X锁）</li>
-<li>插入意向锁</li>
-</ul>
-</li>
-<li>行锁分析<ul>
-<li>行锁是加在索引上的，最终都会落在聚簇索引上。</li>
-<li>加行锁是一行行加的</li>
-</ul>
-</li>
-<li><p>锁冲突<br>  <img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701102847454.png" alt="image-20220701102847454"></p>
-</li>
-<li><p>不同隔离级别下的锁</p>
+            <h2 id="基本原则"><a href="#基本原则" class="headerlink" title="基本原则"></a>基本原则</h2><p>对于秒杀商品的库存设计应该遵守的几个原则：</p>
 <ul>
-<li>select快照读在Serializable隔离级别下为当前读，加S锁。</li>
-<li>RC下没有间隙锁和Next-Key锁（唯一索引情况下有特殊，purge线程+记录有锁唯一索引，会加S Next-Key锁）</li>
+<li>渠道隔离：秒杀活动中使用的库存应当按照渠道进行隔离，这样既能保证不对正常售卖渠道产生影响，又有利于精细化运作库存管理。比如，根据用户群体或平台支持的力度不同，我们可能需要在不同渠道透出不同的库存数量，并且它们与正常售卖渠道分离，这种场景下就需要渠道隔离；</li>
+<li>防止超卖：业务来说，超卖可能意味着资损；对技术来说，超卖意味着架构的失败。试想，原价999元商品的秒杀价为599，库存100件却卖出了10000件，那么我们就会面临严重的客诉或资损；</li>
+<li>防止重复扣减：与超卖相对的是没有卖出去，其同样不可小觑。比如，10000件的库存仅有10人成单，库存明明还在却显示已经售罄，活动未到达预期，前期准备和推广的资金投入都打了水漂，而由系统设计缺陷造成的重复扣减 就会导致这种糟糕的情况发生；也就是同时也防止少卖。</li>
+<li>高性能：在前面的文章我们谈到了如何通过缓存提高秒杀架构中的”读“性能，殊不知”写“性能也是秒杀架构的重要指标之一。举例来说，10000比订单，每秒写入300单和每秒写入3000单在用户体验上有着显著的差异。</li>
 </ul>
-</li>
+<h3 id="常用库存扣减方案"><a href="#常用库存扣减方案" class="headerlink" title="常用库存扣减方案"></a>常用库存扣减方案</h3><h4 id="基于数据库的库存扣减方案"><a href="#基于数据库的库存扣减方案" class="headerlink" title="基于数据库的库存扣减方案"></a>基于数据库的库存扣减方案</h4><p>顾名思义，基于数据库的库存扣减方案指的是利用数据库的特性在数据库层面完成库存扣减。这种方式实现起来比较简单，对于并发量低或库存低的场景，推荐使用这种方案。所谓库存低，指的是当库存很少时，我们只要把大流量拦截在应用之外或数据库之外即可，确保数据库的并发量处于低位。否则，在高并发写入的场景下，这种方案是不合适的</p>
+<h4 id="基于缓存的库存扣减方案"><a href="#基于缓存的库存扣减方案" class="headerlink" title="基于缓存的库存扣减方案"></a>基于缓存的库存扣减方案</h4><p>既然数据库方案无法满足高并发写入场景，那么缓存是否可以呢？答案是看情况。对于Redis这种缓存，虽然速度较快，但是存在数据丢失的可能，这是我们无法接受的。所以，当我们决定使用基于缓存的扣减方案时，我们就必须考虑如何保证缓存不丢失的稳定，比如使用LevelDB等。另外，相较于数据库方案，缓存方案需要更高的实现复杂度。</p>
+<h4 id="分库分表库存扣减方案"><a href="#分库分表库存扣减方案" class="headerlink" title="分库分表库存扣减方案"></a>分库分表库存扣减方案</h4><p>解决数据库高并发的写入问题，除了使用缓存方案外，还可以采用分库分表的库存扣减方案，将库存分散到不同的库中。比如，单台数据库每秒能支撑300的库存更新，那么10台数据库即可支撑3000的并发写入。</p>
+<p>当然，相较于前两种方案，虽然分库分表的优势明显，但具有更高的复杂性和实现成本。</p>
+<h4 id="常用库存扣减方式"><a href="#常用库存扣减方式" class="headerlink" title="常用库存扣减方式"></a>常用库存扣减方式</h4><ul>
+<li>下单扣库存：优势在于简单，链路短，性能好，缺点在于容易被恶意下单。活动刚开始，可能即被恶意下单清空库存；</li>
+<li>支付扣库存：优势在于可以控制恶意下单，最后得到库存的都是有效订单。当然，其缺点也较为明显，无法控制下单人数，用户需要在支付时再次确认库存；</li>
+<li>下单预扣库存，超时取消：相较于前两种方式，这种方式较为折中且有效，对于正常下单的用户来说抢单即是得到，对于恶意下单的来说，占据的库存会超时自动释放。</li>
 </ul>
-<h3 id="对于insert操作"><a href="#对于insert操作" class="headerlink" title="对于insert操作"></a>对于insert操作</h3><p>如果没有这两个问题<br>（1）为了防止幻读，如果记录之间加有 GAP 锁，此时不能 INSERT；（插入意向锁解决）<br>（2）如果 INSERT 的记录和已有记录造成唯一键冲突，此时不能 INSERT；（对已存在唯一记录加S Next锁）</p>
-<ul>
-<li>insert一开始只有隐式锁，除非隐式锁转换为显式锁： InnoDb 在插入记录时，是不加锁的。如果事务 A 插入记录且未提交。<br>如果这时事务 B 尝试对这条记录加锁，事务 B 会先去判断记录上保存的事务 id 是否活跃，如果活跃的话，那么就帮助事务 A 去建立一个锁对象，然后自身进入等待事务 A 状态，这就是所谓的隐式锁转换为显式锁。还比如对于辅助索引也是隐式锁。</li>
-</ul>
-<ul>
-<li>insert 对唯一索引的加锁逻辑：<ul>
-<li>1.先做UK冲突检测，如果存在目标行，先对目标行加S Next Key Lock（该记录在等待期间被其他事务删除，此锁被同时删除）</li>
-<li>2.如果1成功，对对应行加插入意向锁</li>
-<li>3.如果2成功，插入记录，并对记录加X + 行锁（有可能是隐式锁）</li>
-</ul>
-</li>
-</ul>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701102856707.png" alt="image-20220701102856707"></p>
 
           
         
@@ -2436,7 +2392,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/blog/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/blog/">1</a><a class="page-number" href="/blog/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/blog/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/11/">11</a><a class="extend next" rel="next" href="/blog/page/4/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/blog/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/blog/">1</a><a class="page-number" href="/blog/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/blog/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/12/">12</a><a class="extend next" rel="next" href="/blog/page/4/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2486,7 +2442,7 @@
               
                 <a href="/blog/archives/">
               
-                  <span class="site-state-item-count">110</span>
+                  <span class="site-state-item-count">113</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2497,7 +2453,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/blog/categories/index.html">
-                  <span class="site-state-item-count">30</span>
+                  <span class="site-state-item-count">31</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -2508,7 +2464,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/blog/tags/index.html">
-                  <span class="site-state-item-count">117</span>
+                  <span class="site-state-item-count">120</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -2582,7 +2538,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">162.0k</span>
+    <span title="Site words total count">166.9k</span>
   
 </div>
 
@@ -2604,7 +2560,7 @@
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共162.0k字</span>
+  <span class="post-count">博客全站共166.9k字</span>
 </div>
 
 <br />

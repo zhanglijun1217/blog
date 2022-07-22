@@ -297,6 +297,269 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/05/21/ParNew和CMS垃圾回收器/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2020/05/21/ParNew和CMS垃圾回收器/" itemprop="url">ParNew和CMS垃圾回收器</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-05-21T00:17:24+08:00">
+                2020-05-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java基础/" itemprop="url" rel="index">
+                    <span itemprop="name">Java基础</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java基础/JVM/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2020/05/21/ParNew和CMS垃圾回收器/" class="leancloud_visitors" data-flag-title="ParNew和CMS垃圾回收器">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3,301
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  12
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="垃圾收集算法"><a href="#垃圾收集算法" class="headerlink" title="垃圾收集算法"></a>垃圾收集算法</h2><h3 id="分代收集理论"><a href="#分代收集理论" class="headerlink" title="分代收集理论"></a>分代收集理论</h3><p>JVM采用分代收集的算法，根据对象存活周期的不同将内存分为几块。堆内存分为新生代和老年代，可以根据各个年代的特点来选择合适的算法。</p>
+<p>比如在新生代中，每次收集都会大量对象被回收，所以剩余很少，可以采用标记-复制算法，只需要很少的复制成本就可以完成垃圾收集，所以新生代都是采用复制算法。优点是新生代对象大量都被回收，效率高，复制之后内存可以用指针碰撞移动指针分配新的内存，比freelist方式产生空间碎片好的多。复制算法的缺点就是空间利用率会降低，S区只能有一块区域存放存活对象，但是一般Survivor区不会设置太大；还有个缺点就是如果分代年龄阈值设置过大可能会经历多次复制才能晋升到老年代。</p>
+<p>而在老年代中，对象存活几率比较大，而且没有额外的空间可以再去晋升或者担保，所以必须选择标记-清除、标记-整理等算法进行垃圾回收。 这种算法比复制算法要慢10倍以上。</p>
+<h3 id="Remember-Set和cardtable卡表"><a href="#Remember-Set和cardtable卡表" class="headerlink" title="Remember Set和cardtable卡表"></a>Remember Set和cardtable卡表</h3><p>在新生代做GCRoots可达性扫描过程中可能碰到跨代引用，比如老年代引用了新生代的对象，而如果直接去老年代扫描效率很低，引入Remember Set来记录非回收区到收集区的指针集合，避免把整个老年代加入到扫描的范围。 在很多垃圾收集器都有这样的问题，而Remember Set这样的结构就是解决跨代引用的问题。</p>
+<p>cardtable卡表是RemembeSet的具体实现，卡表比如在新生代记录一个字节数组byte[]，再将老年代划分多个区域（卡页），字节数组记录对应老年代每个区域是否有跨代引用和地址，如果存在跨代引用，则叫做脏页，这样GC时可以通过卡表只扫描对应脏页内的对象，增加了扫描效率。</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104506482.png" alt="image-20220701104506482"></p>
+<h3 id="标记-复制算法"><a href="#标记-复制算法" class="headerlink" title="标记-复制算法"></a>标记-复制算法</h3><p>为了解决效率问题，复制算法出现。将内存划分为大小相同的两块，每次只能用其中的一块。（联想年轻代中的Survivor区）。当这一块内存使用完之后，将GC之后存活的对象复制到另一块，把使用过的空间一次性清理掉，效率高，每次可以直接对一半内存进行直接回收。但是空间利用率低。好在年轻代大多数对象生命周期很短，所以每次GC之后的存活对象很少，所以对Survivor两块区域不需要占用年轻代过大的比例。<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104515230.png" alt="image-20220701104515230"></p>
+<h3 id="标记-清除算法"><a href="#标记-清除算法" class="headerlink" title="标记-清除算法"></a>标记-清除算法</h3><p>两个阶段：标记和清除。<br>标记即为利用GCRoots可达性分析标记存活的对象，统一回收清除未标记（可回收）的对象。<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104525460.png" alt="image-20220701104525460"></p>
+<p>优点：空间利用率高，整块内存都可以使用。<br>缺点：</p>
+<ul>
+<li>效率问题（如果需要标记的对象很多，效率会受影响，且这过程如果伴随STW，对应用程序有影响）</li>
+<li>空间问题（在对回收对象清除之后，会产生大量不连续的空间碎片，对下次要求连续内存的分配可能会产生影响）</li>
+</ul>
+<h3 id="标记-整理算法"><a href="#标记-整理算法" class="headerlink" title="标记-整理算法"></a>标记-整理算法</h3><p>标记过程和标记-清除算法一样，也是标记GCRoots进行可达性分析寻找存活对象，然后在第二部不是直接清除回收垃圾对象，而是先让存活对象向一端移动，整理成连续的内存，然后清理掉剩余的内存。</p>
+<p>这个算法标记过程还是可能存在效率问题。但是避免了标记-清除算法中的空间碎片问题，留下的空闲内存都是连续的空间。</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104535754.png" alt="image-20220701104535754"></p>
+<h2 id="垃圾收集器"><a href="#垃圾收集器" class="headerlink" title="垃圾收集器"></a>垃圾收集器</h2><p>垃圾收集器是垃圾回收算法的具体实现。主流的垃圾收集器如下：<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104544488.png" alt="image-20220701104544488"></p>
+<h3 id="Serial收集器"><a href="#Serial收集器" class="headerlink" title="Serial收集器"></a>Serial收集器</h3><p>Serial（串行）收集器是单线程收集器，在GC时会单线程GC且会STW直到收集结束。</p>
+<p>Serial提供了新生代垃圾回收器，采用复制算法，如果使用需要配置参数-XX:+UseSerialGC。同时也提供了老年代的回收器，采用标记-整理算法，需要配置参数：-XX:+UseSerialOldGC。</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104554689.png" alt="image-20220701104554689"></p>
+<p>Serial虽然是单线程的，但是优点是简单且高效（对比其他收集器的单线程版本），比如在单个CPU环境下可能是比较好的选择（不会频繁的上下文切换）。同时Serial Old也会作为CMS垃圾收集器在concurrent mode failure场景下退化的fullgc老年代的垃圾收集器；也可以搭配Parallel Scavenge收集器使用。</p>
+<h3 id="ParNew收集器"><a href="#ParNew收集器" class="headerlink" title="ParNew收集器"></a>ParNew收集器</h3><p>ParNew是新生代的垃圾回收器，采用复制算法。可以用参数-XX:+UseParNewGC来控制使用ParNew作为新生代的垃圾收集器。如果设置了CMS作为老年代的垃圾收集器，那么默认新生代使用ParNew作为新生代进行搭配。</p>
+<p>ParNew就是Serial的多线程版本，有多个线程回收新生代的垃圾对象。同时也是除了Serial之外可以和CMS进行分代配合的收集器，所以很多都选择ParNew+CMS这样的垃圾回收器的组合。</p>
+<p>ParNew在进行回收时多个线程并行回收，但是这里还是会STW用户线程的，和Serial一样。可以使用+XX:ParallelGCThreads参数来设置GC线程的个数。其工作过程如下：<br><img src="/Users/zhanglijun/Library/Application%20Support/typora-user-images/image-20220701104614936.png" alt="image-20220701104614936"></p>
+<h4 id="垃圾回收器中的并发、并行"><a href="#垃圾回收器中的并发、并行" class="headerlink" title="垃圾回收器中的并发、并行"></a>垃圾回收器中的并发、并行</h4><p>在讨论垃圾收集器的上下文语境中，并行和并发如下解释：</p>
+<ul>
+<li>并行（parallel）：指多个线程并行的去GC，如ParNew新生代垃圾回收器，但是用户线程还是会被暂停STW。</li>
+<li>并发（concurrent）：指GC线程和用户线程并发执行，不会暂停用户线程的执行，都去分不同的时间片。</li>
+</ul>
+<h3 id="Parallel-Scavenge-Old收集器"><a href="#Parallel-Scavenge-Old收集器" class="headerlink" title="Parallel Scavenge/Old收集器"></a>Parallel Scavenge/Old收集器</h3><p>Parallel Scavenge是新生代垃圾回收器，可以使用-XX:+UseParallelGC参数指定使用。其也是采用复制算法、多线程进行parallel的gc。</p>
+<p>工作过程和ParNew的多线程进行GC，STW用户线程一致，但在设计上有点区别。</p>
+<p>而Parallel Old则是多线程GC的老年代垃圾回收器，采用的是标记-整理垃圾回收算法，同时也是更注重吞吐量，而不是尽力缩短GC的停顿时间。</p>
+<p>GC的停顿时间的缩短是牺牲吞吐量和新生代空间来换取的：比如新生代调整小一些，收集肯定更快发生，这样新生代的GC会更频繁。比如原来每10s回收一次新生代，每次停顿100ms，现在就变成了每5s一次新生代回收，每次停顿70ms，吞吐量降低了，但是每次停顿时间变少了。</p>
+<h4 id="Parallel-Scavenge和ParNew的区别"><a href="#Parallel-Scavenge和ParNew的区别" class="headerlink" title="Parallel Scavenge和ParNew的区别"></a>Parallel Scavenge和ParNew的区别</h4><ul>
+<li>Parallel Scavenge更追求吞吐量（即CPU运行用户线程时间 / (CPU运行用户线程时间 +  CPUGC的时间)），对后台计算和CPU敏感型的任务更友好。而ParNew等其他收集器更注重GC的停顿时间，即减少STW时间，对和用户交互的程序更友好。</li>
+<li>Paralle Scavenge只能和Serial Old或者Parallel Old老年代的回收器搭配使用，不能和CMS搭配使用。而ParNew是可以和CMS搭配使用的。</li>
+<li>Parallel Scavenge可以自适应调整新生代的Eden、Surrvivor区域的比例，参数是-XX:+UseAdaptiveSizePolicy。</li>
+</ul>
+<h3 id="CMS垃圾回收器"><a href="#CMS垃圾回收器" class="headerlink" title="CMS垃圾回收器"></a>CMS垃圾回收器</h3><p>CMS（Concurrent Mark Sweep）是老年代的垃圾回收器，其目标是获取最短停顿时间。也是HotSpot实现的真正意义上并发（Concurrent注意不是并行，意味着不会停顿用户线程）收集器，实现了在一定阶段让用户线程和GC线程一起工作。</p>
+<p>CMS采用标记-清除算法，但是内部也提供了在清除之后整理防止出现内存碎片的功能和参数。</p>
+<h4 id="CMS的步骤过程"><a href="#CMS的步骤过程" class="headerlink" title="CMS的步骤过程"></a>CMS的步骤过程</h4><p>CMS每个阶段的工作过程如下：<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104628660.png" alt="image-20220701104628660"></p>
+<h5 id="CMS一定不会STW用户线程吗？"><a href="#CMS一定不会STW用户线程吗？" class="headerlink" title="CMS一定不会STW用户线程吗？"></a>CMS一定不会STW用户线程吗？</h5><p>CMS的并发（不STW用户线程）也只是发生在某些阶段的，而不是整个CMS的过程不会STW。比如初始标记和再次重新标记的过程都是会STW的，只不过这两个阶段会占用整个CMS GC的很小一部分时间，最多的还是在并发标记和并发清理阶段。</p>
+<p>同时CMS在并发标记或者并发清理阶段，因为不会STW用户线程，可能又触发了old区的垃圾回收，即一次fullgc，那么会出现“Concurrent mode failure”，即会退化为单线程Serial Old垃圾回收器，会单线程的GC，且也会STW。</p>
+<h5 id="初始标记（会STW）"><a href="#初始标记（会STW）" class="headerlink" title="初始标记（会STW）"></a>初始标记（会STW）</h5><p>初始标记会STW，其实标记一下和GC Roots<strong>直接关联到的对象</strong>，速度很快。</p>
+<h5 id="并发标记（GC线程和用户线程并发、耗时、标记会有误差）"><a href="#并发标记（GC线程和用户线程并发、耗时、标记会有误差）" class="headerlink" title="并发标记（GC线程和用户线程并发、耗时、标记会有误差）"></a>并发标记（GC线程和用户线程并发、耗时、标记会有误差）</h5><p>初始化标记之后，会对GCRoots直接关联的对象进行Traceing，即通过可达性分析去寻找引用链上的对象进行标记，这个过程是并发的，即GC线程和用户线程可以同时执行，不会STW。</p>
+<p>当然这个阶段很耗费时间，因为是要寻找对象引用的链。</p>
+<p>还有这个阶段因为不会STW用户线程，所以标记的对象可能会多标（比如用户线程已经释放了对象关联的GCroots，可能是栈帧中的局部变量），那么这些就会在这个阶段浮动垃圾；也可能少标（用户线程在可达性分析的完成之后，对象又关联上了GCroots的引用）。这部分依赖底层三色标记的算法和后面重新标记的过程来修正或者直接当做浮动垃圾（多标的场景）</p>
+<h5 id="预清理阶段"><a href="#预清理阶段" class="headerlink" title="预清理阶段"></a>预清理阶段</h5><p>理解CMS回收器的preclean阶段：<a href="https://blog.csdn.net/enemyisgodlike/article/details/106960687。" target="_blank" rel="noopener">https://blog.csdn.net/enemyisgodlike/article/details/106960687。</a><br>主要是为了后面重新标记而提前清理cardTable(记录跨代引用)，和调整最终重新标记的时机。</p>
+<h5 id="重新标记（会STW）"><a href="#重新标记（会STW）" class="headerlink" title="重新标记（会STW）"></a>重新标记（会STW）</h5><p>重新标记就是为了修正并发标记阶段因为用户线程继续运行导致标记产生变动的对象，<strong>这个阶段的时间一般会比初始标记的时间长，但远比并发标记阶段时间短</strong>。重新标记阶段会STW（肯定的不然又多标记或者漏标），依赖底层三色标记算法的增量更新算法（JVM中的赋值写屏障）。</p>
+<h5 id="并发清理（GC清理和用户线程并发执行）"><a href="#并发清理（GC清理和用户线程并发执行）" class="headerlink" title="并发清理（GC清理和用户线程并发执行）"></a>并发清理（GC清理和用户线程并发执行）</h5><p>开启用户线程，和GC线程对未标记（垃圾对象）进行清理，如果设置了整理压缩内存的参数再去整理内存，这个过程对于三色标记法中标记黑色的对象不进行处理。</p>
+<h5 id="并发重置"><a href="#并发重置" class="headerlink" title="并发重置"></a>并发重置</h5><p>重置对象的一些信息，方便下次GC时重新标记。</p>
+<h4 id="CMS总结"><a href="#CMS总结" class="headerlink" title="CMS总结"></a>CMS总结</h4><p>优点： 分成多个阶段，其中STW的时间占用很少，最大限度的减少了STW停顿时间，多线程和GC线程进行并发标记和并发清除，加快了效率。</p>
+<p>缺点：</p>
+<ul>
+<li>对CPU资源敏感。设置GC线程不当或者CPU资源紧张时，多个GC线程切换可能会抢占用户线程资源，使得应用总吞吐量变低，负载变高。</li>
+<li>CMS在整个过程中会产生浮动垃圾，浮动垃圾即并发标记或者并发清理过程中用户线程可能产生的新的垃圾对象。这部分可以等待下一次gc再进行清理。（因为存在重新标记的过程，这部分浮动垃圾会比较少）</li>
+<li>CMS因为产生了浮动垃圾，且参数-XX:CMSInitiatingOccupancyFraction参数（老年代占用多少启动CMS GC）默认为92，假设在CMS过程中因为用户线程并发，预留的内存空间不足以容纳程序需要，则会出现<strong>Concurrent mode failure，即再进行一次full gc，此时CMS也会退化为Serial Old，即单线程回收，整个过程都STW，效率变得很低。</strong></li>
+<li>CMS本身采用“标记-清除”算法，这个算法本身可能导致大量的空间碎片，因为用户线程并发，在清理之后可能无法容纳新晋升的大对象的连续内存导致FullGC。JVM提供了清除之后压缩的两个参数：-XX:+UseCMSCompactAtFullCollection（在CMS之后开启压缩整理合并碎片）、-XX:CMSFullGCsBeforeCompaction（执行多少次CMS FullGC之后才进行压缩整理，默认为0，代表每次CMS之后都会整理碎片空间，因为碎片压缩整理也会STW，所以提供了这个值）。</li>
+</ul>
+<h4 id="CMS相关核心参数"><a href="#CMS相关核心参数" class="headerlink" title="CMS相关核心参数"></a>CMS相关核心参数</h4><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104646352.png" alt="image-20220701104646352"></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/05/20/JVM对象创建与内存分配/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1064,6 +1327,261 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/04/20/JVM内存模型/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2020/04/20/JVM内存模型/" itemprop="url">JVM内存模型</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-04-20T10:34:42+08:00">
+                2020-04-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java基础/" itemprop="url" rel="index">
+                    <span itemprop="name">Java基础</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Java基础/JVM/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2020/04/20/JVM内存模型/" class="leancloud_visitors" data-flag-title="JVM内存模型">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,173
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  4
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="JVM的整体结构和内存模型"><a href="#JVM的整体结构和内存模型" class="headerlink" title="JVM的整体结构和内存模型"></a>JVM的整体结构和内存模型</h2><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103855422.png" alt="image-20220701103855422"></p>
+<h3 id="关于方法区和元空间"><a href="#关于方法区和元空间" class="headerlink" title="关于方法区和元空间"></a>关于方法区和元空间</h3><ul>
+<li>jdk1.8之前存放方法元信息、Class信息、常量池等的为方法区，在堆内存储。而在1.8之后废弃了永久代，替换为元空间，常量池和静态变量并入堆内存储，MetaSpace来存储类、方法元信息，同时使用了本地内存来存储。</li>
+<li>相当于1.8版本之后，方法区一部分归到堆内存中，一部分移动到堆外内存，受机器本地内存大小限制。不过设置了Metaspace参数也会在内存不足时OOM。</li>
+</ul>
+<h2 id="JVM内存参数设置（简要说明）"><a href="#JVM内存参数设置（简要说明）" class="headerlink" title="JVM内存参数设置（简要说明）"></a>JVM内存参数设置（简要说明）</h2><p>运行时数据区的一些基本参数</p>
+<ul>
+<li>-Xms：堆的最小值参数</li>
+<li>-Xmx：堆的最大值参数</li>
+<li>-Xmn：新生代的内存大小</li>
+<li>-XX: MaxDirectMemorySize：直接内存的最大值。即NIO使用的堆外内存的最大值。 这里注意heap dump不会记录堆外内存的移除，但也可以造成OOM，现象是dump文件很小，即堆内存其实使用很少。</li>
+<li>-XX：MetaspaceSize：设置元空间触发fullgc的初始阈值（元空间没有固定初始值大小）。默认不设置为21M。到达该值就会触发full gc进行类型卸载，同时收集器会对该值进行调整，如果释放了大量空间，则调小；如果释放了很少的空间，则在不超过-XX: MaxMetaspaceSize的情况下适当提高此值。 在jdk1.8之前的永久代参数-XX: PermsSize参数标识为初始化的容量，1.8之后调整为元空间后不一样</li>
+<li>-XX: MaxMetaspaceSize：元空间最大值，默认是-1，不限制的话，受限于直接内存大小。</li>
+<li>-Xss：线程栈的大小（默认为1M）</li>
+</ul>
+<h2 id="常量池"><a href="#常量池" class="headerlink" title="常量池"></a>常量池</h2><h3 id="Class常量池和运行时常量池"><a href="#Class常量池和运行时常量池" class="headerlink" title="Class常量池和运行时常量池"></a>Class常量池和运行时常量池</h3><p>Class文件中包含常量池，也包含字段、方法、接口、类版本等描述信息。常量池用于存放编译期间的字面量和符号引用。</p>
+<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103908248.png" alt="image-20220701103908248"></p>
+<p>当常量池字面量和符号引用被加载到内存中，符号才会有内存的地址，常量池就是运行时常量池。<br>而动态链接的过程就是把运行时常量池的符号引用变为直接内存地址引用。</p>
+<p>常量池在1.8之后从永久代（元空间）拿出，移动到了堆内存。</p>
+<h3 id="字符串常量池"><a href="#字符串常量池" class="headerlink" title="字符串常量池"></a>字符串常量池</h3><p>创建字符串对象时，做了一些优化：</p>
+<ul>
+<li>如果字符串常量在常量池中存在，返回此常量的地址引用；</li>
+<li>如果不存在，则实例化改字符串放入常量池中，是字面量的引用直接返回，是new String()这种则会在堆内新创建一个对象。</li>
+</ul>
+<h4 id="字符串操作"><a href="#字符串操作" class="headerlink" title="字符串操作"></a>字符串操作</h4><ul>
+<li>字面量直接赋值<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String a = <span class="string">"aaa"</span>;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>这样会用equals()方法判断字符串常量池是否存在，如果存在返回引用，不存在创建一个放入字符串常量池之后返回引用。</p>
+<ul>
+<li>new String()复制<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String a = <span class="keyword">new</span> String(<span class="string">"aaa"</span>);</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>这里也会判断字符串常量池和堆中是否有这个对象，没有则都创建，然后返回堆中的对象引用。也就是可能会创建两个对象。</p>
+<ul>
+<li>intern方法<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String s1 = <span class="string">"aaa"</span>;</span><br><span class="line">String s2 = s1.intern();</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>一个native方法，调用intern()时如果字符串常量池中存在常量，则返回池中的引用地址，否则将池中的地址直接指向堆中字符串对象（例子是s1）的地址。</p>
+<h4 id="常见面试题"><a href="#常见面试题" class="headerlink" title="常见面试题"></a>常见面试题</h4><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103933318.png" alt="image-20220701103933318"><br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103954181.png" alt="image-20220701103954181"><br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104015926.png" alt="image-20220701104015926"></p>
+<h4 id="关于String是不可变的"><a href="#关于String是不可变的" class="headerlink" title="关于String是不可变的"></a>关于String是不可变的</h4><p>除非下面的a、b、c三个变量被final修饰，即变为常量，那么执行String s1 = a + b + c时会编译为常量进行优化，也就是和String s = “a” + “b” + “c” 字面量直接相加一样，都是字符串常量池中常量对象的引用。<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104030743.png" alt="image-20220701104030743"></p>
+<p>为什么是不可变的？</p>
+<ul>
+<li>安全。最常用的String内部char[]数组是final的，规避了直接改变对象内容，封装了内部数据。（享元模式）</li>
+<li>线程安全，final在要求构造函数中初始化char[]数组</li>
+<li>hashcode初始化时确定，String很适合作为hash表的key。</li>
+</ul>
+<h5 id="彩蛋：比较对象时为什么要重写hashcode-方法"><a href="#彩蛋：比较对象时为什么要重写hashcode-方法" class="headerlink" title="彩蛋：比较对象时为什么要重写hashcode()方法"></a>彩蛋：比较对象时为什么要重写hashcode()方法</h5><p>equals()方法相等，则对象一定相等，为什么还要hashcode方法呢？</p>
+<ul>
+<li>因为hashcode效率高，一般约束都是equals()方法相等，则hashcode()一定相等；而hashcode()不相等，一定不是一个对象。</li>
+<li>HashSet这种数据结构是去重的，比较时候为了效率如果hashcode不相等，那么即使equals方法相等也会认为不是一个对象。</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/04/20/JVM类加载机制详解/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1330,261 +1848,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/04/20/JVM内存模型/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2020/04/20/JVM内存模型/" itemprop="url">JVM内存模型</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-04-20T10:34:42+08:00">
-                2020-04-20
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Java基础/" itemprop="url" rel="index">
-                    <span itemprop="name">Java基础</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Java基础/JVM/" itemprop="url" rel="index">
-                    <span itemprop="name">JVM</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2020/04/20/JVM内存模型/" class="leancloud_visitors" data-flag-title="JVM内存模型">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1,173
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  4
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="JVM的整体结构和内存模型"><a href="#JVM的整体结构和内存模型" class="headerlink" title="JVM的整体结构和内存模型"></a>JVM的整体结构和内存模型</h2><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103855422.png" alt="image-20220701103855422"></p>
-<h3 id="关于方法区和元空间"><a href="#关于方法区和元空间" class="headerlink" title="关于方法区和元空间"></a>关于方法区和元空间</h3><ul>
-<li>jdk1.8之前存放方法元信息、Class信息、常量池等的为方法区，在堆内存储。而在1.8之后废弃了永久代，替换为元空间，常量池和静态变量并入堆内存储，MetaSpace来存储类、方法元信息，同时使用了本地内存来存储。</li>
-<li>相当于1.8版本之后，方法区一部分归到堆内存中，一部分移动到堆外内存，受机器本地内存大小限制。不过设置了Metaspace参数也会在内存不足时OOM。</li>
-</ul>
-<h2 id="JVM内存参数设置（简要说明）"><a href="#JVM内存参数设置（简要说明）" class="headerlink" title="JVM内存参数设置（简要说明）"></a>JVM内存参数设置（简要说明）</h2><p>运行时数据区的一些基本参数</p>
-<ul>
-<li>-Xms：堆的最小值参数</li>
-<li>-Xmx：堆的最大值参数</li>
-<li>-Xmn：新生代的内存大小</li>
-<li>-XX: MaxDirectMemorySize：直接内存的最大值。即NIO使用的堆外内存的最大值。 这里注意heap dump不会记录堆外内存的移除，但也可以造成OOM，现象是dump文件很小，即堆内存其实使用很少。</li>
-<li>-XX：MetaspaceSize：设置元空间触发fullgc的初始阈值（元空间没有固定初始值大小）。默认不设置为21M。到达该值就会触发full gc进行类型卸载，同时收集器会对该值进行调整，如果释放了大量空间，则调小；如果释放了很少的空间，则在不超过-XX: MaxMetaspaceSize的情况下适当提高此值。 在jdk1.8之前的永久代参数-XX: PermsSize参数标识为初始化的容量，1.8之后调整为元空间后不一样</li>
-<li>-XX: MaxMetaspaceSize：元空间最大值，默认是-1，不限制的话，受限于直接内存大小。</li>
-<li>-Xss：线程栈的大小（默认为1M）</li>
-</ul>
-<h2 id="常量池"><a href="#常量池" class="headerlink" title="常量池"></a>常量池</h2><h3 id="Class常量池和运行时常量池"><a href="#Class常量池和运行时常量池" class="headerlink" title="Class常量池和运行时常量池"></a>Class常量池和运行时常量池</h3><p>Class文件中包含常量池，也包含字段、方法、接口、类版本等描述信息。常量池用于存放编译期间的字面量和符号引用。</p>
-<p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103908248.png" alt="image-20220701103908248"></p>
-<p>当常量池字面量和符号引用被加载到内存中，符号才会有内存的地址，常量池就是运行时常量池。<br>而动态链接的过程就是把运行时常量池的符号引用变为直接内存地址引用。</p>
-<p>常量池在1.8之后从永久代（元空间）拿出，移动到了堆内存。</p>
-<h3 id="字符串常量池"><a href="#字符串常量池" class="headerlink" title="字符串常量池"></a>字符串常量池</h3><p>创建字符串对象时，做了一些优化：</p>
-<ul>
-<li>如果字符串常量在常量池中存在，返回此常量的地址引用；</li>
-<li>如果不存在，则实例化改字符串放入常量池中，是字面量的引用直接返回，是new String()这种则会在堆内新创建一个对象。</li>
-</ul>
-<h4 id="字符串操作"><a href="#字符串操作" class="headerlink" title="字符串操作"></a>字符串操作</h4><ul>
-<li>字面量直接赋值<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String a = <span class="string">"aaa"</span>;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>这样会用equals()方法判断字符串常量池是否存在，如果存在返回引用，不存在创建一个放入字符串常量池之后返回引用。</p>
-<ul>
-<li>new String()复制<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String a = <span class="keyword">new</span> String(<span class="string">"aaa"</span>);</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>这里也会判断字符串常量池和堆中是否有这个对象，没有则都创建，然后返回堆中的对象引用。也就是可能会创建两个对象。</p>
-<ul>
-<li>intern方法<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String s1 = <span class="string">"aaa"</span>;</span><br><span class="line">String s2 = s1.intern();</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>一个native方法，调用intern()时如果字符串常量池中存在常量，则返回池中的引用地址，否则将池中的地址直接指向堆中字符串对象（例子是s1）的地址。</p>
-<h4 id="常见面试题"><a href="#常见面试题" class="headerlink" title="常见面试题"></a>常见面试题</h4><p><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103933318.png" alt="image-20220701103933318"><br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701103954181.png" alt="image-20220701103954181"><br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104015926.png" alt="image-20220701104015926"></p>
-<h4 id="关于String是不可变的"><a href="#关于String是不可变的" class="headerlink" title="关于String是不可变的"></a>关于String是不可变的</h4><p>除非下面的a、b、c三个变量被final修饰，即变为常量，那么执行String s1 = a + b + c时会编译为常量进行优化，也就是和String s = “a” + “b” + “c” 字面量直接相加一样，都是字符串常量池中常量对象的引用。<br><img src="https://zlj1217-blog-image.oss-cn-hongkong.aliyuncs.com/mac_picgo/image-20220701104030743.png" alt="image-20220701104030743"></p>
-<p>为什么是不可变的？</p>
-<ul>
-<li>安全。最常用的String内部char[]数组是final的，规避了直接改变对象内容，封装了内部数据。（享元模式）</li>
-<li>线程安全，final在要求构造函数中初始化char[]数组</li>
-<li>hashcode初始化时确定，String很适合作为hash表的key。</li>
-</ul>
-<h5 id="彩蛋：比较对象时为什么要重写hashcode-方法"><a href="#彩蛋：比较对象时为什么要重写hashcode-方法" class="headerlink" title="彩蛋：比较对象时为什么要重写hashcode()方法"></a>彩蛋：比较对象时为什么要重写hashcode()方法</h5><p>equals()方法相等，则对象一定相等，为什么还要hashcode方法呢？</p>
-<ul>
-<li>因为hashcode效率高，一般约束都是equals()方法相等，则hashcode()一定相等；而hashcode()不相等，一定不是一个对象。</li>
-<li>HashSet这种数据结构是去重的，比较时候为了效率如果hashcode不相等，那么即使equals方法相等也会认为不是一个对象。</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/04/12/类加载系列之理解类加载/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1751,6 +2014,212 @@
             </a>
           </div>
           <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    <div>
+      
+   </div>
+
+    <div>
+      
+   </div>
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/04/02/缓存设计的常见原则/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="夸克">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夸克的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2020/04/02/缓存设计的常见原则/" itemprop="url">缓存设计的常见原则</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-04-02T00:46:56+08:00">
+                2020-04-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/系统设计/" itemprop="url" rel="index">
+                    <span itemprop="name">系统设计</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2020/04/02/缓存设计的常见原则/" class="leancloud_visitors" data-flag-title="缓存设计的常见原则">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+		<span>℃</span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  224
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  1
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><strong>缓存设计中的一般性原则</strong></p>
+<ul>
+<li>热点数据一律进缓存；</li>
+<li>缓存场景优先采取本地缓存+分布式缓存的综合方案；</li>
+<li>优先读取本地缓存，以本地缓存为主，远端分布式缓存为辅；</li>
+<li>所有缓存设置过期时间，本地缓存过期时间控制在秒级；</li>
+<li>本地缓存务必同时设置容量驱逐和时间驱逐两种方式，减轻对内存的压力和防止内存泄漏等问题；</li>
+<li>缓存KEY具有业务可读性，杜绝不同场景出现相同KEY；</li>
+<li>缓存列表数据时，仅缓存第一页，缓存数量不超过20；</li>
+<li>杜绝并发更新缓存，防止缓存击穿；</li>
+<li>空数据进缓存，防止缓存穿透；</li>
+<li>读数据时，先读缓存，再读数据库；</li>
+<li>写数据时，先写数据库，再写缓存。</li>
+</ul>
+
+          
         
       
     </div>
@@ -2193,418 +2662,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/03/22/Comparator接口在java8中的优化/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2020/03/22/Comparator接口在java8中的优化/" itemprop="url">Comparator接口在java8中的优化</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-03-22T22:33:02+08:00">
-                2020-03-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Java语法/" itemprop="url" rel="index">
-                    <span itemprop="name">Java语法</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Java语法/Java8/" itemprop="url" rel="index">
-                    <span itemprop="name">Java8</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2020/03/22/Comparator接口在java8中的优化/" class="leancloud_visitors" data-flag-title="Comparator接口在java8中的优化">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  2,506
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  12
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h1 id="开始"><a href="#开始" class="headerlink" title="开始"></a>开始</h1><p>Comparator接口或者Comparable接口在日常开发工作中是经常用到的，用于比较一组数据或者对象，在java8之后，也可以看到在Comparator接口中加入了一些default方法和static方法，这里做一个简单说明。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/blog/2020/03/22/Comparator接口在java8中的优化/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhanglijun1217.github.io/blog/2020/03/22/栈与队列相互实现/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="夸克">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="夸克的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2020/03/22/栈与队列相互实现/" itemprop="url">栈与队列相互实现</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-03-22T22:04:56+08:00">
-                2020-03-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/数据结构/" itemprop="url" rel="index">
-                    <span itemprop="name">数据结构</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2020/03/22/栈与队列相互实现/" class="leancloud_visitors" data-flag-title="栈与队列相互实现">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		<span>℃</span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1,171
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  5
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>一道很经典的数据结构的题目实现。</p>
-<p>栈：一般是后进先出的顺序，可以看下java中的Stack这个类。</p>
-<p>队列：一般是先进先出的顺序，但是java中的Queue接口中也写了注释，没有要求是必须严格的先进先出，比如java中也有优先级队列、双端队列Deque。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/blog/2020/03/22/栈与队列相互实现/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    <div>
-      
-   </div>
-
-    <div>
-      
-   </div>
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/blog/page/4/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/blog/">1</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/blog/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/11/">11</a><a class="extend next" rel="next" href="/blog/page/6/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/blog/page/4/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/blog/">1</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/blog/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/12/">12</a><a class="extend next" rel="next" href="/blog/page/6/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2654,7 +2716,7 @@
               
                 <a href="/blog/archives/">
               
-                  <span class="site-state-item-count">110</span>
+                  <span class="site-state-item-count">113</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2665,7 +2727,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/blog/categories/index.html">
-                  <span class="site-state-item-count">30</span>
+                  <span class="site-state-item-count">31</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -2676,7 +2738,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/blog/tags/index.html">
-                  <span class="site-state-item-count">117</span>
+                  <span class="site-state-item-count">120</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -2750,7 +2812,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">162.0k</span>
+    <span title="Site words total count">166.9k</span>
   
 </div>
 
@@ -2772,7 +2834,7 @@
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共162.0k字</span>
+  <span class="post-count">博客全站共166.9k字</span>
 </div>
 
 <br />
